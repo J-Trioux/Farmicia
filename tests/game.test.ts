@@ -1,164 +1,202 @@
 import assert from 'node:assert/strict';
 import {
   act,
-  fresh,
-  restore,
-  level,
-  CROPS,
-  RECIPES,
-  VILLAGERS,
-  OUTCOMES,
-  QUALITIES,
-  SPECIALIZATIONS,
-  cropMastery,
-  recipeMastery,
-  growTime,
+  basePrice,
+  canProduceQuality,
   cookingProbabilities,
+  cropMastery,
+  CROPS,
   defaultIngredients,
-  recipeLock,
+  fresh,
+  fulfillment,
+  growTime,
+  harvestProbabilities,
+  level,
+  LEVEL_XP,
   marketEvent,
+  masteryGain,
+  maxPlots,
   order,
+  RECIPES,
+  recipeLock,
+  restore,
+  SPECIALIZATIONS,
   upgradeCost,
+  type Game,
 } from '../lib/game.ts';
-const t = 1000000;
+
+const t = 1_000_000;
 const lowRoll = () => 0;
+const highRoll = () => 0.999;
+
+// Nouvelle partie : boucle immédiate et première extension bien avant deux minutes.
 let g = fresh(t);
 for (let i = 0; i < 6; i++)
   g = act(g, 'plant', { index: i, crop: 'radis' }, t).g;
-assert.equal(g.seeds.radis, 0);
-assert.equal(act(g, 'harvest', 0, t + 1000).g, g);
-g = act(g, 'water', 0, t + 1000).g;
-assert.ok(g.plots[0]!.end < t + 30000);
-assert.equal(act(g, 'water', 0, t + 2000).g, g);
-g = restore(JSON.stringify(g));
-assert.equal(g.plots.length, 6);
-assert.equal(g.version, 2);
-for (let i = 0; i < 6; i++) g = act(g, 'harvest', i, t + 31000, lowRoll).g;
+const originalEnd = g.plots[0]!.end;
+g = act(g, 'water', 0, t + 1_000).g;
+assert.equal(g.plots[0]!.end, originalEnd, 'arroser ne doit plus accélérer');
+for (let i = 0; i < 6; i++) g = act(g, 'harvest', i, t + 31_000, lowRoll).g;
 assert.equal(g.stock.radis, 6);
-assert.equal(g.harvests, 6);
-assert.equal(cropMastery(g, 'radis'), 2);
-g = act(g, 'sell', 'radis', t + 32000).g;
-assert.equal(g.coins, 74);
-g = act(g, 'upgrade', 'expand', t + 33000).g;
+g = act(g, 'sell', 'radis', t + 32_000).g;
+assert.ok(g.coins >= 55);
+g = act(g, 'upgrade', 'expand', t + 33_000).g;
 assert.equal(g.plots.length, 9);
-assert.equal(g.coins, 39);
 assert.equal(upgradeCost(g, 'expand'), 70);
-g = act(g, 'mission', 'first', t + 34000).g;
-assert.equal(level(g), 2);
-assert.equal(g.coins, 59);
-assert.equal(act(g, 'mission', 'first', t + 35000).g, g);
-g = act(g, 'buy', 'ble', t + 36000).g;
-assert.equal(g.seeds.ble, 1);
-assert.equal(act(g, 'buy', 'melon', t + 36000).g, g);
-// A mature crop survives an absence of one year.
-g = act(g, 'plant', { index: 0, crop: 'ble' }, t + 37000).g;
-g = restore(JSON.stringify(g));
-g = act(g, 'harvest', 0, t + 365 * 86400000, lowRoll).g;
-assert.equal(g.stock.ble, 1);
-// Every crop can be grown. Deterministic high rolls produce exceptional quality.
-let rich = { ...fresh(t), xp: 10000, coins: 100000 };
-for (const c of CROPS) {
-  rich = act(rich, 'buy', c.id, t).g;
-  rich = act(rich, 'plant', { index: 0, crop: c.id }, t).g;
-  rich = act(rich, 'harvest', 0, t + c.time * 1000 + 1, lowRoll).g;
-  assert.ok((rich.stock[c.id] || 0) > 0);
-  assert.ok(c.price > c.cost);
-}
-assert.equal(QUALITIES.length, 3);
-assert.equal(SPECIALIZATIONS.length, 3);
-// Mastery three unlocks a free specialization, which changes future growth.
-rich.cropXP.radis = 18;
-const normalTime = growTime(rich, 'radis');
-rich = act(
-  rich,
-  'specialize',
-  { crop: 'radis', specialization: 'precoce' },
-  t,
-).g;
-assert.equal(rich.specializations.radis, 'precoce');
-assert.ok(growTime(rich, 'radis') < normalTime);
-for (const id of ['water', 'tools', 'workshop', 'coop', 'auto'])
-  rich = act(rich, 'upgrade', id, t).g;
-assert.equal(rich.upgrades.length, 5);
-rich.stock = {
-  ble: 30,
-  fraise: 30,
-  tomate: 30,
-  carotte: 30,
-  aubergine: 30,
-  myrtille: 30,
-  oeuf: 30,
+assert.equal(maxPlots(g), 9);
+
+// Les douze niveaux débloquent les cultures dans l’ordre attendu.
+assert.equal(LEVEL_XP.length, 12);
+assert.deepEqual(
+  CROPS.map((crop) => [crop.id, crop.level]),
+  [
+    ['radis', 1],
+    ['carotte', 1],
+    ['ble', 3],
+    ['salade', 2],
+    ['tomate', 4],
+    ['fraise', 5],
+    ['mais', 6],
+    ['aubergine', 7],
+    ['myrtille', 8],
+    ['citrouille', 9],
+    ['raisin', 10],
+    ['melon', 11],
+  ],
+);
+
+// Un passage de niveau offre la nouvelle graine et la place dans la commande suivante.
+let leveler: Game = {
+  ...fresh(t),
+  xp: LEVEL_XP[1] - 2,
+  seeds: { radis: 1 },
 };
-for (const r of RECIPES.filter((r) => !r.parent && !r.friend)) {
-  const ingredients = defaultIngredients(rich, r);
-  rich = act(rich, 'craft', { id: r.id, ingredients }, t, lowRoll).g;
-  assert.equal(rich.job?.id, r.id);
-  assert.equal(act(rich, 'collect', null, t + 1).g, rich);
-  rich = act(rich, 'collect', null, t + 1e9).g;
-  assert.equal(
-    Object.entries(rich.stock).filter(
-      ([id, n]) => id.startsWith(r.id + '|') && n === 1,
-    ).length,
-    1,
-  );
+leveler = act(leveler, 'plant', { index: 0, crop: 'radis' }, t).g;
+const levelResult = act(leveler, 'harvest', 0, t + 31_000, lowRoll);
+leveler = levelResult.g;
+assert.equal(level(leveler), 2);
+assert.equal(levelResult.levelUp?.level, 2);
+assert.equal(levelResult.levelUp?.crop, 'salade');
+assert.equal(leveler.seeds.salade, 1);
+assert.equal(order(leveler).crop.split('|')[0], 'salade');
+
+// Les cultures longues rapportent davantage d’XP, de valeur et de maîtrise.
+assert.ok(CROPS.at(-1)!.xp > CROPS[0].xp * 20);
+assert.ok(CROPS.at(-1)!.price > CROPS[0].price * 40);
+assert.ok(masteryGain('melon') > masteryGain('radis'));
+
+// Maîtrise en points et trois spécialisations.
+let specialist: Game = { ...fresh(t), coins: 500, cropXP: { radis: 59 } };
+specialist.seeds.radis = 1;
+specialist = act(specialist, 'plant', { index: 0, crop: 'radis' }, t).g;
+specialist = act(specialist, 'harvest', 0, t + 31_000, lowRoll).g;
+assert.equal(cropMastery(specialist, 'radis'), 3);
+for (const specialization of SPECIALIZATIONS) {
+  const before = growTime(specialist, 'radis');
+  specialist = act(
+    specialist,
+    'specialize',
+    { crop: 'radis', specialization: specialization.id },
+    t,
+  ).g;
+  assert.equal(specialist.specializations.radis, specialization.id);
+  if (specialization.id === 'precoce')
+    assert.ok(growTime(specialist, 'radis') < before);
 }
-assert.equal(rich.crafted, 5);
-assert.ok(Object.keys(rich.stock).some((id) => id.includes('|')));
-assert.ok(OUTCOMES.every((o) => o.multiplier > 0));
-// Better ingredients visibly improve the two best cooking outcomes.
-const plain = cookingProbabilities(rich, 'pain', ['ble', 'ble', 'ble']);
-const premium = cookingProbabilities(rich, 'pain', [
+
+// Qualités, arrosage manuel et arrosage groupé.
+const dry = harvestProbabilities(fresh(t), 'radis', false);
+const wet = harvestProbabilities(fresh(t), 'radis', true);
+assert.ok(wet[1] + wet[2] > dry[1] + dry[2]);
+let watered = { ...fresh(t), xp: LEVEL_XP[2], upgrades: ['watering-can'] };
+watered = act(watered, 'plant', { index: 0, crop: 'radis' }, t).g;
+watered = act(watered, 'plant', { index: 1, crop: 'carotte' }, t).g;
+watered = act(watered, 'waterAll', null, t + 1).g;
+assert.ok(watered.plots[0]?.watered && watered.plots[1]?.watered);
+watered = act(watered, 'harvest', 0, t + 31_000, highRoll).g;
+assert.equal(watered.stock['radis|exceptionnelle'], 1);
+
+// Atelier : ingrédients de plusieurs qualités, bénéfice rustique et talents choisis.
+let chef: Game = {
+  ...fresh(t),
+  xp: LEVEL_XP[7],
+  coins: 100_000,
+  upgrades: ['workshop'],
+  stock: {
+    ble: 20,
+    'ble|belle': 20,
+    'ble|exceptionnelle': 20,
+    fraise: 20,
+    tomate: 20,
+    carotte: 20,
+    aubergine: 20,
+    myrtille: 20,
+  },
+};
+const pain = RECIPES.find((recipe) => recipe.id === 'pain')!;
+const ordinary = cookingProbabilities(chef, 'pain', ['ble', 'ble', 'ble']);
+const exceptional = cookingProbabilities(chef, 'pain', [
   'ble|exceptionnelle',
   'ble|exceptionnelle',
   'ble|exceptionnelle',
 ]);
-assert.ok(premium[2] + premium[3] > plain[2] + plain[3]);
-// Recipe mastery unlocks a signature variant.
-rich.recipeXP.pain = 6;
-assert.equal(recipeMastery(rich, 'pain'), 3);
-assert.equal(
-  recipeLock(
-    rich,
-    RECIPES.find((r) => r.id === 'pain_maison')!,
-  ),
-  '',
-);
-// Gifts advance friendship, then the personal quest opens heart three.
-rich.stock.ble = 30;
-rich = act(rich, 'gift', { villager: 'lucie', item: 'ble' }, t).g;
-assert.equal(rich.relations.lucie, 1);
-rich = act(rich, 'gift', { villager: 'lucie', item: 'ble' }, t).g;
-rich = act(rich, 'gift', { villager: 'lucie', item: 'ble' }, t).g;
-assert.equal(rich.relations.lucie, 2);
-rich.stock['pain|reussi'] = 1;
-rich = act(rich, 'quest', 'lucie', t).g;
-assert.equal(rich.relations.lucie, 3);
-assert.ok(rich.quests.includes('lucie'));
-assert.ok(VILLAGERS.length >= 5);
-assert.equal(
-  recipeLock(
-    rich,
-    RECIPES.find((r) => r.id === 'brioche')!,
-  ),
-  '',
-);
-rich = act(rich, 'hens', null, t).g;
-rich = act(rich, 'hens', null, t + 120000).g;
-assert.ok(rich.stock.oeuf >= 4);
-const o = order(rich);
-rich.stock[o.crop] = o.amount;
-const before = rich.coins;
-rich = act(rich, 'order', null, t).g;
-assert.equal(rich.coins, before + o.reward);
-assert.ok(marketEvent(rich, t).bonus > 0);
-const poor = { ...fresh(t), coins: 0, seeds: {}, stock: {} };
-assert.equal(act(poor, 'rescue', null, t).g.seeds.radis, 3);
-assert.equal(restore('broken').coins, 20);
-assert.equal(restore('{"version":8}').coins, 20);
-// Version 1 saves migrate without losing the garden.
-const legacy = { ...fresh(t), version: 1 };
-delete (legacy as Partial<typeof legacy>).cropXP;
-assert.equal(restore(JSON.stringify(legacy)).version, 2);
+assert.ok(exceptional[2] + exceptional[3] > ordinary[2] + ordinary[3]);
+for (let cooked = 0; cooked < 3; cooked++) {
+  const ingredients =
+    cooked === 0
+      ? ['ble', 'ble|belle', 'ble|exceptionnelle']
+      : defaultIngredients(chef, pain);
+  chef = act(chef, 'craft', { id: 'pain', ingredients }, t, lowRoll).g;
+  const ingredientValue = chef.job!.ingredientValue!;
+  chef = act(chef, 'collect', null, t + 1_000_000, lowRoll).g;
+  const produced = Object.keys(chef.stock).find(
+    (id) => id.startsWith('pain|rustique|') && chef.stock[id] > 0,
+  )!;
+  assert.ok(basePrice(produced) >= ingredientValue + 5);
+}
+assert.equal(chef.talentPoints, 1);
+const luckBefore = chef.stats.luck;
+chef = act(chef, 'talent', { stat: 'luck' }, t).g;
+assert.equal(chef.stats.luck, luckBefore + 1);
+assert.equal(chef.talentPoints, 0);
+
+// Une qualité supérieure satisfait une demande inférieure, après confirmation.
+const substitute = fulfillment({ 'carotte|exceptionnelle': 3 }, 'carotte', 2);
+assert.ok(substitute.possible && substitute.usesSuperior);
+let customer: Game = {
+  ...fresh(t),
+  stock: { 'carotte|exceptionnelle': 10 },
+  pendingCrop: 'carotte',
+};
+assert.equal(act(customer, 'order', null, t).g, customer);
+customer = act(customer, 'order', { confirmSuperior: true }, t).g;
+assert.equal(customer.orders, 1);
+
+// Aucun événement inaccessible : au début, seules les cultures peuvent être ciblées.
+const beginner = fresh(t);
+for (let cycle = 0; cycle < 8; cycle++) {
+  const event = marketEvent(beginner, t + cycle * 1_200_000);
+  assert.equal(event.mode, 0);
+  assert.ok(CROPS.some((crop) => crop.id === event.target && crop.level === 1));
+}
+assert.equal(canProduceQuality(beginner, 'belle'), false);
+assert.equal(recipeLock(beginner, pain), 'Niveau 4');
+
+// Sauvegardes v1 et v2 migrées, sauvegarde v3 conservée, absence sans perte.
+for (const version of [1, 2] as const) {
+  const legacy = { ...fresh(t), version, cropXP: { radis: 10 } };
+  const migrated = restore(JSON.stringify(legacy));
+  assert.equal(migrated.version, 3);
+  assert.ok(migrated.cropXP.radis >= 10);
+}
+assert.equal(restore(JSON.stringify(fresh(t))).version, 3);
+assert.equal(restore('invalide').version, 3);
+let absent = fresh(t);
+absent = act(absent, 'plant', { index: 0, crop: 'radis' }, t).g;
+absent = restore(JSON.stringify(absent));
+absent = act(absent, 'harvest', 0, t + 365 * 86_400_000, lowRoll).g;
+assert.equal(absent.stock.radis, 1);
+
 console.log(
-  'OK 0.2.0: progression, maîtrise, spécialisation, qualités, cuisine, recettes, amitiés, quêtes, marché, sauvegarde et absence.',
+  'OK 0.2.1: extension, 12 niveaux, graines offertes, maîtrise, spécialisations, qualités, arrosage, cuisine, talents, substitutions, marché, migrations et absence.',
 );

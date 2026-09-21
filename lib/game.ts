@@ -8,8 +8,9 @@ export const CROPS = [
     time: 30,
     cost: 2,
     price: 7,
-    xp: 5,
-    tag: 'La récolte express',
+    xp: 2,
+    mastery: 1,
+    tag: 'Active et rapide · faible valeur par geste',
   },
   {
     id: 'carotte',
@@ -20,20 +21,22 @@ export const CROPS = [
     time: 60,
     cost: 4,
     price: 13,
-    xp: 8,
-    tag: 'Le bon équilibre',
+    xp: 5,
+    mastery: 2,
+    tag: 'Idéale pour les commandes courtes',
   },
   {
     id: 'ble',
     name: 'Blé',
     icon: '🌾',
     fruit: '🌾',
-    level: 2,
+    level: 3,
     time: 120,
     cost: 5,
     price: 17,
-    xp: 10,
-    tag: 'Pour le pain & les poules',
+    xp: 12,
+    mastery: 3,
+    tag: 'Indispensable au pain et aux poules',
   },
   {
     id: 'salade',
@@ -45,30 +48,33 @@ export const CROPS = [
     cost: 5,
     price: 12,
     xp: 7,
-    tag: 'Fraîcheur du marché',
+    mastery: 2,
+    tag: 'Fraîcheur des commandes courtes',
   },
   {
     id: 'tomate',
     name: 'Tomate',
     icon: '🍅',
     fruit: '🍅',
-    level: 3,
+    level: 4,
     time: 180,
     cost: 9,
     price: 27,
-    xp: 15,
-    tag: 'La reine des bocaux',
+    xp: 19,
+    mastery: 4,
+    tag: 'La reine de la transformation',
   },
   {
     id: 'fraise',
     name: 'Fraise',
     icon: '🍓',
     fruit: '🍓',
-    level: 3,
+    level: 5,
     time: 300,
     cost: 12,
     price: 36,
-    xp: 18,
+    xp: 28,
+    mastery: 5,
     tag: 'La douceur des confitures',
   },
   {
@@ -76,47 +82,51 @@ export const CROPS = [
     name: 'Maïs',
     icon: '🌽',
     fruit: '🌽',
-    level: 4,
+    level: 6,
     time: 600,
     cost: 15,
-    price: 45,
-    xp: 22,
-    tag: 'Généreux & nourrissant',
+    price: 52,
+    xp: 46,
+    mastery: 7,
+    tag: 'Production intermédiaire rentable',
   },
   {
     id: 'aubergine',
     name: 'Aubergine',
     icon: '🍆',
     fruit: '🍆',
-    level: 4,
+    level: 7,
     time: 900,
     cost: 20,
-    price: 59,
-    xp: 27,
-    tag: 'Pour la ratatouille',
+    price: 72,
+    xp: 62,
+    mastery: 8,
+    tag: 'Rentable et utile à la ratatouille',
   },
   {
     id: 'myrtille',
     name: 'Myrtille',
     icon: '🫐',
     fruit: '🫐',
-    level: 5,
+    level: 8,
     time: 1200,
     cost: 28,
-    price: 82,
-    xp: 35,
-    tag: 'Une confiture précieuse',
+    price: 105,
+    xp: 86,
+    mastery: 10,
+    tag: 'Parfaite pendant une longue absence',
   },
   {
     id: 'citrouille',
     name: 'Citrouille',
     icon: '🎃',
     fruit: '🎃',
-    level: 5,
+    level: 9,
     time: 1800,
     cost: 35,
-    price: 110,
-    xp: 44,
+    price: 145,
+    xp: 115,
+    mastery: 12,
     tag: 'À laisser grandir tranquillement',
   },
   {
@@ -124,24 +134,26 @@ export const CROPS = [
     name: 'Raisin',
     icon: '🍇',
     fruit: '🍇',
-    level: 6,
+    level: 10,
     time: 3600,
     cost: 45,
-    price: 150,
-    xp: 55,
-    tag: 'Le trésor du verger',
+    price: 220,
+    xp: 175,
+    mastery: 16,
+    tag: 'Grande valeur et qualités généreuses',
   },
   {
     id: 'melon',
     name: 'Melon',
     icon: '🍈',
     fruit: '🍈',
-    level: 7,
+    level: 11,
     time: 7200,
     cost: 65,
-    price: 235,
-    xp: 80,
-    tag: 'Le plaisir de revenir',
+    price: 360,
+    xp: 280,
+    mastery: 22,
+    tag: 'Récolte rare et prestigieuse',
   },
 ];
 export type Recipe = {
@@ -161,18 +173,18 @@ export const RECIPES: Recipe[] = [
     name: 'Pain de campagne',
     icon: '🍞',
     needs: { ble: 3 },
-    price: 72,
+    price: 76,
     time: 40,
-    level: 3,
+    level: 4,
   },
   {
     id: 'confiture',
     name: 'Confiture de fraises',
     icon: '🍯',
     needs: { fraise: 3 },
-    price: 145,
+    price: 155,
     time: 70,
-    level: 3,
+    level: 5,
   },
   {
     id: 'sauce',
@@ -181,25 +193,25 @@ export const RECIPES: Recipe[] = [
     needs: { tomate: 2, carotte: 1 },
     price: 96,
     time: 60,
-    level: 3,
+    level: 4,
   },
   {
     id: 'ratatouille',
     name: 'Ratatouille',
     icon: '🍲',
     needs: { tomate: 2, aubergine: 2 },
-    price: 245,
+    price: 275,
     time: 100,
-    level: 4,
+    level: 7,
   },
   {
     id: 'violette',
     name: 'Confiture des bois',
     icon: '🫙',
     needs: { myrtille: 3 },
-    price: 325,
+    price: 450,
     time: 140,
-    level: 5,
+    level: 8,
   },
 ];
 // Variants share their parent's mastery but have their own pantry entry.
@@ -221,7 +233,7 @@ RECIPES.push(
     needs: { ble: 3, oeuf: 1 },
     price: 140,
     time: 90,
-    level: 4,
+    level: 6,
     friend: 'lucie',
   },
   {
@@ -231,7 +243,7 @@ RECIPES.push(
     needs: { myrtille: 1, fraise: 1 },
     price: 170,
     time: 80,
-    level: 5,
+    level: 8,
     friend: 'jeanne',
   },
   {
@@ -241,11 +253,11 @@ RECIPES.push(
     needs: { fraise: 2, ble: 1, oeuf: 1 },
     price: 170,
     time: 100,
-    level: 4,
+    level: 7,
     friend: 'clara',
   },
 );
-export const BUILD = '0.2.0 — Racines & Saveurs';
+export const BUILD = '0.2.1 — Le Bon Rythme';
 export const QUALITIES = [
   { id: 'ordinaire', name: 'Ordinaire', multiplier: 1 },
   { id: 'belle', name: 'Belle', multiplier: 1.4 },
@@ -264,7 +276,7 @@ export const SPECIALIZATIONS = [
     desc: 'Croissance +20 %, meilleures chances de qualité.',
   },
 ];
-export const MASTERY_STEPS = [0, 6, 18, 40, 75];
+export const MASTERY_STEPS = [0, 15, 60, 150, 300];
 export const HEART_STEPS = [0, 2, 6, 12, 20, 30];
 export const QUESTS = [
   {
@@ -374,7 +386,7 @@ export const VILLAGERS = [
     role: 'Le maraîcher',
     icon: '👨🏻‍🌾',
     likes: ['carotte', 'tomate', 'salade'],
-    perk: 'Tous les 3 récoltes, il glisse une graine bonus dans votre panier.',
+    perk: 'Il glisse régulièrement une graine bonus dans votre panier.',
     perkShort: 'Graine bonus régulière',
   },
   {
@@ -410,7 +422,7 @@ export const UPGRADES = [
     id: 'expand',
     name: 'Un jardin plus grand',
     icon: '🏡',
-    desc: '3 nouvelles parcelles à chaque achat. Maximum : 18.',
+    desc: '3 nouvelles parcelles. Les extensions suivantes arrivent aux niveaux 4, 6 et 9.',
     cost: 35,
     level: 1,
   },
@@ -420,7 +432,7 @@ export const UPGRADES = [
     icon: '💧',
     desc: 'Toutes les nouvelles plantations poussent 25 % plus vite.',
     cost: 120,
-    level: 2,
+    level: 3,
   },
   {
     id: 'tools',
@@ -436,7 +448,7 @@ export const UPGRADES = [
     icon: '🍯',
     desc: 'Transformez vos récoltes en recettes plus précieuses.',
     cost: 180,
-    level: 3,
+    level: 4,
   },
   {
     id: 'coop',
@@ -444,7 +456,7 @@ export const UPGRADES = [
     icon: '🐔',
     desc: '3 blés donnent 4 œufs en 2 minutes. Un œuf vaut 22 pièces.',
     cost: 240,
-    level: 4,
+    level: 6,
   },
   {
     id: 'auto',
@@ -452,7 +464,15 @@ export const UPGRADES = [
     icon: '🌱',
     desc: 'Plantez la graine sélectionnée dans toutes les cases vides.',
     cost: 400,
-    level: 5,
+    level: 8,
+  },
+  {
+    id: 'watering-can',
+    name: 'Arrosoir de cuivre',
+    icon: '🚿',
+    desc: 'Arrosez toutes les cultures en pousse en une seule action.',
+    cost: 220,
+    level: 3,
   },
 ];
 export type Plot = {
@@ -482,9 +502,11 @@ export type ActionArgument =
       ingredients?: string[];
       villager?: string;
       item?: string;
+      confirmSuperior?: boolean;
+      stat?: keyof CookingStats;
     };
 export type Game = {
-  version: 2;
+  version: 3;
   coins: number;
   xp: number;
   plots: Plot[];
@@ -502,12 +524,15 @@ export type Game = {
     end: number;
     quality?: string;
     probabilities?: number[];
+    ingredientValue?: number;
   };
   cropXP: Record<string, number>;
   specializations: Record<string, string>;
   recipeXP: Record<string, number>;
   friendship: Record<string, number>;
   quests: string[];
+  talentPoints: number;
+  pendingCrop: string | null;
   hens: number | null;
   created: number;
   saved: number;
@@ -517,12 +542,14 @@ export type Game = {
 export const KEY = 'rosalie-farm-v1';
 export function fresh(now = Date.now()): Game {
   return {
-    version: 2,
+    version: 3,
     cropXP: {},
     specializations: {},
     recipeXP: {},
     friendship: {},
     quests: [],
+    talentPoints: 0,
+    pendingCrop: null,
     coins: 20,
     xp: 0,
     plots: Array(6).fill(null),
@@ -543,19 +570,52 @@ export function fresh(now = Date.now()): Game {
     relations: { lucie: 0, marcel: 0, jeanne: 0, clara: 0, emile: 0 },
   };
 }
-export const LEVEL_XP = [0, 45, 150, 340, 650, 1100, 1800, 2800, 4200, 6000];
+export const LEVEL_XP = [
+  0, 120, 420, 1000, 1900, 3300, 5200, 7800, 11000, 15000, 20500, 28000,
+];
+export const LEVEL_CONTENT = [
+  { level: 1, crop: 'radis', system: 'Marché et première extension' },
+  { level: 2, crop: 'salade', system: 'Irrigation douce' },
+  { level: 3, crop: 'ble', system: 'Outils et commandes élaborées' },
+  { level: 4, crop: 'tomate', system: 'Atelier, pain et sauce' },
+  { level: 5, crop: 'fraise', system: 'Confitures et quêtes d’amitié' },
+  { level: 6, crop: 'mais', system: 'Poulailler' },
+  { level: 7, crop: 'aubergine', system: 'Ratatouille et recettes signatures' },
+  {
+    level: 8,
+    crop: 'myrtille',
+    system: 'Semis en série et marchés de qualité',
+  },
+  { level: 9, crop: 'citrouille', system: 'Grandes commandes et extension' },
+  { level: 10, crop: 'raisin', system: 'Préparation du futur verger' },
+  {
+    level: 11,
+    crop: 'melon',
+    system: 'Recettes rares et commandes prestigieuses',
+  },
+  { level: 12, crop: null, system: 'Titre de maître jardinier · future serre' },
+] as const;
 export function level(g: Game) {
   let current = 1;
   for (let i = 1; i < LEVEL_XP.length; i++)
     if (g.xp >= LEVEL_XP[i]) current = i + 1;
-  return Math.min(10, current);
+  return Math.min(12, current);
+}
+export function levelContent(value: number) {
+  return LEVEL_CONTENT.find((entry) => entry.level === value)!;
 }
 export const crop = (id: string) => CROPS.find((c) => c.id === id)!;
 export const recipe = (id: string) => RECIPES.find((r) => r.id === id);
 export const outcome = (id: string) => OUTCOMES.find((o) => o.id === id)!;
 export function dishParts(id: string) {
-  const [recipeId, qualityId] = id.split('|');
-  return { recipeId, qualityId: qualityId || 'reussi' };
+  const [recipeId, qualityId, valuePart] = id.split('|');
+  return {
+    recipeId,
+    qualityId: qualityId || 'reussi',
+    ingredientValue: valuePart?.startsWith('v')
+      ? Number(valuePart.slice(1)) || 0
+      : 0,
+  };
 }
 export function dishName(id: string) {
   const p = dishParts(id);
@@ -574,6 +634,9 @@ export function cropMastery(g: Game, id: string) {
 }
 export function recipeMastery(g: Game, id: string) {
   return mastery((g.recipeXP[recipe(id)?.parent || id] || 0) * 3);
+}
+export function masteryGain(id: string) {
+  return crop(id).mastery;
 }
 export function growTime(g: Game, id: string) {
   const spec = g.specializations[id];
@@ -604,13 +667,69 @@ export function basePrice(id: string) {
       (QUALITIES.find((q) => q.id === quality)?.multiplier || 1)
     );
   if (base === 'oeuf') return 22;
-  return (
+  const parts = dishParts(id);
+  const cooked =
     (recipe(base)?.price || 0) *
-    (OUTCOMES.find((q) => q.id === quality)?.multiplier || 1)
+    (OUTCOMES.find((q) => q.id === quality)?.multiplier || 1);
+  return parts.ingredientValue
+    ? Math.max(cooked, parts.ingredientValue + 5)
+    : cooked;
+}
+const CROP_QUALITY = ['ordinaire', 'belle', 'exceptionnelle'];
+const DISH_QUALITY = ['rustique', 'reussi', 'savoureux', 'chef'];
+export function itemQualityRank(id: string) {
+  const [base, quality] = id.split('|');
+  const values = crop(base) ? CROP_QUALITY : DISH_QUALITY;
+  return Math.max(0, values.indexOf(quality || values[0]));
+}
+export function satisfiesQuality(offered: string, requested: string) {
+  return (
+    offered.split('|')[0] === requested.split('|')[0] &&
+    itemQualityRank(offered) >= itemQualityRank(requested)
   );
+}
+export function fulfillment(
+  stock: Record<string, number>,
+  requested: string,
+  amount: number,
+) {
+  const matches = Object.keys(stock)
+    .filter((id) => (stock[id] || 0) > 0 && satisfiesQuality(id, requested))
+    .sort((a, b) => itemQualityRank(a) - itemQualityRank(b));
+  const used: Record<string, number> = {};
+  let remaining = amount;
+  for (const id of matches) {
+    const quantity = Math.min(remaining, stock[id] || 0);
+    if (quantity) used[id] = quantity;
+    remaining -= quantity;
+    if (!remaining) break;
+  }
+  return {
+    possible: remaining === 0,
+    used,
+    usesSuperior: Object.keys(used).some(
+      (id) => itemQualityRank(id) > itemQualityRank(requested),
+    ),
+  };
+}
+export function canProduceQuality(g: Game, id: string) {
+  if (id === 'belle')
+    return (
+      g.upgrades.includes('water') ||
+      CROPS.some((c) => cropMastery(g, c.id) >= 2)
+    );
+  if (id === 'exceptionnelle')
+    return CROPS.some(
+      (c) =>
+        cropMastery(g, c.id) >= 4 || g.specializations[c.id] === 'artisanale',
+    );
+  if (id === 'savoureux' || id === 'chef')
+    return g.upgrades.includes('workshop') && g.crafted > 0;
+  return true;
 }
 export function recipeLock(g: Game, r: Recipe) {
   if (level(g) < r.level) return `Niveau ${r.level}`;
+  if (r.parent && level(g) < 7) return 'Niveau 7';
   if (r.parent && recipeMastery(g, r.parent) < 3)
     return 'Maîtrise 3 de la recette de base';
   if (r.friend && (g.relations[r.friend] || 0) < 3)
@@ -621,16 +740,28 @@ export function marketEvent(g: Game, now: number) {
   const cycle = Math.floor(Math.max(0, now - g.created) / 1200000);
   const crops = CROPS.filter((c) => c.level <= level(g));
   const recipes = RECIPES.filter((r) => !recipeLock(g, r));
-  const mode = g.upgrades.includes('workshop') ? cycle % 3 : cycle % 2 ? 2 : 0;
+  const qualities = ['belle', 'exceptionnelle', 'savoureux'].filter((id) =>
+    canProduceQuality(g, id),
+  );
+  const modes = [0];
+  if (g.upgrades.includes('workshop') && recipes.length) modes.push(1);
+  if (level(g) >= 8 && qualities.length) modes.push(2);
+  const mode = modes[cycle % modes.length];
   const target =
     mode === 0
       ? crops[cycle % crops.length].id
       : mode === 1
         ? recipes[cycle % recipes.length]?.id || 'pain'
-        : cycle % 2
-          ? 'belle'
-          : 'savoureux';
-  const bonus = mode === 2 ? 0.25 : 0.3;
+        : qualities[cycle % qualities.length];
+  const targetCrop = crop(target);
+  const bonus =
+    mode === 0 && targetCrop.time >= 1200
+      ? 0.5
+      : mode === 0 && targetCrop.time >= 600
+        ? 0.4
+        : mode === 2
+          ? 0.25
+          : 0.3;
   return {
     target,
     mode,
@@ -642,7 +773,9 @@ export function marketEvent(g: Game, now: number) {
           ? recipe(target)!.name
           : target === 'belle'
             ? 'Belles récoltes'
-            : 'Plats savoureux',
+            : target === 'exceptionnelle'
+              ? 'Récoltes exceptionnelles'
+              : 'Plats savoureux',
     end: g.created + (cycle + 1) * 1200000,
   };
 }
@@ -668,18 +801,30 @@ export function order(g: Game) {
   const list = CROPS.filter((c) => c.level <= level(g));
   const recipes = RECIPES.filter((r) => !recipeLock(g, r) && !r.parent);
   const dish =
-    g.orders % 3 === 2 && g.upgrades.includes('workshop') && recipes.length;
-  const c = list[g.orders % list.length];
+    !g.pendingCrop &&
+    g.orders % 3 === 2 &&
+    g.upgrades.includes('workshop') &&
+    recipes.length;
+  const pending = g.pendingCrop && crop(g.pendingCrop)?.level <= level(g);
+  const c = pending ? crop(g.pendingCrop!) : list[g.orders % list.length];
   const id = dish
     ? recipes[Math.floor(g.orders / 3) % recipes.length].id +
       (g.orders % 6 === 5 ? '|savoureux' : '|reussi')
-    : c.id + (g.orders >= 4 && g.orders % 3 === 1 ? '|belle' : '');
-  const amount = dish ? 1 : 3 + (Math.floor(g.orders / 4) % 3);
+    : c.id +
+      (canProduceQuality(g, 'belle') && g.orders >= 4 && g.orders % 3 === 1
+        ? '|belle'
+        : '');
+  const baseAmount = Math.max(1, Math.min(5, Math.ceil(240 / c.time)));
+  const amount = dish
+    ? 1
+    : level(g) >= 9 && g.orders % 4 === 3
+      ? baseAmount * 2
+      : baseAmount;
   return {
     crop: id,
     amount,
     reward: Math.round(
-      (basePrice(id) * amount + 15 + Math.min(30, g.orders) * 3) *
+      (basePrice(id) * amount + 15 + c.time / 12 + Math.min(30, g.orders) * 3) *
         ((g.relations.emile || 0) >= 3 ? 1.15 : 1),
     ),
     xp: 20 + Math.min(30, g.orders) * 2,
@@ -748,12 +893,15 @@ export function harvestProbabilities(
     (g.upgrades.includes('tools') ? 0.05 : 0) +
     (rank >= 4 ? 0.1 : 0) +
     ((g.relations.marcel || 0) >= 3 ? 0.05 : 0);
+  const longCropBonus = Math.min(0.12, crop(id).time / 60000);
   const exceptional =
     0.01 +
     (rank >= 4 ? 0.04 : 0) +
     (specialization === 'artisanale' ? 0.16 : 0) +
-    (watered ? 0.02 : 0);
-  const beautiful = 0.1 + bonus + (specialization === 'artisanale' ? 0.15 : 0);
+    (watered ? 0.02 : 0) +
+    longCropBonus * 0.35;
+  const beautiful =
+    0.1 + bonus + longCropBonus + (specialization === 'artisanale' ? 0.15 : 0);
   return [1 - beautiful - exceptional, beautiful, exceptional];
 }
 function rollIndex(probabilities: number[], random: () => number) {
@@ -768,6 +916,10 @@ export function upgradeCost(g: Game, id: string) {
   return id === 'expand'
     ? 35 * Math.pow(2, (g.plots.length - 6) / 3)
     : UPGRADES.find((u) => u.id === id)!.cost;
+}
+export function maxPlots(g: Game) {
+  const current = level(g);
+  return current >= 9 ? 21 : current >= 6 ? 15 : current >= 4 ? 12 : 9;
 }
 export const MISSIONS = [
   {
@@ -866,7 +1018,11 @@ export function act(
   arg: ActionArgument,
   now = Date.now(),
   random: () => number = Math.random,
-): { g: Game; message: string } {
+): {
+  g: Game;
+  message: string;
+  levelUp?: { level: number; crop: string | null; system: string };
+} {
   const g = structuredClone(state);
   const payload = typeof arg === 'object' && arg !== null ? arg : {};
   const scalar = typeof arg === 'string' || typeof arg === 'number' ? arg : '';
@@ -905,14 +1061,15 @@ export function act(
     const amount = p.specialization === 'abondante' && random() < 0.35 ? 2 : 1;
     g.stock[key] = (g.stock[key] || 0) + amount;
     g.collection[c.id] = (g.collection[c.id] || 0) + amount;
-    g.cropXP[c.id] = (g.cropXP[c.id] || 0) + 1;
+    g.cropXP[c.id] = (g.cropXP[c.id] || 0) + masteryGain(c.id);
     g.harvests++;
     g.xp += c.xp;
     g.plots[index] = null;
     const hearts = g.relations.marcel || 0;
     const bonus = hearts > 0 && g.harvests % (hearts >= 5 ? 2 : 5) === 0;
     if (bonus) g.seeds[c.id] = (g.seeds[c.id] || 0) + 1;
-    const signature = cropMastery(g, c.id) === 5 && g.cropXP[c.id] % 5 === 0;
+    const signature =
+      cropMastery(g, c.id) === 5 && g.collection[c.id] % 5 === 0;
     if (signature) g.seeds[c.id] = (g.seeds[c.id] || 0) + 1;
     message = `+${amount} ${itemName(key)} · +${c.xp} XP${bonus || signature ? ' · +1 graine !' : ''}`;
     if (cropMastery(g, c.id) > cropMastery(state, c.id))
@@ -940,9 +1097,21 @@ export function act(
     const p = g.plots[Number(scalar)];
     if (!p || p.watered || p.end <= now)
       return fail('Cette plante n’a pas besoin d’eau.');
-    p.end -= Math.max(0, p.end - now) * 0.2;
     p.watered = true;
-    message = 'Une petite pluie de bonheur · temps restant −20 %';
+    message = 'Cette culture est arrosée · meilleures chances de qualité.';
+  }
+  if (action === 'waterAll') {
+    if (!g.upgrades.includes('watering-can'))
+      return fail('Installez l’arrosoir de cuivre.');
+    let watered = 0;
+    g.plots.forEach((plot) => {
+      if (plot && !plot.watered && plot.end > now) {
+        plot.watered = true;
+        watered++;
+      }
+    });
+    if (!watered) return fail('Aucune culture n’a besoin d’eau.');
+    message = `${watered} culture${watered > 1 ? 's' : ''} arrosée${watered > 1 ? 's' : ''} · qualité améliorée.`;
   }
   if (action === 'buy') {
     const c = crop(String(scalar));
@@ -973,7 +1142,9 @@ export function act(
       !u ||
       level(g) < u.level ||
       g.coins < upgradeCost(g, id) ||
-      (id === 'expand' ? g.plots.length >= 18 : g.upgrades.includes(id))
+      (id === 'expand'
+        ? g.plots.length >= maxPlots(g)
+        : g.upgrades.includes(id))
     )
       return fail('Cette amélioration n’est pas encore disponible.');
     g.coins -= upgradeCost(g, id);
@@ -983,12 +1154,18 @@ export function act(
   }
   if (action === 'order') {
     const o = order(g);
-    if ((g.stock[o.crop] || 0) < o.amount)
+    const delivery = fulfillment(g.stock, o.crop, o.amount);
+    if (!delivery.possible)
       return fail('Il manque des récoltes pour cette commande.');
-    g.stock[o.crop] -= o.amount;
+    if (delivery.usesSuperior && !payload.confirmSuperior)
+      return fail('Confirmez l’utilisation de produits de qualité supérieure.');
+    Object.entries(delivery.used).forEach(([id, quantity]) => {
+      g.stock[id] -= quantity;
+    });
     g.coins += o.reward;
     g.xp += o.xp;
     g.orders++;
+    if (g.pendingCrop === o.crop.split('|')[0]) g.pendingCrop = null;
     message = `Merci pour la livraison ! +${o.reward} pièces · +${o.xp} XP`;
   }
   if (action === 'craft') {
@@ -1002,11 +1179,15 @@ export function act(
     if (!validIngredients(g, r, keys))
       return fail('Vérifiez les quantités et les ingrédients choisis.');
     const probabilities = cookingProbabilities(g, r.id, keys);
+    const ingredientValue = Math.ceil(
+      keys.reduce((sum, id) => sum + basePrice(id), 0),
+    );
     keys.forEach((id: string) => g.stock[id]--);
     g.job = {
       id: r.id,
       end: now + r.time * 1000,
       probabilities,
+      ingredientValue,
       quality: OUTCOMES[rollIndex(probabilities, random)].id,
     };
     message =
@@ -1020,30 +1201,27 @@ export function act(
         g.job.quality ||
         OUTCOMES[rollIndex(cookingProbabilities(g, prepared), random)].id,
       result = outcome(qualityId),
-      key = `${prepared}|${qualityId}`;
+      key = `${prepared}|${qualityId}|v${g.job.ingredientValue || 0}`;
     g.stock[key] = (g.stock[key] || 0) + 1;
     g.job = null;
     g.crafted++;
     const masteryId = recipe(prepared)?.parent || prepared;
     g.recipeXP[masteryId] = (g.recipeXP[masteryId] || 0) + 1;
+    if (g.crafted % 3 === 0) g.talentPoints++;
     g.xp += result.xp;
-    g.stats.mastery = Math.min(20, g.stats.mastery + 1);
-    g.stats.precision = Math.min(
-      20,
-      g.stats.precision +
-        (qualityId === 'savoureux' || qualityId === 'chef' ? 1 : 0),
-    );
-    g.stats.regularity = Math.min(
-      20,
-      g.stats.regularity +
-        (qualityId === 'reussi' || qualityId === 'savoureux' ? 1 : 0),
-    );
-    if (qualityId === 'savoureux')
-      g.stats.creativity = Math.min(20, g.stats.creativity + 1);
-    if (qualityId === 'chef') g.stats.luck = Math.min(20, g.stats.luck + 1);
     message =
       `${result.icon} ${result.name} : ${recipe(prepared)?.name} · +${result.xp} XP` +
-      (qualityId === 'chef' ? ' ✨' : '');
+      (qualityId === 'chef' ? ' ✨' : '') +
+      (g.crafted % 3 === 0 ? ' · +1 point de talent !' : '');
+  }
+  if (action === 'talent') {
+    const stat = payload.stat;
+    if (!stat || !(stat in g.stats) || g.talentPoints < 1)
+      return fail('Aucun point de talent disponible.');
+    if (g.stats[stat] >= 20) return fail('Cette statistique est au maximum.');
+    g.talentPoints--;
+    g.stats[stat]++;
+    message = `${stat === 'mastery' ? 'Maîtrise' : stat === 'precision' ? 'Précision' : stat === 'creativity' ? 'Créativité' : stat === 'regularity' ? 'Régularité' : 'Chance'} améliorée !`;
   }
   if (action === 'hens') {
     if (!g.upgrades.includes('coop')) return fail('Installez le poulailler.');
@@ -1072,15 +1250,21 @@ export function act(
     message = `Objectif accompli ! +${m.reward} pièces · +15 XP`;
   }
   if (action === 'quest') {
-    const q = QUESTS.find((q) => q.id === scalar);
+    const questId = String(scalar || payload.id || '');
+    const q = QUESTS.find((q) => q.id === questId);
+    const delivery = q ? fulfillment(g.stock, q.item, q.amount) : null;
     if (
       !q ||
       g.quests.includes(q.id) ||
       (g.relations[q.id] || 0) < 2 ||
-      (g.stock[q.item] || 0) < q.amount
+      !delivery?.possible
     )
       return fail('La quête demande 2 cœurs et les produits indiqués.');
-    g.stock[q.item] -= q.amount;
+    if (delivery.usesSuperior && !payload.confirmSuperior)
+      return fail('Confirmez l’utilisation de produits de qualité supérieure.');
+    Object.entries(delivery.used).forEach(([id, quantity]) => {
+      g.stock[id] -= quantity;
+    });
     g.quests.push(q.id);
     g.coins += q.reward;
     g.friendship[q.id] = Math.max(12, (g.friendship[q.id] || 0) + 6);
@@ -1127,10 +1311,28 @@ export function act(
     g.seeds.radis = 3;
     message = 'Rosalie vous offre 3 graines de radis.';
   }
-  if (level(g) > level(state))
-    message += ` ✨ Niveau ${level(g)} ! De nouvelles possibilités vous attendent.`;
+  const previousLevel = level(state);
+  const currentLevel = level(g);
+  let levelUp:
+    | { level: number; crop: string | null; system: string }
+    | undefined;
+  if (currentLevel > previousLevel) {
+    for (
+      let unlocked = previousLevel + 1;
+      unlocked <= currentLevel;
+      unlocked++
+    ) {
+      const content = levelContent(unlocked);
+      if (content.crop) {
+        g.seeds[content.crop] = (g.seeds[content.crop] || 0) + 1;
+        g.pendingCrop = content.crop;
+      }
+      levelUp = { ...content };
+    }
+    message += ` ✨ Niveau ${currentLevel} ! Une nouvelle étape commence.`;
+  }
   g.saved = now;
-  return { g, message };
+  return { g, message, levelUp };
 }
 export function restore(raw: string | null): Game {
   if (!raw) return fresh();
@@ -1138,7 +1340,7 @@ export function restore(raw: string | null): Game {
     const g = JSON.parse(raw),
       base = fresh();
     if (
-      ![1, 2].includes(g.version) ||
+      ![1, 2, 3].includes(g.version) ||
       !Array.isArray(g.plots) ||
       g.plots.length < 6 ||
       !Number.isFinite(g.coins) ||
@@ -1152,8 +1354,15 @@ export function restore(raw: string | null): Game {
     return {
       ...base,
       ...g,
-      version: 2,
-      cropXP: g.cropXP || { ...g.collection },
+      version: 3,
+      cropXP:
+        g.version < 3
+          ? Object.fromEntries(
+              Object.entries(g.cropXP || g.collection || {}).map(
+                ([id, value]) => [id, Number(value) * (crop(id)?.mastery || 1)],
+              ),
+            )
+          : g.cropXP || {},
       recipeXP: g.recipeXP || {},
       specializations: g.specializations || {},
       friendship:
@@ -1167,6 +1376,8 @@ export function restore(raw: string | null): Game {
       quests:
         g.quests ||
         Object.keys(g.relations || {}).filter((id) => g.relations[id] >= 3),
+      talentPoints: Number.isFinite(g.talentPoints) ? g.talentPoints : 0,
+      pendingCrop: typeof g.pendingCrop === 'string' ? g.pendingCrop : null,
       stats: { ...base.stats, ...g.stats },
       relations: { ...base.relations, ...g.relations },
     };

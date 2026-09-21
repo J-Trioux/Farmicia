@@ -19,6 +19,8 @@ import {
   validIngredients,
   cookingProbabilities,
   ingredientQuality,
+  fulfillment,
+  masteryGain,
   itemName,
   itemIcon,
   type ActionArgument,
@@ -33,9 +35,9 @@ export function CultureJournal({ g, dispatch }: Props) {
   return (
     <>
       <p className="progression-intro">
-        Chaque récolte développe une variété. Maîtrise 2 : croissance −10 % · 3
-        : spécialisation · 4 : meilleures qualités · 5 : une graine signature
-        toutes les 5 récoltes.
+        Les cultures longues donnent davantage de points. Maîtrise 2 :
+        croissance −10 % · 3 : spécialisation · 4 : meilleures qualités · 5 :
+        une graine signature toutes les 5 récoltes.
       </p>
       <div className="catalog">
         {CROPS.map((c) => {
@@ -47,7 +49,7 @@ export function CultureJournal({ g, dispatch }: Props) {
               <h3>{c.name}</h3>
               <b>Maîtrise {rank}/5</b>
               <small>
-                {xp} récoltes
+                {xp} points · +{masteryGain(c.id)} par récolte
                 {rank < 5
                   ? ` · prochain palier : ${MASTERY_STEPS[rank]}`
                   : ' · graines signature actives'}
@@ -61,7 +63,10 @@ export function CultureJournal({ g, dispatch }: Props) {
               />
               <small>Prochain semis : {duration(growTime(g, c.id))}</small>
               {rank < 3 ? (
-                <p>Spécialisation à 18 récoltes.</p>
+                <p>
+                  Spécialisation à {MASTERY_STEPS[2]} points · encore{' '}
+                  {Math.max(0, MASTERY_STEPS[2] - xp)}.
+                </p>
               ) : (
                 <div className="specializations">
                   {SPECIALIZATIONS.map((s) => (
@@ -179,6 +184,17 @@ function RecipeCard({ g, dispatch, r }: Props & { r: Recipe }) {
         className="small-button"
         disabled={!!g.job || !!lock || !validIngredients(g, r, keys)}
         onClick={() => {
+          if (
+            keys.some(
+              (id) =>
+                itemName(id).includes('Belle') ||
+                itemName(id).includes('Exceptionnelle'),
+            ) &&
+            !window.confirm(
+              'Utiliser ces ingrédients de qualité supérieure pour cette recette ?',
+            )
+          )
+            return;
           dispatch('craft', { id: r.id, ingredients: keys });
           setSelection(null);
         }}
@@ -194,10 +210,31 @@ function RecipeCard({ g, dispatch, r }: Props & { r: Recipe }) {
   );
 }
 export function RecipeBook(props: Props) {
+  const groups = [
+    {
+      title: 'Les classiques',
+      recipes: RECIPES.filter((r) => !r.parent && !r.friend),
+    },
+    {
+      title: 'Les signatures',
+      recipes: RECIPES.filter((r) => r.parent),
+    },
+    {
+      title: 'Les recettes d’amitié',
+      recipes: RECIPES.filter((r) => r.friend),
+    },
+  ];
   return (
-    <div className="catalog">
-      {RECIPES.map((r) => (
-        <RecipeCard key={r.id} {...props} r={r} />
+    <div className="recipe-groups">
+      {groups.map((group) => (
+        <section key={group.title}>
+          <h3>{group.title}</h3>
+          <div className="catalog">
+            {group.recipes.map((r) => (
+              <RecipeCard key={r.id} {...props} r={r} />
+            ))}
+          </div>
+        </section>
       ))}
     </div>
   );
@@ -212,6 +249,7 @@ export function FriendBook({ g, dispatch }: Props) {
           hearts = g.relations[v.id] || 0,
           complete = g.quests.includes(v.id),
           points = g.friendship[v.id] || 0;
+        const delivery = fulfillment(g.stock, q.item, q.amount);
         const selected = stock.includes(choices[v.id])
           ? choices[v.id]
           : stock.find((k) => v.likes.includes(k.split('|')[0])) ||
@@ -277,17 +315,27 @@ export function FriendBook({ g, dispatch }: Props) {
               <p>
                 {complete
                   ? '✓ Quête accomplie'
-                  : `${q.amount} × ${itemName(q.item)} · ${Math.min(q.amount, g.stock[q.item] || 0)}/${q.amount}`}
+                  : `${q.amount} × ${itemName(q.item)} · ${delivery.possible ? 'prêt' : 'incomplet'}`}
               </p>
               <small>
                 À 2 cœurs · +{q.reward} pièces · débloque le troisième cœur.
               </small>
               <button
                 className="small-button"
-                disabled={
-                  complete || hearts < 2 || (g.stock[q.item] || 0) < q.amount
-                }
-                onClick={() => dispatch('quest', v.id)}
+                disabled={complete || hearts < 2 || !delivery.possible}
+                onClick={() => {
+                  if (
+                    delivery.usesSuperior &&
+                    !window.confirm(
+                      'Cette quête utilisera un produit de qualité supérieure. Continuer ?',
+                    )
+                  )
+                    return;
+                  dispatch('quest', {
+                    id: v.id,
+                    confirmSuperior: delivery.usesSuperior,
+                  });
+                }}
               >
                 {complete ? 'Merci pour votre aide !' : 'Livrer la quête'}
               </button>

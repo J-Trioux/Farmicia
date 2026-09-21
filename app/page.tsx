@@ -12,6 +12,9 @@ import {
   marketBonus,
   itemName,
   itemIcon,
+  fulfillment,
+  levelContent,
+  maxPlots,
 } from '@/lib/game';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -61,7 +64,7 @@ import {
   type Game,
 } from '@/lib/game';
 export default function Home() {
-  const [g, setG] = useState<Game>(fresh);
+  const [g, setG] = useState<Game>(() => fresh(0));
   const state = useRef(g);
   const [loaded, setLoaded] = useState(false);
   const [now, setNow] = useState(0);
@@ -73,6 +76,9 @@ export default function Home() {
   const [notice, setNotice] = useState('');
   const [saveError, setSaveError] = useState(false);
   const [pop, setPop] = useState<number | null>(null);
+  const [levelUp, setLevelUp] = useState<
+    { level: number; crop: string | null; system: string } | undefined
+  >();
   const audio = useRef<AudioContext | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   function notify(text: string) {
@@ -142,6 +148,7 @@ export default function Home() {
         setTimeout(() => setPop(null), 850);
       }
     }
+    if (result.levelUp) setLevelUp(result.levelUp);
     notify(result.message);
     return result;
   }
@@ -237,14 +244,19 @@ export default function Home() {
     ready = g.plots.filter((p) => p && p.end <= now).length,
     inventory = Object.values(g.stock).reduce((a, b) => a + b, 0),
     event = marketEvent(g, now),
-    nextXP = LEVEL_XP[Math.min(lv, 9)],
+    nextXP = LEVEL_XP[Math.min(lv, 11)],
     previousXP = LEVEL_XP[lv - 1],
     xpProgress =
-      lv === 10 ? 100 : ((g.xp - previousXP) / (nextXP - previousXP)) * 100;
+      lv === 12 ? 100 : ((g.xp - previousXP) / (nextXP - previousXP)) * 100,
+    nextContent = lv < 12 ? levelContent(lv + 1) : null,
+    nextCrop = CROPS.filter((c) => c.level > lv).sort(
+      (a, b) => a.level - b.level,
+    )[0],
+    orderDelivery = fulfillment(g.stock, o.crop, o.amount);
   const tutorial =
     g.harvests === 0
       ? g.plots.some(Boolean)
-        ? 'Vos graines prennent vie. Touchez une pousse pour l’arroser et accélérer sa croissance.'
+        ? 'Vos graines prennent vie. Touchez une pousse pour l’arroser et améliorer sa qualité.'
         : 'Bienvenue au jardin ! Sélectionnez une graine, puis touchez une parcelle pour la planter.'
       : g.sold === 0
         ? 'Votre première récolte ! Ouvrez le panier pour la vendre, ou gardez-la pour Lucie.'
@@ -271,13 +283,19 @@ export default function Home() {
             <div>
               <b>
                 Jardinier{' '}
-                {lv < 3 ? 'en herbe' : lv < 6 ? 'passionné' : 'accompli'}
+                {lv < 4
+                  ? 'en herbe'
+                  : lv < 8
+                    ? 'passionné'
+                    : lv < 12
+                      ? 'accompli'
+                      : 'maître'}
               </b>
               <div className="xp-track">
                 <i style={{ width: xpProgress + '%' }} />
               </div>
               <small>
-                {lv === 10
+                {lv === 12
                   ? 'Niveau maximum'
                   : `${g.xp - previousXP} / ${nextXP - previousXP} XP`}
               </small>
@@ -394,7 +412,7 @@ export default function Home() {
                   </button>
                 );
               })}
-              {g.plots.length < 18 && (
+              {g.plots.length < maxPlots(g) && (
                 <button
                   className="expand-plot"
                   onClick={() => {
@@ -452,7 +470,7 @@ export default function Home() {
                   <span className="seed-count">{g.seeds[c.id] || 0}</span>
                 </button>
               ))}
-              {CROPS.find((c) => c.level > lv) && (
+              {nextCrop && (
                 <button
                   className="seed locked"
                   onClick={() => setModal('seeds')}
@@ -460,9 +478,7 @@ export default function Home() {
                   <Lock size={16} />
                   <span>
                     <b>À découvrir</b>
-                    <small>
-                      Niveau {CROPS.find((c) => c.level > lv)?.level}
-                    </small>
+                    <small>Niveau {nextCrop.level}</small>
                   </span>
                 </button>
               )}
@@ -483,6 +499,14 @@ export default function Home() {
                     }
                   >
                     Tout récolter
+                  </button>
+                )}
+                {g.upgrades.includes('watering-can') && (
+                  <button
+                    className="text-button"
+                    onClick={() => dispatch('waterAll')}
+                  >
+                    Tout arroser
                   </button>
                 )}
                 {g.upgrades.includes('auto') && (
@@ -513,6 +537,23 @@ export default function Home() {
             <div>
               <b>Le petit conseil de Rosalie</b>
               <p>{tutorial}</p>
+            </div>
+          </div>
+          <div className="next-unlock">
+            <span>
+              {nextContent?.crop ? crop(nextContent.crop).icon : '🏅'}
+            </span>
+            <div>
+              <b>
+                {nextContent
+                  ? `Prochain cap · niveau ${nextContent.level}`
+                  : 'Maître jardinier'}
+              </b>
+              <p>
+                {nextContent
+                  ? `${nextContent.crop ? crop(nextContent.crop).name + ' · ' : ''}${nextContent.system}`
+                  : 'Le jardin est prêt pour les futures serre et verger.'}
+              </p>
             </div>
           </div>
         </div>
@@ -547,12 +588,8 @@ export default function Home() {
                     </b>
                     <small>Pour la prochaine visite</small>
                   </div>
-                  <b
-                    className={
-                      (g.stock[o.crop] || 0) >= o.amount ? 'enough' : ''
-                    }
-                  >
-                    {Math.min(g.stock[o.crop] || 0, o.amount)}/{o.amount}
+                  <b className={orderDelivery.possible ? 'enough' : ''}>
+                    {orderDelivery.possible ? o.amount : '…'}/{o.amount}
                   </b>
                 </div>
                 <div className="order-reward">
@@ -561,8 +598,19 @@ export default function Home() {
                 </div>
                 <button
                   className="primary"
-                  disabled={(g.stock[o.crop] || 0) < o.amount}
-                  onClick={() => dispatch('order')}
+                  disabled={!orderDelivery.possible}
+                  onClick={() => {
+                    if (
+                      orderDelivery.usesSuperior &&
+                      !window.confirm(
+                        'Cette commande utilisera un produit de qualité supérieure. Continuer ?',
+                      )
+                    )
+                      return;
+                    dispatch('order', {
+                      confirmSuperior: orderDelivery.usesSuperior,
+                    });
+                  }}
                 >
                   Livrer la commande <ChevronRight size={17} />
                 </button>
@@ -599,7 +647,7 @@ export default function Home() {
                         : 'Une recette mijote…'
                       : g.upgrades.includes('workshop')
                         ? 'De la terre à la tartine'
-                        : 'À installer au niveau 3'}
+                        : 'À installer au niveau 4'}
                   </small>
                 </span>
                 <ChevronRight size={19} />
@@ -649,7 +697,7 @@ export default function Home() {
                 {UPGRADES.map((u) => {
                   const owned =
                     u.id === 'expand'
-                      ? g.plots.length >= 18
+                      ? g.plots.length >= maxPlots(g)
                       : g.upgrades.includes(u.id);
                   const cost = upgradeCost(g, u.id);
                   return (
@@ -867,7 +915,7 @@ export default function Home() {
                   <span>🍯</span>
                   <h3>Un atelier pour vos recettes maison</h3>
                   <p>
-                    Au niveau 3, installez l’atelier pour 180 pièces dans
+                    Au niveau 4, installez l’atelier pour 180 pièces dans
                     Améliorer.
                   </p>
                   <button
@@ -885,7 +933,10 @@ export default function Home() {
                   <div className="cooking-stats">
                     <div className="cooking-stats-head">
                       <b>Vos talents de cuisinier</b>
-                      <span>Ils progressent à chaque plat</span>
+                      <span>
+                        {g.talentPoints} point{g.talentPoints > 1 ? 's' : ''} à
+                        distribuer · +1 tous les 3 plats
+                      </span>
                     </div>
                     <div className="stat-grid">
                       <span>
@@ -903,6 +954,26 @@ export default function Home() {
                       <span>
                         🍀 Chance <b>{g.stats.luck}</b>
                       </span>
+                    </div>
+                    <div className="talent-actions">
+                      {(
+                        [
+                          ['mastery', 'Maîtrise'],
+                          ['precision', 'Précision'],
+                          ['creativity', 'Créativité'],
+                          ['regularity', 'Régularité'],
+                          ['luck', 'Chance'],
+                        ] as const
+                      ).map(([stat, label]) => (
+                        <button
+                          key={stat}
+                          className="small-button"
+                          disabled={g.talentPoints < 1 || g.stats[stat] >= 20}
+                          onClick={() => dispatch('talent', { stat })}
+                        >
+                          + {label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                   <div className="job-status">
@@ -963,7 +1034,7 @@ export default function Home() {
             <div className="settings-content">
               <p>
                 Les récoltes et les recettes continuent pendant votre absence.
-                Rien ne pourrit. Le marché change de préférence toutes les 5
+                Rien ne pourrit. Le marché change de préférence toutes les 20
                 minutes, sans pénalité.
               </p>
               <button className="small-button" onClick={() => setSound(!sound)}>
@@ -996,7 +1067,10 @@ export default function Home() {
                     try {
                       const raw = await file.text();
                       const parsed = JSON.parse(raw);
-                      if (parsed.version !== 1 || !Array.isArray(parsed.plots))
+                      if (
+                        ![1, 2, 3].includes(parsed.version) ||
+                        !Array.isArray(parsed.plots)
+                      )
                         throw Error();
                       const restored = restore(raw);
                       save(restored);
@@ -1013,6 +1087,39 @@ export default function Home() {
               </button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={!!levelUp}
+        onOpenChange={(open) => !open && setLevelUp(undefined)}
+      >
+        <DialogContent className="level-up-dialog" showCloseButton={false}>
+          <span className="level-up-spark">✦</span>
+          <DialogTitle>Niveau {levelUp?.level}</DialogTitle>
+          <DialogDescription>
+            {levelUp?.level === 12
+              ? 'Vous êtes désormais maître jardinier.'
+              : 'Votre jardin prend un nouveau rythme.'}
+          </DialogDescription>
+          {levelUp?.crop && (
+            <div className="level-reward">
+              <span>{crop(levelUp.crop).icon}</span>
+              <div>
+                <b>{crop(levelUp.crop).name} débloqué</b>
+                <p>Une graine offerte pour commencer.</p>
+              </div>
+            </div>
+          )}
+          <div className="level-reward">
+            <span>🌿</span>
+            <div>
+              <b>Nouveau chapitre</b>
+              <p>{levelUp?.system}</p>
+            </div>
+          </div>
+          <button className="primary" onClick={() => setLevelUp(undefined)}>
+            Continuer à cultiver
+          </button>
         </DialogContent>
       </Dialog>
       <AlertDialog open={reset} onOpenChange={setReset}>

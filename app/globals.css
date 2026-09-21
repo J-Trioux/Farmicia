@@ -1825,6 +1825,97 @@ button svg {
   font-size: 12px;
   color: #586345;
 }
+.next-unlock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 3px 20px;
+  padding: 13px 15px;
+  border: 1px solid #dfe3d1;
+  border-radius: 13px;
+  background: #f2f4e8;
+}
+.next-unlock > span {
+  font-size: 28px;
+}
+.next-unlock b {
+  font-size: 13px;
+  color: #536749;
+}
+.next-unlock p {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #7d866f;
+}
+.talent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+.talent-actions .small-button {
+  flex: 1 1 120px;
+}
+.recipe-groups {
+  display: grid;
+  gap: 24px;
+  margin-top: 16px;
+}
+.recipe-groups > section > h3 {
+  font-family: Georgia, serif;
+  color: #526646;
+  font-size: 18px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e1e4d5;
+}
+.level-up-dialog {
+  max-width: 440px !important;
+  padding: 30px !important;
+  text-align: center;
+  background: #fffdf3 !important;
+  border-radius: 24px !important;
+  border: 1px solid #d8dfc4 !important;
+}
+.level-up-dialog [data-slot='dialog-title'] {
+  font-family: Georgia, serif;
+  font-size: 34px;
+  color: #426341;
+}
+.level-up-spark {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #f3e7bd;
+  color: #aa792a;
+  font-size: 30px;
+}
+.level-reward {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 14px;
+  padding: 13px;
+  text-align: left;
+  border-radius: 13px;
+  background: #f1f4e7;
+}
+.level-reward > span {
+  font-size: 30px;
+}
+.level-reward b {
+  font-size: 14px;
+}
+.level-reward p {
+  margin-top: 3px;
+  color: #77816b;
+  font-size: 12px;
+}
+.level-up-dialog .primary {
+  margin-top: 18px;
+}
 @media (max-width: 540px) {
   .friend-card {
     padding: 14px;
