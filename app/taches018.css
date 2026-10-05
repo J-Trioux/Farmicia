@@ -1,0 +1,41 @@
+/* ==========================================================================
+   0.18 — Les tâches de Rosalie et le ruban éphémère
+
+   Le ruban du conseil (en haut de la carte) annonce une nouveauté, puis
+   s’efface ; il revient à la prochaine nouveauté, ou le temps d’un survol
+   d’objet sur la carte.
+   ========================================================================== */
+.farm-game .farm-card .farm-status[data-hidden] {
+  opacity: 0;
+  transform: translate(-50%, -160%);
+  pointer-events: none;
+  animation: ribbon-out 0.45s var(--ease-soft) both;
+}
+@keyframes ribbon-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -160%);
+  }
+}
+
+/* Tâches cumulées : chaque tâche active du tiroir garde son bouton enfoncé et respire. */
+.farm-game .dock-actions .bulk-actions > button[aria-pressed='true'] .pixel-icon {
+  animation: chore-breathe 1.6s var(--ease-soft) infinite;
+}
+@keyframes chore-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion-full]) .farm-game .dock-actions .bulk-actions > button[aria-pressed='true'] .pixel-icon {
+    animation: none;
+  }
+}
+[data-reduce-motion] .farm-game .dock-actions .bulk-actions > button[aria-pressed='true'] .pixel-icon {
+  animation: none;
+}

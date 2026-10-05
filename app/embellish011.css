@@ -1,0 +1,273 @@
+/* ==========================================================================
+   0.11 — La ferme s’embellit : embellissements sur la carte et dans le carnet.
+   ========================================================================== */
+.embellish-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* 0.12 : case de 64 px sur la grande carte (grille de 1 200 × 800) ; pieds de l’objet à la position donnée. */
+.embellish-map {
+  position: absolute;
+  width: 5.3333%;
+  height: 8%;
+  transform: translate(-50%, -93.75%);
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+  image-rendering: auto;
+  filter: drop-shadow(1px 3px 0 #2a2a1a55);
+}
+.embellish-map[data-cell='192'] {
+  height: 12%;
+  transform: translate(-50%, -95.83%);
+}
+.embellish-anim {
+  position: absolute;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+/* Ailes : case de 128 × 128 posée à (0, 60) dans la case du moulin (128 × 192). */
+.moulin-wings {
+  image-rendering: auto;
+  left: 0;
+  top: 31.25%;
+  width: 100%;
+  height: 66.6667%;
+  background-image: url('/assets/pixel/embellissements-hd/moulin-ailes.png');
+  background-size: 400% 100%;
+  animation: embellish-frames 0.72s steps(4) infinite;
+}
+.fontaine-water {
+  inset: 0;
+  background-image: url('/assets/pixel/embellissements-hd/fontaine-eau.png');
+  background-size: 400% 100%;
+  animation: embellish-frames 0.48s steps(4) infinite;
+}
+.ruches-bees {
+  left: 30%;
+  top: 22%;
+  width: 50%;
+  height: 50%;
+  background-image: url('/assets/pixel/embellissements-hd/abeilles.png');
+  background-size: 400% 100%;
+  animation: embellish-frames 0.4s steps(4) infinite;
+}
+.embellish-ruches.stage-1 .ruches-bees { left: 24%; top: 40%; }
+.embellish-ruches.stage-2 .ruches-bees { left: 25%; top: 36%; }
+/* 0.15 : décors de la fête (fete-1.0, objets seuls, pieds sur le point donné). */
+.feast-decor {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  image-rendering: auto;
+  pointer-events: none;
+  filter: drop-shadow(1px 3px 0 #2a2a1a44);
+}
+/* La guirlande s’allume le soir et la nuit (seconde image de la bande). */
+.pixel-farm:has(> .ambience-layers[data-phase='evening']) .feast-lampions,
+.pixel-farm:has(> .ambience-layers[data-phase='night']) .feast-lampions {
+  background-position: 100% 0;
+  filter: drop-shadow(0 0 3px #ffd98a) drop-shadow(1px 3px 0 #2a2a1a44);
+}
+@keyframes embellish-frames {
+  from { background-position: 0 0; }
+  to { background-position: 133.3333% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion-full]) .embellish-anim { animation: none; }
+}
+[data-reduce-motion] .embellish-anim { animation: none; }
+
+/* ---------- Carnet : volets de la page Améliorer ---------- */
+.upgrade-switch {
+  min-width: 0;
+  display: inline-flex;
+  gap: 4px;
+  margin: 0 0 14px;
+  padding: 4px;
+  background: #efe1bb;
+  border: 2px solid #c9ab76;
+  border-radius: var(--r-lg);
+}
+.upgrade-switch button {
+  min-height: 40px;
+  padding: 0 14px;
+  color: var(--c-ink);
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-md);
+  font-weight: 700;
+  cursor: pointer;
+}
+.upgrade-switch-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  padding: 0 4px;
+  color: #fff;
+  background: var(--c-berry);
+  border-radius: 9px;
+  font-size: 11px;
+}
+.upgrade-switch button[aria-pressed='true'] {
+  color: #fff;
+  background: var(--c-leaf);
+}
+.upgrade-switch button:focus-visible,
+.embellish-card button:focus-visible,
+.feast-box button:focus-visible {
+  outline: 3px solid var(--c-sky);
+  outline-offset: 2px;
+}
+
+/* ---------- Carnet : embellissements ---------- */
+.embellish-book > header {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.embellish-book h3 {
+  margin: 0;
+  font: 700 18px Georgia, serif;
+}
+.embellish-book > header p {
+  margin: 0;
+  color: var(--c-ink-soft);
+}
+.embellish-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.embellish-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 8px 12px;
+  padding: 12px;
+  background: var(--c-paper-light);
+  border: 2px solid #dcc697;
+  border-radius: var(--r-md);
+}
+.embellish-card.state-available { border-color: var(--c-leaf); }
+.embellish-card.state-done { background: #fff4d6; border-color: var(--c-gold-deep); }
+.embellish-card.state-future { background: #f3ead2; }
+.embellish-card .upgrade-state {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--c-ink-soft);
+}
+.embellish-sprite {
+  grid-row: span 2;
+  align-self: start;
+  width: 76px;
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+  /* 0.12 : planches HD, réduites en douceur. */
+  image-rendering: auto;
+  background-color: #e9dcb4;
+  border-radius: var(--r-md);
+}
+.embellish-sprite { position: relative; }
+.embellish-sprite .moulin-wings.still { animation: none; }
+.embellish-sprite.ghost { opacity: 0.45; filter: grayscale(0.6); }
+.embellish-text small {
+  color: var(--c-ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+.embellish-text h4 {
+  margin: 2px 0 4px;
+  padding-right: 64px;
+  font: 700 16px Georgia, serif;
+}
+.embellish-text p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.embellish-text .embellish-stage { font-weight: 700; }
+.embellish-text .embellish-next { color: var(--c-ink-soft); }
+.embellish-card .upgrade-steps { grid-column: 2; }
+.embellish-card button,
+.feast-box button {
+  grid-column: 1 / -1;
+  min-height: 44px;
+  padding: 0 14px;
+  color: #fff;
+  background: var(--c-leaf);
+  border: 2px solid #3d5e27;
+  border-radius: var(--r-md);
+  font-weight: 700;
+  cursor: pointer;
+}
+.embellish-card button:disabled,
+.feast-box button:disabled {
+  color: var(--c-ink-soft);
+  background: #e8dcb8;
+  border-color: #c5ae7b;
+  cursor: default;
+}
+.embellish-done {
+  grid-column: 1 / -1;
+  font-weight: 800;
+  color: var(--c-gold-deep);
+  text-align: center;
+}
+.feast-box {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 14px;
+  background: #fff4d6;
+  border: 2px dashed #c9ab76;
+  border-radius: var(--r-md);
+}
+.feast-box h4 {
+  margin: 0;
+  font: 700 17px Georgia, serif;
+}
+.feast-box p { margin: 0; }
+.feast-count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+.feast-count small,
+.feast-next { color: var(--c-ink-soft); font-size: 13px; }
+.feast-box details summary { cursor: pointer; font-weight: 700; }
+.feast-box ol { margin: 6px 0 0; padding-left: 22px; font-size: 13px; }
+.feast-decor-list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--c-ink-soft);
+}
+.feast-decor-list li[data-done] { color: var(--c-ink); font-weight: 700; }
+
+/* ---------- Commandes en préparation ---------- */
+.village-offer.offer-waiting { opacity: 0.78; }
+.offer-wait {
+  display: block;
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--c-ink-soft);
+  font-style: italic;
+}
+@media (max-width: 600px) {
+  .embellish-card { grid-template-columns: 60px 1fr; }
+  .embellish-sprite { width: 60px; }
+  .upgrade-switch { display: flex; }
+  .upgrade-switch button { flex: 1; min-height: 44px; }
+}

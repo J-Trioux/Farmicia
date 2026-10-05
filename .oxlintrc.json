@@ -23,6 +23,11 @@
     "typeCheck": true
   },
   "ignorePatterns": [
+    "assets/embellissements-v010/preparer.mjs",
+    "scripts/generate-v100.mjs",
+    "scripts/prepare-v100-v2.mjs",
+    "scripts/prepare-farm-v100.mjs",
+    "scripts/prepare-rosalie-farm-v100.mjs",
     ".next/**",
     ".vinext/**",
     "out/**",

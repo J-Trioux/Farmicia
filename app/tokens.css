@@ -1,0 +1,52 @@
+/* ==========================================================================
+   0.5.5 — Jetons de design : une seule source pour les couleurs, rayons,
+   reliefs, durées et courbes. Les nouvelles feuilles n’utilisent que ces
+   variables ; les anciennes y seront ramenées progressivement.
+   ========================================================================== */
+:root {
+  /* Couleurs */
+  --c-ink: #3a2a1b;
+  --c-ink-soft: #6c5a41;
+  --c-paper: #fff6dc;
+  --c-paper-light: #fffbef;
+  --c-paper-deep: #f2dc9f;
+  --c-wood: #7a4c32;
+  --c-wood-light: #c98a4b;
+  --c-wood-dark: #4c271d;
+  --c-forest: #263b2e;
+  --c-leaf: #4a6f31;
+  --c-leaf-light: #9ac46b;
+  --c-gold: #f6c955;
+  --c-gold-deep: #96651d;
+  --c-coin-shine: #ffe38a;
+  --c-berry: #b3432f;
+  --c-sky: #276d99;
+  --c-violet: #7d57b5;
+  --c-lamp: #ffc86b;
+  --c-window: #ffb95a;
+
+  /* Rayons */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --r-pill: 999px;
+
+  /* Reliefs */
+  --relief-wood: 0 2px 0 rgb(76 39 29 / 40%);
+  --relief-pressed: inset 0 2px 0 rgb(76 39 29 / 35%);
+  --shadow-float: 0 6px 14px rgb(28 48 27 / 22%);
+  --glow-gold: 0 0 14px rgb(255 212 106 / 80%);
+
+  /* Durées */
+  --d-instant: 90ms;
+  --d-fast: 160ms;
+  --d-base: 260ms;
+  --d-slow: 600ms;
+  --d-scene: 20s;
+
+  /* Courbes */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.3, 1);
+  --ease-in: cubic-bezier(0.5, 0, 0.8, 0.4);
+  --ease-bounce: cubic-bezier(0.3, 1.6, 0.5, 1);
+  --ease-soft: cubic-bezier(0.45, 0, 0.55, 1);
+}

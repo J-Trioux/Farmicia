@@ -1,0 +1,360 @@
+/* Build 0.5.0 — grands projets, menus composés, effets des plats. */
+
+.projects-panel {
+  display: grid;
+  gap: 18px;
+  padding: 14px 4px;
+  color: #3c2d1f;
+}
+.project-intro {
+  padding: 14px 16px;
+  background: #fff6d5;
+  border: 2px dashed #b08a4f;
+}
+.project-intro p {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #6c5a41;
+}
+.project-heading {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #5a3d22;
+}
+.project-kicker {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9a4b2d;
+}
+
+.project-active {
+  padding: 16px;
+  background: #fffbed;
+  border: 3px solid #a7773f;
+  box-shadow: 5px 5px 0 #8a684144;
+}
+.project-active > header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.project-active h3 {
+  margin: 2px 0 4px;
+  font-size: 20px;
+}
+.project-active header p {
+  font-size: 13px;
+  font-style: italic;
+  color: #6d5b43;
+}
+.project-steps {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.project-steps li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 9px 10px;
+  background: #f6ecc8;
+  border: 2px solid #d3b77c;
+}
+.project-steps li > div {
+  flex: 1;
+  min-width: 0;
+}
+.project-steps li[data-state='done'] {
+  background: #e6efcf;
+  border-color: #9ab870;
+}
+.project-steps li[data-state='done'] b {
+  text-decoration: line-through;
+  color: #58703f;
+}
+.project-steps li[data-state='current'] {
+  background: #fff3c2;
+  border-color: #c9892f;
+  box-shadow: inset 4px 0 #c9892f;
+}
+.project-steps li[data-state='future'] {
+  opacity: 0.75;
+}
+.project-steps small {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: #6c5a41;
+}
+.project-steps progress {
+  display: block;
+  width: 100%;
+  height: 9px;
+  margin-top: 6px;
+  accent-color: #6f9848;
+}
+.project-step-mark {
+  flex: 0 0 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  color: #fff8dc;
+  background: #8b6036;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 800;
+}
+[data-state='done'] > .project-step-mark {
+  background: #5d8a3c;
+}
+.project-delivery {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+.project-reward {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: #f2c76a55;
+  border: 2px solid #c79a48;
+}
+.project-reward small {
+  display: block;
+  font-size: 12px;
+  color: #5f4b30;
+}
+
+.project-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+.project-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 12px;
+  align-items: start;
+  padding: 12px;
+  background: #fff9df;
+  border: 2px solid #c8ab72;
+}
+.project-card:not([data-open]):not(.project-done) {
+  background: #efe6ca;
+  color: #7d6d57;
+}
+.project-card h4 {
+  margin: 0;
+  font-size: 15px;
+}
+.project-card p {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #6c5a41;
+}
+.project-card small {
+  display: block;
+  font-size: 12px;
+  color: #8a5a2e;
+}
+.project-card > button {
+  grid-column: 1 / -1;
+}
+.project-card .pixel-portrait,
+.project-active .pixel-portrait {
+  width: 48px;
+  height: 48px;
+}
+.project-done {
+  background: #f4f0d8;
+  border-color: #9ab870;
+}
+.project-ribbon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  color: #fff8dc;
+  background: #b35d34;
+  border: 2px solid #f1c76f;
+  font-size: 20px;
+}
+
+/* Menus composés */
+.menu-lines {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+.menu-lines li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  background: #f2e6ba;
+  border: 2px dashed #9d7a44;
+}
+.menu-lines li[data-ready] {
+  background: #e3efcb;
+  border-style: solid;
+  border-color: #8fb163;
+}
+.menu-lines li > div {
+  flex: 1;
+  min-width: 0;
+}
+.menu-lines small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: #65553f;
+}
+.menu-lines li > span:last-child {
+  font-weight: 800;
+  color: #4c7a2f;
+}
+
+/* Panier : utilisations et actions secondaires */
+.item-uses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.item-uses li {
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #5b4a33;
+  background: #efe1b4;
+  border: 1px solid #c9ad72;
+  border-radius: 999px;
+}
+.item-uses li[data-kind='goal'] {
+  color: #fff8dc;
+  background: #9a4b2d;
+  border-color: #c9763f;
+}
+/* Effets de plats dans le HUD */
+.buff-chips {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+  overflow-x: auto;
+}
+.buff-chips li {
+  display: flex;
+  gap: 5px;
+  align-items: baseline;
+  padding: 3px 8px;
+  white-space: nowrap;
+  background: #8f3f2e;
+  border: 1px solid #f1c76f;
+  border-radius: 999px;
+}
+.buff-chips b {
+  font-size: 12px;
+}
+.buff-chips small {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+/* Barre de conseil : action directe */
+.farm-status > output {
+  align-self: center;
+  min-width: 0;
+  text-align: center;
+}
+.farm-status-action {
+  flex: 0 0 auto;
+  align-self: center;
+  min-height: 28px;
+  padding: 3px 10px;
+  color: #263e2e;
+  background: #f2dc9f;
+  border: 1px solid #fff3c4;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Carte : réalisations et verger */
+.village-pennants {
+  position: absolute;
+  z-index: 8;
+  left: 42%;
+  top: 1%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 30%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+.village-pennants li {
+  padding: 2px 7px;
+  color: #fff8dc;
+  background: #2f5a35e6;
+  border: 1px solid #f1c76f;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Carnet : vitrine, effets, fête */
+.collection-heading {
+  margin: 18px 0 8px;
+  font-size: 15px;
+  font-weight: 800;
+}
+.collection-grid article[data-empty] {
+  opacity: 0.6;
+}
+.collection-exceptional {
+  color: #9a4b2d !important;
+  font-weight: 700;
+}
+.recipe-effect {
+  display: block;
+  margin-top: 4px;
+  color: #8a4b24;
+}
+.festival-tab {
+  padding: 12px 4px;
+}
+.festival-project-hint {
+  max-width: 920px;
+  margin: 0 auto 10px;
+  padding: 8px 12px;
+  color: #fff8dc;
+  background: #9a4b2d;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .buff-chips li small {
+    display: none;
+  }
+  .village-pennants {
+    display: none;
+  }
+}

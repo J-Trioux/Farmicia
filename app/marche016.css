@@ -1,0 +1,45 @@
+/* 0.16 — Marche libre : un clic sur le décor fait marcher Rosalie. */
+@media (min-width: 901px) {
+  .farm-scroll.camera-fit,
+  .farm-scroll.camera-fit.zoomed {
+    cursor: pointer;
+  }
+}
+/* Repère du point visé : un anneau clair posé au sol, qui s’efface. */
+.pixel-farm .move-marker {
+  position: absolute;
+  z-index: 1;
+  width: 1.9%;
+  aspect-ratio: 2;
+  transform: translate(-50%, -50%);
+  border: 2px solid #fff6c9;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #3b2a1a99, inset 0 0 0 1px #3b2a1a66;
+  pointer-events: none;
+  animation: move-marker 0.9s ease-out forwards;
+}
+@keyframes move-marker {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.45);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+.pixel-farm.reduced-motion .move-marker,
+.reduced-motion .pixel-farm .move-marker {
+  animation: none;
+  opacity: 0.85;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion-full]) .pixel-farm .move-marker {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+[data-reduce-motion] .pixel-farm .move-marker {
+  animation: none;
+  opacity: 0.85;
+}

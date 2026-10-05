@@ -1,0 +1,331 @@
+/* ==========================================================================
+   0.5.5 — La ferme respire : lumière, temps, météo et ambiance.
+   Toutes les couches sont décoratives (pointer-events: none) ; aucune
+   règle n’utilise !important.
+   ========================================================================== */
+
+/* ---------- Pile des calques ----------
+   décor (image) · ambience-layers (5) · lieux (7) · parcelles (8) ·
+   Rosalie (14) · canevas des particules (19) · repères et étiquettes */
+.ambience-layers {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ambience-layers > * {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Avant la première heure réelle, aucun fondu. */
+.ambience-layers:not([data-settled]),
+.ambience-layers:not([data-settled]) > *,
+.ambience-layers:not([data-settled])::before,
+.ambience-layers:not([data-settled])::after {
+  transition: none;
+}
+
+/* ---------- Teinte de la phase (multiply) ---------- */
+.sky-tint {
+  background-color: var(--tint);
+  opacity: var(--tint-alpha);
+  mix-blend-mode: multiply;
+  transition:
+    background-color var(--d-scene) linear,
+    opacity var(--d-scene) linear;
+  will-change: opacity;
+}
+
+/* ---------- Ombres de nuages ----------
+   0.21 : mélange normal au lieu de multiply (Firefox recomposait toute la carte
+   à chaque image sous les nuages qui glissent). Couleur et opacité choisies pour
+   donner le même assombrissement bleuté : écart de moins de 1 % sur les tons de la carte. */
+.cloud-shadows {
+  opacity: 0.55;
+  transition: opacity var(--d-scene) linear;
+}
+.cloud-shadows i {
+  position: absolute;
+  top: 8%;
+  left: -45%;
+  width: 42%;
+  height: 46%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(0 21 37 / 26%),
+    rgb(0 21 37 / 12.1%) 55%,
+    transparent
+  );
+  animation: cloud-drift 140s linear infinite;
+  will-change: transform;
+}
+.cloud-shadows i + i {
+  top: 48%;
+  width: 34%;
+  height: 38%;
+  animation-duration: 190s;
+  animation-delay: -95s;
+}
+[data-phase='evening'] .cloud-shadows,
+[data-phase='night'] .cloud-shadows {
+  opacity: 0.2;
+}
+[data-weather='pluie'] .cloud-shadows,
+[data-weather='brume'] .cloud-shadows {
+  opacity: 0.32;
+}
+@keyframes cloud-drift {
+  to {
+    transform: translateX(360%);
+  }
+}
+
+/* ---------- Brume et lumière dorée ---------- */
+.ambience-layers::before,
+.ambience-layers::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--d-scene) linear;
+  pointer-events: none;
+}
+.ambience-layers[data-weather='brume']::before {
+  /* La brume reste au bord de l’étang et des haies : le potager ne reçoit
+     plus de voile pâle, quelle que soit l’heure réelle de la visite. */
+  inset: 0;
+  opacity: 0.65;
+  background:
+    radial-gradient(ellipse 24% 12% at 47% 82%, rgb(224 237 226 / 16%), transparent 72%),
+    radial-gradient(ellipse 22% 10% at 10% 53%, rgb(225 236 226 / 11%), transparent 75%),
+    radial-gradient(ellipse 22% 10% at 88% 34%, rgb(226 238 228 / 10%), transparent 75%);
+  animation: mist-drift 34s var(--ease-soft) infinite alternate;
+}
+.ambience-layers[data-weather='doree']::after {
+  opacity: 1;
+  background: linear-gradient(
+    115deg,
+    transparent 0 20%,
+    rgb(255 227 154 / 16%) 32%,
+    transparent 44%,
+    transparent 56%,
+    rgb(255 227 154 / 12%) 66%,
+    transparent 78%
+  );
+  mix-blend-mode: screen;
+}
+.ambience-layers[data-weather='pluie']::after {
+  opacity: 1;
+  background: linear-gradient(rgb(44 74 102 / 20%), rgb(44 74 102 / 10%));
+}
+@keyframes mist-drift {
+  to {
+    transform: translateX(8%);
+  }
+}
+
+/* ---------- Lampadaires et fenêtres (screen) ---------- */
+.lights {
+  opacity: var(--lamps);
+  transition: opacity var(--d-scene) linear;
+}
+.lamp-halo {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 214 140 / 90%),
+    rgb(255 176 84 / 42%) 32%,
+    rgb(255 150 60 / 12%) 62%,
+    transparent
+  );
+  transform: translate(-50%, -50%);
+  animation: lamp-flicker 3.4s var(--ease-soft) infinite;
+  animation-delay: var(--flicker-delay);
+}
+.lamp-festival {
+  background: radial-gradient(
+    closest-side,
+    rgb(255 200 120 / 70%),
+    rgb(255 160 70 / 20%) 45%,
+    transparent
+  );
+}
+.window-glow {
+  position: absolute;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 222 150),
+    var(--c-window) 55%,
+    rgb(255 150 60 / 30%)
+  );
+  box-shadow: 0 0 8px 3px rgb(255 170 70 / 45%);
+  opacity: 0.85;
+}
+@keyframes lamp-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.86;
+  }
+  47% {
+    opacity: 0.95;
+  }
+  70% {
+    opacity: 0.9;
+  }
+}
+
+/* ---------- Lisibilité : ce qui est au-dessus de la teinte ---------- */
+/* Les parcelles, Rosalie et les ruines grisées sont au-dessus de la teinte :
+   on les assombrit un peu pour qu’ils appartiennent à la même heure, sans
+   toucher aux anneaux de croissance ni aux repères, qui restent lisibles. */
+.pixel-farm {
+  /* 0.21 : de jour, aucun filtre (valeur vide) au lieu d’un brightness(1) inutile. */
+  --phase-filter: ;
+  --wet-filter: ;
+}
+.pixel-farm:has(> .ambience-layers[data-phase='dawn']) {
+  --phase-filter: brightness(0.94) saturate(0.95);
+}
+.pixel-farm:has(> .ambience-layers[data-phase='golden']) {
+  --phase-filter: sepia(0.18) brightness(0.97);
+}
+.pixel-farm:has(> .ambience-layers[data-phase='evening']) {
+  --phase-filter: brightness(0.78) saturate(0.85);
+}
+.pixel-farm:has(> .ambience-layers[data-phase='night']) {
+  --phase-filter: brightness(0.62) saturate(0.75);
+}
+.pixel-farm:has(> .ambience-layers[data-weather='pluie']) {
+  --wet-filter: brightness(0.8) saturate(1.1);
+}
+.pixel-farm .bed .crop-sprite,
+.pixel-farm .rosalie-sprite {
+  filter: var(--phase-filter);
+  transition: filter var(--d-slow) linear;
+}
+.pixel-farm .bed .soil-tile {
+  filter: var(--phase-filter) var(--wet-filter);
+}
+.pixel-farm .bed .farm-plot.watered .soil-tile {
+  filter: var(--phase-filter) brightness(0.62) saturate(0.88);
+}
+/* La nuit, anneaux et repères gagnent un contour clair. */
+.pixel-farm:has(> .ambience-layers[data-phase='night']) .plot-ring,
+.pixel-farm:has(> .ambience-layers[data-phase='evening']) .plot-ring {
+  box-shadow:
+    0 0 0 2px rgb(255 243 196 / 90%),
+    0 0 8px rgb(255 243 196 / 55%);
+}
+.pixel-farm:has(> .ambience-layers[data-phase='night']) .map-pin {
+  box-shadow:
+    0 2px 0 rgb(76 39 29 / 60%),
+    0 0 0 3px rgb(255 246 220 / 70%),
+    0 0 12px rgb(255 246 220 / 60%);
+}
+
+/* ---------- Canevas des particules ---------- */
+.ambient-canvas {
+  position: absolute;
+  z-index: 19;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+.fps-meter {
+  position: fixed;
+  z-index: 200;
+  top: 76px;
+  left: 12px;
+  padding: 3px 8px;
+  color: #b9ff9c;
+  background: rgb(0 0 0 / 70%);
+  font:
+    700 12px/1.4 ui-monospace,
+    monospace;
+  border-radius: var(--r-sm);
+  pointer-events: none;
+}
+
+/* ---------- Mouvement réduit : états fixes ---------- */
+[data-reduce-motion] .cloud-shadows i,
+[data-reduce-motion] .lamp-halo,
+[data-reduce-motion] .ambience-layers::before {
+  animation: none;
+}
+[data-reduce-motion] .cloud-shadows i {
+  left: 10%;
+}
+[data-reduce-motion] .cloud-shadows i + i {
+  left: 55%;
+}
+
+
+/* ---------- Verger : portion de carte recolorée selon l’état ---------- */
+.orchard-zone {
+  --zx: 74;
+  --zy: 18;
+  --zw: 25;
+  --zh: 28;
+}
+/* Objets posés sur la carte : même heure que le décor. */
+.pixel-farm > .prop-sprite,
+.pixel-farm .irrigation-system > .prop-sprite {
+  filter: var(--phase-filter);
+}
+
+/* ---------- Fanions de la fête au vent ---------- */
+/* Même principe que .zone-ghost : la portion peinte est redessinée par-dessus
+   la carte et oscille d’un pixel autour du mât. Masque doux sur les bords. */
+.bunting {
+  position: absolute;
+  left: calc(var(--zx) * 1%);
+  top: calc(var(--zy) * 1%);
+  width: calc(var(--zw) * 1%);
+  height: calc(var(--zh) * 1%);
+  right: auto;
+  bottom: auto;
+  /* 0.21 : portion découpée dans la carte HD de la saison, masque doux cuit dans
+     la transparence (scripts/cuire-saisons.py) : plus d’image géante ni de masque. */
+  background-image: url('/assets/pixel/carte-hd/saisons/fanions-printemps-gauche.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  animation: bunting-wave 2.6s var(--ease-soft) infinite;
+}
+.bunting-left {
+  --zx: 48.6;
+  --zy: 2.6;
+  --zw: 5.6;
+  --zh: 6.4;
+  transform-origin: 100% 0;
+}
+.bunting-right {
+  --zx: 54.2;
+  --zy: 2.6;
+  --zw: 7;
+  --zh: 6.4;
+  transform-origin: 0 0;
+  animation-delay: -1.3s;
+}
+@keyframes bunting-wave {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  35% {
+    transform: rotate(-1.4deg) translateY(0.4px);
+  }
+  70% {
+    transform: rotate(1deg) translateY(-0.4px);
+  }
+}
+[data-reduce-motion] .bunting {
+  animation: none;
+}
+

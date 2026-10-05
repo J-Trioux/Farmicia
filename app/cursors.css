@@ -1,0 +1,45 @@
+/* Généré par scripts/build-cursors.mjs — ne pas modifier à la main. */
+/* Curseur contextuel : une main pixel et l’outil de l’action à venir. */
+.farm-plot[data-mode='plant'] {
+  cursor: url('/assets/cursors/plant.svg') 7 1, pointer;
+}
+.farm-plot[data-mode='water'] {
+  cursor: url('/assets/cursors/water.svg') 7 1, pointer;
+}
+.farm-plot[data-mode='harvest'] {
+  cursor: url('/assets/cursors/harvest.svg') 7 1, pointer;
+}
+.farm-plot[data-mode='observe'] {
+  cursor: url('/assets/cursors/observe.svg') 7 1, pointer;
+}
+.house-hotspot {
+  cursor: url('/assets/cursors/house.svg') 7 1, pointer;
+}
+.market-hotspot {
+  cursor: url('/assets/cursors/village.svg') 7 1, pointer;
+}
+.festival-hotspot {
+  cursor: url('/assets/cursors/festival.svg') 7 1, pointer;
+}
+.orchard-zone {
+  cursor: url('/assets/cursors/harvest.svg') 7 1, pointer;
+}
+.workshop-zone:not(.state-built), .coop-zone:not(.state-built) {
+  cursor: url('/assets/cursors/build.svg') 7 1, pointer;
+}
+.workshop-zone.state-built, .coop-zone.state-built {
+  cursor: url('/assets/cursors/observe.svg') 7 1, pointer;
+}
+/* Pendant un glissé, le curseur garde l’outil de la première parcelle. */
+.pixel-farm[data-stroke='plant'],
+.pixel-farm[data-stroke='plant'] * {
+  cursor: url('/assets/cursors/plant.svg') 7 1, pointer !important;
+}
+.pixel-farm[data-stroke='water'],
+.pixel-farm[data-stroke='water'] * {
+  cursor: url('/assets/cursors/water.svg') 7 1, pointer !important;
+}
+.pixel-farm[data-stroke='harvest'],
+.pixel-farm[data-stroke='harvest'] * {
+  cursor: url('/assets/cursors/harvest.svg') 7 1, pointer !important;
+}

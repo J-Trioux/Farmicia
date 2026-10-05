@@ -1,0 +1,249 @@
+/* ==========================================================================
+   0.12 — La grande carte (0.13 : carte-hd/carte-hd.png, original 1 536 × 1 024 ; grille 1 200 × 800).
+   Positions et tailles des lieux : lib/world.ts, posées en style par la carte.
+   Ici : l’échelle des objets (la moitié de l’ancienne carte, le domaine étant
+   deux fois plus grand), le rendu net et la pile des profondeurs.
+   ========================================================================== */
+
+/* 0.13 : l’image HD d’origine (1 536 × 1 024, toutes ses couleurs), lissée à
+   l’agrandissement : les petits carrés du dessin restent doux, sans escaliers
+   irréguliers d’un agrandissement non entier. */
+.pixel-farm > .farm-backdrop {
+  image-rendering: auto;
+}
+
+/* ---------- Potager : 20 cases de 44 × 17 px ---------- */
+.pixel-farm .bed {
+  width: 3.6667%;
+  height: 2.125%;
+}
+.pixel-farm .plot-ring {
+  width: clamp(18px, 1.2cqw, 34px);
+}
+.pixel-farm .lineage-mark {
+  width: clamp(12px, 0.8cqw, 23px);
+}
+.pixel-farm .garde-mark {
+  font-size: clamp(11px, 0.55cqw, 14px);
+}
+.pixel-farm .field-effect {
+  width: 3.75%;
+  height: 2.2%;
+}
+
+/* ---------- Pile des profondeurs : sprites au sol et Rosalie ----------
+   Chaque enfant reçoit z-index = hauteur de ses pieds (px de la grille). */
+.depth-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+.depth-layer > button {
+  pointer-events: auto;
+}
+
+/* Rosalie : 37 px de large sur la grille, ancrée à ses pieds (pivot 40, 88 / 96). */
+.pixel-farm .depth-layer .rosalie-player {
+  width: 3.1%;
+  transform: translate(-50%, -91.667%);
+}
+
+/* Aménagements, caravane, relais, établi, semoir, irrigation : posés par leurs pieds. */
+.pixel-farm .living-place {
+  min-width: 0;
+  aspect-ratio: auto;
+  transform: translate(-50%, -100%);
+}
+.pixel-farm .valley-farm-caravan,
+.pixel-farm .valley-relay,
+.pixel-farm .world-bench,
+.pixel-farm .world-seeder,
+.pixel-farm .irrigation-system {
+  position: absolute;
+  transform: translate(-50%, -100%);
+}
+.pixel-farm .irrigation-system > .prop-sprite {
+  top: 0;
+  height: 100%;
+}
+.pixel-farm .irrigation-system::before,
+.pixel-farm .irrigation-system::after {
+  display: none;
+}
+
+/* Objets de la ferme en HD (v040/props-hd.png, même grille 4 × 4). */
+.prop-sprite {
+  image-rendering: auto;
+}
+
+/* ---------- Lieux peints : repère et ruines grisées ---------- */
+.house-hotspot {
+  --pin-y: 62%;
+}
+.market-hotspot {
+  --pin-y: 58%;
+}
+.festival-hotspot {
+  --pin-y: 56%;
+}
+.orchard-zone {
+  --pin-y: 46%;
+}
+.workshop-zone {
+  --pin-y: 40%;
+}
+.coop-zone {
+  --pin-y: 36%;
+}
+
+/* ---------- Ambiance ---------- */
+/* Fanions de la place : les deux guirlandes du mât peintes sur la grande carte. */
+.pixel-farm .bunting-left {
+  --zx: 49.5;
+  --zy: 11.5;
+  --zw: 5.5;
+  --zh: 4;
+}
+.pixel-farm .bunting-right {
+  --zx: 55;
+  --zy: 11.5;
+  --zw: 7.5;
+  --zh: 4;
+}
+/* Heure dorée et temps « doré » : une lumière chaude mais neutre, sans voile jaune. */
+.pixel-farm:has(> .ambience-layers[data-phase='golden']) {
+  --phase-filter: brightness(0.98) saturate(1.04);
+}
+.pixel-farm .ambience-layers[data-weather='doree']::after {
+  background: linear-gradient(
+    115deg,
+    transparent 0 20%,
+    rgb(255 248 232 / 10%) 32%,
+    transparent 44%,
+    transparent 56%,
+    rgb(255 248 232 / 8%) 66%,
+    transparent 78%
+  );
+}
+.pixel-farm .ambience-layers[data-weather='brume']::before {
+  background:
+    radial-gradient(ellipse 12% 6% at 50% 66%, rgb(224 237 226 / 16%), transparent 72%),
+    radial-gradient(ellipse 11% 5% at 17% 50%, rgb(225 236 226 / 11%), transparent 75%),
+    radial-gradient(ellipse 11% 5% at 81% 33%, rgb(226 238 228 / 10%), transparent 75%);
+}
+.pixel-farm .cloud-shadows i {
+  width: 21%;
+  height: 23%;
+}
+.pixel-farm .cloud-shadows i + i {
+  width: 17%;
+  height: 19%;
+}
+.pixel-farm .pond-ripple {
+  width: 1%;
+  height: 0.5%;
+}
+.pixel-farm .ripple-one {
+  left: 46.7%;
+  top: 65.6%;
+}
+.pixel-farm .ripple-two {
+  left: 53.3%;
+  top: 63.8%;
+}
+
+
+/* Bouton « taille réelle » de la barre de zoom. */
+.zoom-tools .zoom-real {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Réalisations du village : une ligne au-dessus de la place, sans couvrir son repère. */
+.pixel-farm .village-pennants {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* Petits écrans (non suivis) : les anciennes hauteurs de parcelle, faites pour
+   l’ancienne carte, feraient se chevaucher les rangées du nouveau potager. */
+@media (max-width: 900px) {
+  .pixel-farm .bed {
+    height: 2.125% !important;
+  }
+}
+
+/* ---------- 0.13 : Restaurer le domaine (carnet) ---------- */
+.restore-box {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+.restore-box > h4 {
+  margin: 0;
+  font-size: 18px;
+}
+.restore-box > p {
+  margin: 0;
+}
+/* Pas de planche pour l’instant : la carte occupe toute la largeur. */
+.embellish-card.restore-card {
+  grid-template-columns: 1fr;
+}
+.embellish-card.restore-card .upgrade-steps {
+  grid-column: 1;
+}
+
+/* ---------- 0.13 : lieux de l’anneau sur la carte ---------- */
+.world-zone.ring-zone {
+  --pin-y: 50%;
+  cursor: pointer;
+}
+.ring-zone .zone-label b {
+  font-weight: 800;
+}
+
+/* ---------- 1.0 : images d’Astra ---------- */
+/* Carte HD par-dessus la carte d’origine : elle apparaît dès qu’elle est chargée. */
+.pixel-farm > .farm-backdrop-hd {
+  image-rendering: auto;
+}
+/* Lieux restaurés et serre, peints sur la carte HD : sous la teinte du ciel. */
+.domain-layers {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.domain-layers img {
+  position: absolute;
+  max-width: none;
+  image-rendering: auto;
+  user-select: none;
+}
+/* Objets HD (vallée, terroirs, ferme) : posés par leurs pieds, image entière. */
+.pixel-farm .living-place,
+.pixel-farm .valley-relay,
+.pixel-farm .irrigation-system,
+.pixel-farm .world-object {
+  background-size: contain;
+  background-position: 50% 100%;
+  background-repeat: no-repeat;
+  image-rendering: auto;
+}
+.pixel-farm .world-object {
+  position: absolute;
+  filter: drop-shadow(1px 3px 1px #35271485);
+  transform: translate(-50%, -100%);
+}
+.pixel-farm .valley-farm-caravan .valley-caravan-sprite {
+  image-rendering: auto;
+}
+
+/* 0.14 : une parcelle survolée passe devant ses voisines, mais jamais devant
+   Rosalie ni les objets posés au sol (pile des profondeurs, z-index 12). */
+.pixel-farm .bed:hover,
+.pixel-farm .bed:focus-within {
+  z-index: 11;
+}

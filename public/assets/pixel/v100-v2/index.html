@@ -1,0 +1,24 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rosalie 1.0 — La vallée prend vie</title><link rel="stylesheet" href="atelier.css"></head><body>
+<main>
+<header><div><p class="eyebrow">LES JARDINS DE ROSALIE · DIRECTION ARTISTIQUE 1.0 / V2</p><h1>La vallée prend vie.</h1><p class="intro">Une carte qui se construit au fil de votre aventure.</p></div><a class="text-link" href="../v100-v2/manifest.json" download>Fichiers & atlas ↗</a></header>
+<div class="topbar"><div class="presets" aria-label="Progression simulée"><button data-preset="new" aria-pressed="false">Les premiers jours</button><button data-preset="progress" aria-pressed="false">Le village s’éveille</button><button data-preset="complete" aria-pressed="true">La vallée accomplie</button></div><span class="preview-label">Aperçu interactif · sauvegarde du jeu intacte</span></div>
+<div class="workspace">
+<section class="map-panel" aria-label="Carte interactive du village">
+<div class="map-toolbar"><span><i class="live-dot"></i> Port des Vergers</span><div class="zoom"><button data-zoom="1" aria-pressed="true">1×</button><button data-zoom="2" aria-pressed="false">2×</button><button id="terrain" aria-pressed="false">Terrain seul</button></div></div>
+<div class="map-scroll"><div class="world" id="world"><canvas id="map" width="768" height="512" tabindex="0" aria-label="Carte : cliquez un lieu pour le découvrir ; cliquez sur un chemin pour déplacer Rosalie."></canvas><div id="hotspots"></div></div></div>
+<div class="map-caption"><span id="map-status" role="status">Chargement de la vallée…</span><span>Cliquer un lieu pour le découvrir</span></div>
+</section>
+<aside id="inspector" aria-label="Lieu sélectionné">
+<div class="place-number">LES LIEUX DE LA VALLÉE <span id="count">6 / 6</span></div>
+<div class="selected-preview"><img id="place-image" alt="" width="192" height="176"></div>
+<span class="state-badge" id="state">Construit</span><h2 id="place-name">Halle des terroirs</h2><p id="place-description"></p>
+<div class="reward"><span>CE QUE CE LIEU APPORTE</span><p id="reward"></p></div><p id="requirement" class="requirement"></p>
+<div class="place-actions"><button id="advance" class="primary">Débloquer dans l’aperçu</button><button id="visit">Y conduire Rosalie</button></div>
+<div class="progression"><label for="level">Niveau simulé <strong id="level-value">12</strong></label><input type="range" min="1" max="12" value="12" id="level"><p>Les conditions suivent les niveaux, achats et projets du jeu. Les boutons simulent leur achèvement.</p></div>
+</aside>
+</div>
+<section class="places-section"><div class="section-heading"><div><p class="eyebrow">CHAQUE LIEU EXISTE SÉPARÉMENT</p><h2>Un village à débloquer.</h2></div><p>Fermé → Disponible → Chantier → Construit</p></div><div id="places" class="place-list"></div></section>
+<section class="cast-section"><div class="section-heading"><div><p class="eyebrow">LES HABITANTS</p><h2>Des silhouettes, du caractère.</h2></div><p>Rosalie · Anaïs · Mathis · Noé</p></div><div id="cast" class="cast"></div></section>
+<section class="delivery"><div><h2>Un décor composé, jamais aplati.</h2><p>Le terrain, les bâtiments, les étapes de construction et les habitants sont des images distinctes. Les lieux apparaissent selon la progression.</p></div><div class="downloads"><a href="terrain.png" download>Terrain vierge ↗</a><a href="sprites-atlas.png" download>Atlas transparent ↗</a><a href="scene.json" download>Placement des lieux ↗</a><a href="characters-atlas.png" download>Personnages ↗</a></div></section>
+<footer><span>Palette lumineuse · Pixels nets · Blancs neutres · Aucun filtre jaune</span><span>Prototype de carte pour la future 1.0</span></footer>
+</main><script type="module" src="atelier.mjs"></script></body></html>

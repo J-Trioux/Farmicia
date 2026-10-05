@@ -1,0 +1,447 @@
+/* ==========================================================================
+   0.17.3 — Le panier en bois et parchemin
+   Même enseigne que la graineterie (auvent vert), filtres en onglets de bois,
+   caisse du superflu, une cagette par produit, pièces qui jaillissent à la vente.
+   ========================================================================== */
+
+.basket-dialog.shop-dialog {
+  width: min(980px, calc(100vw - 24px)) !important;
+}
+/* Auvent vert et crème : le panier, pas la boutique. */
+.basket-dialog .shop-awning {
+  background: repeating-linear-gradient(90deg, #4f7a33 0 36px, #f6ead0 36px 72px);
+}
+.basket-dialog .basket-view {
+  position: relative;
+}
+
+/* ---------- Filtres et tri ---------- */
+.basket-dialog .basket-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 12px;
+}
+.basket-dialog .basket-filters {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 5px;
+  background:
+    repeating-linear-gradient(180deg, #ffffff0d 0 2px, #0000 2px 7px, #00000012 7px 8px, #0000 8px 13px),
+    linear-gradient(180deg, var(--shop-wood-light), var(--shop-wood) 60%, var(--shop-wood-dark));
+  border: 3px solid var(--shop-ink);
+  border-radius: 12px;
+  box-shadow: inset 0 2px 0 #f3c48c88, 0 3px 0 #2a1a0d55;
+}
+.basket-dialog .basket-filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 4px 12px;
+  color: var(--shop-ink);
+  background: linear-gradient(180deg, var(--shop-paper), var(--shop-paper-2));
+  border: 2px solid var(--shop-ink);
+  border-radius: 8px;
+  box-shadow: inset 0 -3px 0 #c8a86a;
+  font-size: 14px;
+  font-weight: 800;
+  transition: transform var(--d-fast) var(--ease-out), background-color var(--d-fast);
+}
+.basket-dialog .basket-filters button small {
+  min-width: 22px;
+  padding: 0 6px;
+  color: var(--shop-paper);
+  background: #6f5530;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 18px;
+  text-align: center;
+}
+.basket-dialog .basket-filters button:hover {
+  transform: translateY(-2px);
+}
+.basket-dialog .basket-filters button[aria-pressed='true'] {
+  color: var(--shop-paper);
+  background: linear-gradient(180deg, #5b8a38, var(--shop-leaf));
+  box-shadow: inset 0 -3px 0 #2e4a1c, 0 0 0 2px var(--shop-gold);
+}
+.basket-dialog .basket-filters button[aria-pressed='true'] small {
+  color: var(--shop-ink);
+  background: var(--shop-gold);
+}
+.basket-dialog .basket-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #5e4424;
+  font-size: 13px;
+  font-weight: 800;
+}
+.basket-dialog .basket-sort select {
+  min-height: 36px;
+  padding: 3px 10px;
+  color: var(--shop-ink);
+  background: #fffaf0;
+  border: 2px solid var(--shop-ink);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ---------- Caisse du superflu ---------- */
+.basket-dialog .surplus-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 8px 10px 8px 8px;
+  color: var(--shop-ink);
+  background:
+    repeating-linear-gradient(90deg, #0000 0 46px, #9a6a3a22 46px 48px),
+    linear-gradient(180deg, #f3dfae, #e6c98a);
+  border: 3px solid var(--shop-ink);
+  border-radius: 12px;
+  box-shadow: inset 0 -4px 0 #c29a58, 0 4px 0 #2a1a0d55;
+}
+.basket-dialog .surplus-crate {
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  height: 48px;
+  background: radial-gradient(circle at 50% 40%, #fff8e2, #f1d9a3 70%);
+  border: 2px solid var(--shop-ink);
+  border-radius: 10px;
+}
+.basket-dialog .surplus-crate .pixel-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+}
+.basket-dialog .surplus-bar p {
+  flex: 1;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+.basket-dialog .surplus-bar p b {
+  margin-right: 4px;
+  font-family: Georgia, serif;
+  font-size: 17px;
+}
+.basket-dialog .surplus-bar button {
+  min-height: 42px;
+  padding: 6px 16px;
+  color: #fff8dc;
+  background: linear-gradient(180deg, #c9573f, var(--shop-seal));
+  border: 3px solid var(--shop-ink);
+  border-radius: 10px;
+  box-shadow: inset 0 3px 0 #e98a6f, inset 0 -4px 0 #7c2718, 0 3px 0 #2a1a0d55;
+  font-size: 14px;
+  font-weight: 900;
+  transition: transform var(--d-fast) var(--ease-out), filter var(--d-fast);
+}
+.basket-dialog .surplus-bar button.secondary-action {
+  color: var(--shop-ink);
+  background: linear-gradient(180deg, var(--shop-paper), var(--shop-paper-2));
+  box-shadow: inset 0 -3px 0 #c8a86a;
+}
+.basket-dialog .surplus-bar button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+.basket-dialog .surplus-bar button:disabled {
+  color: #5e4424;
+  background: #e2d2ac;
+  box-shadow: none;
+  opacity: 1;
+}
+
+/* ---------- Cagettes des produits ---------- */
+.basket-dialog .basket-groups {
+  gap: 10px;
+  margin: 0;
+}
+.basket-dialog .basket-group {
+  overflow: hidden;
+  background: linear-gradient(180deg, #fffaf0, #f7e9c4);
+  border: 3px solid var(--shop-ink);
+  border-radius: 12px;
+  box-shadow: inset 0 -4px 0 #d8bd84, 0 4px 0 #2a1a0d40;
+  animation: crate-in 0.4s var(--ease-bounce) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+.basket-dialog .basket-group[data-reserved] {
+  box-shadow: inset 6px 0 0 #c9892f, inset 0 -4px 0 #d8bd84, 0 4px 0 #2a1a0d40;
+}
+.basket-dialog .basket-group[data-open] {
+  border-color: var(--shop-ink);
+  box-shadow: inset 0 -4px 0 #d8bd84, 0 0 0 3px var(--shop-gold), 0 4px 0 #2a1a0d40;
+}
+.basket-dialog .basket-row {
+  gap: 12px;
+  min-height: 72px;
+  padding: 6px 12px 6px 6px;
+}
+.basket-dialog .basket-row .basket-expand {
+  gap: 12px;
+  min-height: 60px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 10px;
+}
+.basket-dialog .basket-row .basket-expand:hover {
+  background: #f3e2b5;
+}
+.basket-dialog .basket-chevron {
+  width: 14px;
+  color: #6f5530;
+  font-size: 14px;
+  transition: transform var(--d-base) var(--ease-out);
+}
+.basket-dialog .basket-plate {
+  display: grid;
+  place-items: center;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  background: radial-gradient(circle at 50% 38%, #fff8e2, #f1d9a3 70%);
+  border: 2px solid var(--shop-ink);
+  border-radius: 50%;
+  box-shadow: inset 0 -4px 0 #c9a664;
+  transition: transform var(--d-base) var(--ease-bounce);
+}
+.basket-dialog .basket-row .basket-plate .pixel-icon {
+  width: 42px;
+  height: 42px;
+}
+.basket-dialog .basket-row .basket-expand:hover .basket-plate {
+  transform: rotate(-6deg) scale(1.06);
+}
+.basket-dialog .basket-name b {
+  font-family: Georgia, serif;
+  font-size: 18px;
+}
+.basket-dialog .basket-name .basket-count {
+  display: inline-block;
+  margin-left: 2px;
+  color: #6f5530;
+  font-family: inherit;
+  font-size: 15px;
+  animation: count-pop 0.45s var(--ease-bounce);
+}
+.basket-dialog .basket-name .basket-tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+  overflow: visible;
+  white-space: normal;
+}
+.basket-dialog .tier-chip {
+  padding: 1px 8px;
+  color: var(--shop-ink);
+  background: #efe2c2;
+  border: 1.5px solid #b89662;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+/* Qualités : ordinaire (lin), belle (bleu), exceptionnelle (or), chef-d’œuvre (prune). */
+.basket-dialog .tier-chip[data-rank='1'] {
+  color: #1f4f7a;
+  background: #dcebf6;
+  border-color: #6f9cc4;
+}
+.basket-dialog .tier-chip[data-rank='2'] {
+  color: #6a3f06;
+  background: linear-gradient(180deg, #ffe9a6, #f4c24f);
+  border-color: #b9822a;
+}
+.basket-dialog .tier-chip[data-rank='3'] {
+  color: #fff4e6;
+  background: #7a3f6e;
+  border-color: #4f2346;
+}
+.basket-dialog .tier-chip[data-lineage] {
+  color: #2e4a1c;
+  background: #e2eed0;
+  border-color: #7ea45a;
+}
+/* « Commande », « Projet » : une étiquette de cire. */
+.basket-dialog .basket-goals li[data-kind='goal'] {
+  padding: 3px 10px;
+  color: #fff8dc;
+  background: radial-gradient(circle at 35% 30%, #d9644c, var(--shop-seal) 60%, #8a2c1d);
+  border: 2px solid var(--shop-ink);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  transform: rotate(-3deg);
+}
+.basket-dialog .basket-group button.basket-sell-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 16px;
+  color: #fff8dc;
+  background: linear-gradient(180deg, #5b8a38, var(--shop-leaf));
+  border: 3px solid var(--shop-ink);
+  border-radius: 10px;
+  box-shadow: inset 0 3px 0 #86b35a, inset 0 -4px 0 #2e4a1c, 0 3px 0 #2a1a0d55;
+  font-size: 15px;
+  font-weight: 900;
+  transition: transform var(--d-fast) var(--ease-out), filter var(--d-fast);
+}
+.basket-dialog .basket-group button.basket-sell-all:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+.basket-dialog .basket-group button.basket-sell-all:active {
+  transform: translateY(2px) scale(0.96);
+}
+
+/* Détail d’un produit : il se déplie sous la cagette. */
+.basket-dialog .basket-detail {
+  padding: 4px 14px 12px 82px;
+  border-top: 2px dashed #c9a664;
+  animation: detail-unfold 0.3s var(--ease-out);
+}
+.basket-dialog .basket-quality header {
+  border-bottom-color: #c9a664;
+}
+.basket-dialog .basket-quality header b {
+  font-family: Georgia, serif;
+  font-size: 15px;
+}
+.basket-dialog .basket-detail button {
+  min-height: 34px;
+  color: #fff8dc;
+  background: linear-gradient(180deg, #5b8a38, var(--shop-leaf));
+  border: 2px solid var(--shop-ink);
+  border-radius: 8px;
+  box-shadow: inset 0 -3px 0 #2e4a1c;
+}
+.basket-dialog .basket-detail button.secondary-action,
+.basket-dialog .basket-detail button.sell-one {
+  color: var(--shop-ink);
+  background: linear-gradient(180deg, var(--shop-paper), var(--shop-paper-2));
+  box-shadow: inset 0 -3px 0 #c8a86a;
+}
+
+/* Pièce dessinée à côté des prix. */
+.basket-dialog .coin-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe69a, var(--shop-gold) 55%, var(--shop-gold-dark));
+  box-shadow: 0 0 0 1.5px #7a4f10;
+}
+
+/* ---------- Pièces qui jaillissent à la vente ---------- */
+.basket-dialog .coin-burst {
+  position: absolute;
+  z-index: 5;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.basket-dialog .coin-burst i {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe69a, var(--shop-gold) 55%, var(--shop-gold-dark));
+  box-shadow: 0 0 0 1.5px #7a4f10;
+  animation: coin-fly 0.8s var(--ease-out) forwards;
+}
+.basket-dialog .coin-burst i:nth-child(2n) {
+  animation-duration: 0.9s;
+}
+
+/* Bourse : une recette monte en vert. */
+.purse-gain {
+  display: inline-block;
+  animation: coin-flip-shop 0.6s var(--ease-out);
+}
+.purse-earned {
+  position: absolute;
+  top: calc(100% + 2px);
+  right: 14px;
+  color: #c9f39a;
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 900;
+  white-space: nowrap;
+  -webkit-text-stroke: 4px var(--shop-ink);
+  paint-order: stroke fill;
+  pointer-events: none;
+  animation: purse-earned 1.5s var(--ease-out) forwards;
+}
+
+/* Panier vide. */
+.basket-dialog .empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 40px 0;
+  color: #5e4424;
+  font-weight: 700;
+}
+.basket-dialog .empty-state .pixel-icon {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  animation: plate-bob 2.6s var(--ease-soft) infinite;
+}
+
+/* ---------- Animations ---------- */
+@keyframes crate-in {
+  from { opacity: 0; transform: translateY(12px); }
+}
+@keyframes detail-unfold {
+  from { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes count-pop {
+  0% { transform: scale(0.6); }
+  65% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+@keyframes coin-fly {
+  0% { opacity: 1; transform: rotate(var(--a)) translateX(0) scale(0.5); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateX(var(--d)) scale(1); }
+}
+@keyframes coin-flip-shop {
+  0% { transform: rotateY(0) scale(1); }
+  40% { transform: rotateY(180deg) scale(1.25); }
+  100% { transform: rotateY(360deg) scale(1); }
+}
+@keyframes purse-earned {
+  0% { opacity: 0; transform: translateY(8px); }
+  15% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-22px); }
+}
+
+/* Mouvement réduit : rien ne bouge, les ventes se font sans pièces volantes. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion-full]) :is(.basket-dialog .basket-group, .basket-dialog .basket-detail, .basket-dialog .basket-count,
+    .basket-dialog .empty-state .pixel-icon, .purse-gain) {
+    animation: none !important;
+  }
+  :root:not([data-motion-full]) :is(.basket-dialog .coin-burst, .purse-earned) {
+    display: none;
+  }
+}
+[data-reduce-motion] :is(.basket-dialog .basket-group, .basket-dialog .basket-detail, .basket-dialog .basket-count,
+  .basket-dialog .empty-state .pixel-icon, .purse-gain) {
+  animation: none !important;
+}
+[data-reduce-motion] :is(.basket-dialog .coin-burst, .purse-earned) {
+  display: none;
+}

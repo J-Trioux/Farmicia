@@ -1,0 +1,360 @@
+/* ==========================================================================
+   0.9.9 — L’atelier rafraîchi : fourneaux, poulailler, talents et recettes.
+   Couleurs des jetons (tokens.css) ; contraste du texte ≥ 4,5:1 sur parchemin.
+   ========================================================================== */
+.workshop-panel.atelier {
+  display: grid;
+  gap: 14px;
+}
+.atelier h3 {
+  margin: 0;
+  color: var(--c-ink);
+  font: 700 18px Georgia, serif;
+}
+
+/* ---------- Fourneaux ---------- */
+.atelier-collect, .atelier-coop button {
+  min-height: 44px;
+  padding: 0 16px;
+  color: #fff;
+  background: var(--c-leaf);
+  border: 2px solid #3d5e27;
+  border-radius: var(--r-md);
+  box-shadow: var(--relief-wood);
+  font-weight: 800;
+  cursor: pointer;
+}
+.atelier-collect:disabled, .atelier-coop button:disabled {
+  color: var(--c-ink-soft);
+  background: #e8dcb8;
+  border-color: #c5ae7b;
+  box-shadow: none;
+  cursor: default;
+}
+.atelier-collect:not(:disabled):hover, .atelier-coop button:not(:disabled):hover {
+  background: #62913f;
+}
+.atelier-collect:focus-visible, .atelier-coop button:focus-visible, .atelier-cook:focus-visible, .marmite-toggle input:focus-visible + label {
+  outline: 3px solid var(--c-sky);
+  outline-offset: 2px;
+}
+.stove {
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  grid-template-rows: auto auto auto;
+  column-gap: 10px;
+  align-items: center;
+  min-height: 86px;
+  padding: 10px 12px;
+  background: var(--c-paper-light);
+  border: 2px solid #c9ab76;
+  border-radius: var(--r-md);
+}
+.stove > .pixel-icon {
+  grid-row: 1 / span 3;
+  width: 40px;
+  height: 40px;
+}
+.stove b {
+  color: var(--c-ink);
+  font-size: 14px;
+}
+.stove small {
+  color: var(--c-ink-soft);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.stove progress {
+  width: 100%;
+  height: 8px;
+  margin-top: 5px;
+  accent-color: var(--c-gold-deep);
+}
+/* Plaque de fonte : braises quand le fourneau chauffe. */
+
+/* ---------- Poulailler ---------- */
+.atelier-coop {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--c-paper-light);
+  border: 2px solid #c9ab76;
+  border-radius: var(--r-md);
+}
+.atelier-coop > .pixel-icon {
+  width: 40px;
+  height: 40px;
+}
+.atelier-coop b {
+  color: var(--c-ink);
+}
+.atelier-coop p {
+  margin: 2px 0 0;
+  color: var(--c-ink-soft);
+  font-size: 13px;
+}
+
+/* ---------- Talents ---------- */
+
+/* ---------- Carte de recette ---------- */
+.atelier-recipe {
+  display: grid;
+  gap: 12px;
+}
+.recipe-head {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+.recipe-head .catalog-icon {
+  float: none;
+  width: 48px;
+  height: 48px;
+  margin: 0;
+}
+.recipe-head h3 {
+  margin: 0;
+}
+.recipe-head p {
+  margin: 2px 0 0;
+  color: var(--c-ink-soft);
+  font-size: 12px;
+}
+.recipe-head p b {
+  color: var(--c-leaf);
+}
+.recipe-facts {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+.recipe-facts div {
+  min-width: 72px;
+  padding: 6px 10px;
+  text-align: center;
+  background: #f6ecd0;
+  border-radius: var(--r-md);
+}
+.recipe-facts dt {
+  color: var(--c-ink-soft);
+  font-size: 11px;
+}
+.recipe-facts dd {
+  margin: 0;
+  color: var(--c-ink);
+  font-weight: 800;
+}
+.atelier-recipe .recipe-effect {
+  margin: 0;
+  padding: 8px 10px;
+  color: var(--c-ink);
+  background: #fdf1cf;
+  border-left: 4px solid var(--c-gold-deep);
+  font-size: 13px;
+}
+.recipe-note {
+  color: var(--c-ink-soft);
+}
+.atelier-recipe .ingredient-selection {
+  margin: 0;
+  padding: 10px 12px;
+  border: 2px solid #dcc697;
+  border-radius: var(--r-md);
+}
+.atelier-recipe .ingredient-selection legend {
+  padding: 0 6px;
+  color: var(--c-ink);
+  font-weight: 800;
+  font-size: 13px;
+}
+.atelier-recipe .ingredient-selection label {
+  display: grid;
+  grid-template-columns: 28px 92px 1fr;
+  align-items: center;
+  gap: 8px;
+  color: var(--c-ink-soft);
+  font-size: 12px;
+}
+.atelier-recipe .ingredient-selection label .pixel-icon {
+  width: 28px;
+  height: 28px;
+}
+.atelier-recipe .ingredient-selection select {
+  min-height: 40px;
+  border-radius: var(--r-sm);
+}
+.marmite-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f6ecd0;
+  border-radius: var(--r-md);
+}
+.marmite-toggle input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--c-leaf);
+}
+.marmite-toggle label {
+  display: grid;
+  color: var(--c-ink);
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+}
+.marmite-toggle small {
+  color: var(--c-ink-soft);
+  font-weight: 400;
+  font-size: 12px;
+}
+.atelier-recipe .probabilities {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin: 0;
+}
+.atelier-recipe .probabilities .probability-bar {
+  display: flex;
+  justify-content: flex-start;
+  height: 14px;
+  padding: 0;
+  overflow: hidden;
+  background: #efe3c1;
+  border: 2px solid #c9ab76;
+  border-radius: var(--r-pill);
+}
+.probability-bar span {
+  flex-basis: 0;
+  min-width: 0;
+}
+.odds-rustique { --odds: #b39b76; }
+.odds-reussi { --odds: #6f9a48; }
+.odds-savoureux { --odds: #d0922d; }
+.odds-chef { --odds: #8b5cc0; }
+.probability-bar span {
+  background: var(--odds);
+}
+.atelier-recipe .probabilities ul {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.atelier-recipe .probabilities li {
+  display: grid;
+  gap: 1px;
+  padding: 6px 8px;
+  background: #f6ecd0;
+  border-left: 5px solid var(--odds);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+}
+.atelier-recipe .probabilities li span {
+  color: var(--c-ink-soft);
+}
+.atelier-recipe .probabilities li b {
+  color: var(--c-ink);
+  font-size: 14px;
+}
+.atelier-recipe .probabilities li[data-best] {
+  background: #fff8e4;
+  box-shadow: inset 0 0 0 2px var(--odds);
+}
+.atelier-cook {
+  width: 100%;
+  min-height: 48px;
+  font-size: 15px;
+}
+.atelier-cook:disabled {
+  opacity: 0.7;
+}
+
+/* Améliorations qui demandent une autre avant elles. */
+.upgrade-card.state-requires {
+  background: #f3ead2;
+}
+.upgrade-card.state-requires .upgrade-state {
+  color: #fff;
+  background: var(--c-ink-soft);
+}
+
+@media (max-width: 900px) {
+      .recipe-head {
+    grid-template-columns: 40px 1fr;
+  }
+  .recipe-facts {
+    grid-column: 1 / -1;
+  }
+  .atelier-recipe .ingredient-selection label {
+    grid-template-columns: 28px 1fr;
+  }
+  .atelier-recipe .ingredient-selection label select {
+    grid-column: 1 / -1;
+  }
+  .atelier-recipe .probabilities ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* L’atelier place le geste de cuisiner avant les réglages avancés. */
+.workshop-panel.atelier { gap: 7px; }
+.atelier-collect { min-height: 35px; padding: 0 9px; }
+.stove { min-height: 54px; padding: 4px 8px; grid-template-columns: 32px 1fr; column-gap: 7px; }
+.stove > .pixel-icon { width: 32px; height: 32px; }
+.stove small { font-size: 11px; }
+.stove progress { height: 6px; margin-top: 2px; }
+.atelier-coop { min-height: 56px; padding: 7px 12px; }
+.atelier-coop > .pixel-icon { width: 36px; height: 36px; }
+.atelier-coop button { min-height: 38px; }
+.atelier-coop[data-ready] { border-color: #8b703b; background: #fff5d7; }
+
+.recipe-head { grid-template-columns: 48px 1fr auto; }
+.recipe-head h3 { font-size: 20px; }
+.atelier-recipe .recipe-effect { padding: 6px 9px; }
+.recipe-counter { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; padding: 6px 8px; background: #f1e5c8; border: 1px solid #d0b987; border-radius: 4px; }
+.recipe-counter > b { color: #614626; font: 700 13px Georgia, serif; }
+.recipe-counter ul { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.recipe-counter li { display: flex; align-items: center; gap: 5px; max-width: 100%; min-height: 31px; padding: 2px 6px 2px 3px; color: #3b4d2d; background: #fff9e9; border: 1px solid #b3c08c; border-radius: 3px; font-size: 11px; }
+.recipe-counter li[data-missing] { color: #883f32; background: #fff0e4; border-color: #ce9b82; }
+.recipe-counter li .pixel-icon { flex: none; width: 24px; height: 24px; image-rendering: pixelated; }
+.recipe-counter li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recipe-counter li b { flex: none; font-size: 11px; }
+.recipe-odds-brief { display: grid; gap: 4px; color: #51412d; font-size: 12px; }
+.recipe-odds-brief b { color: #426b37; }
+.recipe-odds-brief .probability-bar { display: flex; height: 8px; overflow: hidden; background: #ddc99e; border: 1px solid #9c7d52; border-radius: 3px; }
+.recipe-odds-brief .probability-bar span { flex-basis: 0; background: var(--odds); }
+.atelier-recipe .marmite-toggle { padding: 6px 9px; }
+.atelier-recipe .marmite-toggle label { font-size: 12px; }
+.atelier-recipe .marmite-toggle small { font-size: 11px; }
+.atelier-recipe .atelier-cook { min-height: 46px; margin: 0; border-radius: 4px; box-shadow: 0 3px 0 #294825; }
+.atelier-recipe .atelier-cook:not(:disabled):hover { filter: brightness(1.13); }
+.atelier-recipe .atelier-cook:disabled { box-shadow: none; }
+.atelier-recipe .recipe-options { margin: 0; border-top: 1px dashed #bb9c67; font-size: 12px; }
+.recipe-options > summary { padding: 7px 4px 2px; color: #48693e; font-weight: 800; cursor: pointer; }
+.recipe-options[open] > summary { margin-bottom: 7px; }
+.recipe-options-body { display: grid; gap: 10px; padding: 4px 0 0; }
+.recipe-options-body .ingredient-selection { margin: 0; }
+.recipe-options-body .probabilities { margin: 0; }
+.recipe-odds-help { color: #5d4d36; }
+.recipe-odds-help summary { cursor: pointer; font-weight: 700; }
+
+@keyframes atelier-egg-hop { 50% { transform: translateY(-3px); } }
+.atelier-coop[data-ready] > .pixel-icon { animation: atelier-egg-hop 1.8s steps(3, end) infinite; }
+
+@media (max-width: 900px) {
+  .recipe-head { grid-template-columns: 48px 1fr; }
+  .recipe-facts { grid-column: 1 / -1; }
+  .recipe-counter { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion-full]) .atelier-coop[data-ready] > .pixel-icon { animation: none; }
+}
+[data-reduce-motion] .atelier-coop[data-ready] > .pixel-icon { animation: none; }

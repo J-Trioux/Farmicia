@@ -1,0 +1,1286 @@
+/* ==========================================================================
+   0.17.5 — La cuisine de Rosalie, dans sa propre fenêtre (components/kitchen.tsx)
+
+   Même direction que la graineterie et le panier : enseigne de bois, auvent,
+   parchemin, contour encre. En haut, collé au bord, le bandeau des fourneaux
+   en fonte (feux, cloche, poulailler, talents) ; dessous, les recettes en
+   grille, chacune avec ses ingrédients et son bouton « Cuisiner ». Le détail
+   d’une recette s’ouvre à côté de la grille.
+   (0.17.4 : ce fichier habillait la page Atelier du carnet ; elle n’est plus
+   qu’une porte, `.kitchen-entrance`.)
+   ========================================================================== */
+
+.kitchen-dialog,
+.kitchen-entrance {
+  --k-ink: #3b2a1a;
+  --k-paper: #fbf1d4;
+  --k-paper-2: #f0dcaa;
+  --k-iron: #2e2824;
+  --k-iron-2: #463d36;
+  --k-copper: #c0703a;
+  --k-copper-light: #e8a066;
+  --k-brass: #d8a94a;
+  --k-leaf: #44672b;
+  --k-gold: #f4c24f;
+  --k-gold-text: #7a4f10;
+  --k-seal: #9c3522;
+  --k-fire: #ff9b2e;
+}
+
+/* ---------- La fenêtre ---------- */
+.kitchen-dialog {
+  width: min(1320px, calc(100vw - 24px)) !important;
+  height: min(940px, calc(100dvh - 32px));
+  max-height: none !important;
+}
+.kitchen-dialog .shop-awning {
+  background: repeating-linear-gradient(90deg, #a8582c 0 36px, #f6ead0 36px 72px);
+}
+.kitchen-dialog > .kitchen-scroll {
+  flex: 1;
+  min-height: 0;
+  /* La hauteur de la zone qui défile sert au détail (100cqh). */
+  container-type: size;
+  padding: 0 22px 22px;
+  overflow-y: auto;
+  scroll-padding-top: 110px;
+}
+.kitchen-dialog .coin-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  vertical-align: -1px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe69a, var(--k-gold) 55%, #b9822a);
+  box-shadow: 0 0 0 1.5px var(--k-gold-text);
+}
+/* Messages (« Rosalie part à l’atelier… ») : un bandeau en bas de la fenêtre. */
+.kitchen-dialog > .dialog-notice {
+  z-index: 8;
+  top: auto;
+  bottom: 18px;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 0 #2a1a0d55, 0 10px 24px #2a1a0d55;
+}
+/* Dernière assiette : dans l’enseigne, à la place de la bourse. */
+.kitchen-last {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 320px;
+  padding: 5px 16px 5px 6px;
+  color: var(--k-ink);
+  background: linear-gradient(180deg, var(--k-paper), var(--k-paper-2));
+  border: 3px solid var(--k-ink);
+  border-radius: 999px;
+  box-shadow: inset 0 -3px 0 #c8a86a, 0 3px 0 #2a1a0d66;
+  animation: last-in 0.6s var(--ease-bounce) both;
+}
+.kitchen-last small {
+  display: block;
+  color: #6f5530;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.kitchen-last b {
+  display: block;
+  overflow: hidden;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kitchen-last-plate {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  background: #fffaf0;
+  border: 2px solid var(--k-ink);
+  border-radius: 50%;
+}
+.kitchen-last-plate .pixel-icon {
+  width: 30px;
+  height: 30px;
+}
+.kitchen-last.reveal-savoureux .kitchen-last-plate,
+.kitchen-last.reveal-chef .kitchen-last-plate {
+  background: radial-gradient(circle, #fff6cf, var(--k-gold));
+  box-shadow: 0 0 12px #ffd86acc;
+}
+
+/* ---------- Bandeau des fourneaux (toujours visible) ---------- */
+.kitchen-range {
+  position: sticky;
+  z-index: 4;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 -22px 16px;
+  padding: 10px 22px;
+  color: var(--k-paper);
+  background:
+    linear-gradient(180deg, #ffffff12, #0000 40%),
+    repeating-linear-gradient(90deg, #0000 0 22px, #ffffff08 22px 23px),
+    linear-gradient(180deg, var(--k-iron-2), var(--k-iron));
+  border-bottom: 4px solid var(--k-ink);
+  box-shadow: inset 0 -3px 0 #16110e, 0 6px 12px #2a1a0d40;
+}
+/* Barre de laiton du piano. */
+.kitchen-range::after {
+  content: '';
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 3px;
+  height: 3px;
+  background: linear-gradient(90deg, #8f6a22, #f3d489, var(--k-brass), #8f6a22);
+  border-radius: 999px;
+}
+.kitchen-range[data-ready] {
+  box-shadow: inset 0 -3px 0 #16110e, 0 6px 18px #ffcf5a55;
+}
+/* Rosalie aux fourneaux (reprise de l’édition faite sur le Mac en 0.17.4). */
+.kitchen-rosalie {
+  flex: none;
+  width: 46px;
+  height: 56px;
+  background: url('/assets/pixel/rosalie-v100/rosalie-atlas-hd.png') 0% 81.8182% / 800% 1200% no-repeat;
+  animation: kitchen-rosalie-cook 1.12s steps(1) infinite;
+}
+@keyframes kitchen-rosalie-cook {
+  0% { background-position-x: 0%; }
+  12.5% { background-position-x: 14.2857%; }
+  25% { background-position-x: 28.5714%; }
+  37.5% { background-position-x: 42.8571%; }
+  50% { background-position-x: 57.1429%; }
+  62.5% { background-position-x: 71.4286%; }
+  75% { background-position-x: 85.7143%; }
+  87.5% { background-position-x: 100%; }
+}
+.kitchen-stoves {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.kstove {
+  position: relative;
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  column-gap: 9px;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  max-width: 250px;
+  min-height: 62px;
+  padding: 5px 12px 5px 6px;
+  background: linear-gradient(180deg, #3a322c, #2a2420);
+  border: 2px solid #120e0b;
+  border-radius: 12px;
+  box-shadow: inset 0 2px 0 #5d534b, inset 0 -3px 0 #120e0b;
+}
+.kstove-hob {
+  position: relative;
+  display: grid;
+  grid-row: 1 / -1;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  color: #a99a86;
+  background:
+    radial-gradient(circle, #0000 0 52%, #1a1512 53% 57%, #0000 58%),
+    radial-gradient(circle at 50% 40%, #4a413a, #231d19 70%);
+  border: 2px solid #120e0b;
+  border-radius: 50%;
+  box-shadow: inset 0 -3px 0 #0008, 0 2px 0 #5d534b;
+}
+.kstove[data-state='busy'] .kstove-hob {
+  background:
+    radial-gradient(circle, #0000 0 60%, #231d19 61%),
+    conic-gradient(var(--k-fire) calc(var(--cook, 0) * 1%), #3b322c 0);
+}
+.kstove[data-state='ready'] .kstove-hob {
+  background:
+    radial-gradient(circle, #0000 0 60%, #231d19 61%),
+    conic-gradient(var(--k-gold) 0 100%);
+  animation: hob-ready 1.8s var(--ease-soft) infinite;
+}
+.kstove[data-state='ready'] {
+  border-color: #6b4f14;
+  box-shadow: inset 0 2px 0 #5d534b, inset 0 -3px 0 #120e0b, 0 0 0 2px var(--k-gold);
+}
+.kstove-pan {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  background: radial-gradient(circle at 40% 35%, var(--k-copper-light), var(--k-copper) 55%, #7c4118);
+  border: 2px solid var(--k-ink);
+  border-radius: 50%;
+  box-shadow: inset 0 -2px 0 #0005, 0 2px 3px #0008;
+}
+.kstove-pan .pixel-icon {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+}
+.kstove[data-state='busy'] .kstove-pan {
+  animation: pan-simmer 1.2s var(--ease-soft) infinite;
+}
+.kstove[data-state='ready'] .kstove-pan {
+  background: radial-gradient(circle at 40% 35%, #fff4c8, var(--k-gold) 60%, #b9822a);
+  animation: pan-ready 1.8s var(--ease-soft) infinite;
+}
+.kstove-fire {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  display: flex;
+  gap: 2px;
+  transform: translateX(-50%);
+}
+.kstove-fire i {
+  width: 7px;
+  height: 12px;
+  background: radial-gradient(ellipse at 50% 80%, #fff3b0 0 18%, #ffcb45 35%, var(--k-fire) 60%, #e0451f 85%, #0000 88%);
+  border-radius: 50% 50% 45% 45% / 70% 70% 30% 30%;
+  transform-origin: 50% 100%;
+  animation: flame 0.7s var(--ease-soft) infinite alternate;
+}
+.kstove-fire i:nth-child(2) {
+  height: 15px;
+  animation-duration: 0.55s;
+  animation-delay: -0.2s;
+}
+.kstove-fire i:nth-child(3) {
+  animation-duration: 0.8s;
+  animation-delay: -0.4s;
+}
+.kstove-steam {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 0;
+}
+.kstove-steam i {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin-left: -4px;
+  background: #f4efe6cc;
+  border-radius: 50%;
+  filter: blur(1px);
+  opacity: 0;
+  animation: steam 2.2s var(--ease-out) infinite;
+}
+.kstove-steam i:nth-child(2) {
+  --drift: -8px;
+  animation-delay: 1.1s;
+}
+/* Feu libre : des braises ; Rosalie en route : le feu s’allume. */
+.kstove[data-state='free'] .kstove-hob::after,
+.kstove[data-state='arriving'] .kstove-hob::after {
+  content: '';
+  position: absolute;
+  inset: 15px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff8a3a55, #0000 70%);
+  animation: ember 2.4s var(--ease-soft) infinite;
+}
+.kstove[data-state='arriving'] .kstove-hob::after {
+  inset: 5px;
+  background: radial-gradient(circle, #ffb45acc, #ff6a2a55 55%, #0000 72%);
+  animation: ignite 1s var(--ease-soft) infinite;
+}
+.kstove[data-state='locked'] {
+  background: linear-gradient(180deg, #332c27, #26201c);
+}
+.kstove-text {
+  min-width: 0;
+}
+.kstove-text b {
+  display: block;
+  overflow: hidden;
+  color: var(--k-paper);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kstove-text small {
+  display: block;
+  color: #d9c69c;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.kstove[data-state='ready'] .kstove-text small {
+  color: #c9f39a;
+}
+.kstove[data-state='locked'] .kstove-text :is(b, small) {
+  color: #bfae8c;
+}
+.kstove progress {
+  grid-column: 2;
+  width: 100%;
+  height: 5px;
+  margin-bottom: 2px;
+  appearance: none;
+  overflow: hidden;
+  background: #1a1512;
+  border: 0;
+  border-radius: 999px;
+}
+.kstove progress::-webkit-progress-bar {
+  background: #1a1512;
+}
+.kstove progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #e0451f, var(--k-fire));
+}
+.kstove progress::-moz-progress-bar {
+  background: linear-gradient(90deg, #e0451f, var(--k-fire));
+}
+.kstove[data-state='ready'] progress::-webkit-progress-value {
+  background: var(--k-gold);
+}
+.kstove[data-state='ready'] progress::-moz-progress-bar {
+  background: var(--k-gold);
+}
+/* Cloche : elle sonne quand un plat attend. */
+.kitchen-bell {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 16px;
+  color: var(--k-ink);
+  background: linear-gradient(180deg, #f6dc92, var(--k-brass) 55%, #a57a26);
+  border: 2px solid var(--k-ink);
+  border-radius: 999px;
+  box-shadow: inset 0 2px 0 #fff2c2, inset 0 -3px 0 #7a5716, 0 3px 0 #0006;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.kitchen-bell:disabled {
+  color: #cdbd99;
+  background: #574c43;
+  box-shadow: inset 0 -3px 0 #2c2520;
+  cursor: default;
+}
+.kitchen-bell[data-ready] {
+  animation: bell-glow 1.6s var(--ease-soft) infinite;
+}
+.kitchen-bell[data-ready] svg {
+  transform-origin: 50% 10%;
+  animation: bell-ring 1.6s var(--ease-out) infinite;
+}
+/* Poulailler : une petite planche dans le bandeau. */
+.kitchen-coop {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 5px 4px 4px;
+  color: var(--k-ink);
+  background:
+    repeating-linear-gradient(90deg, #0000 0 18px, #7a4f2a1f 18px 20px),
+    linear-gradient(180deg, #f3dfae, #e2c386);
+  border: 2px solid var(--k-ink);
+  border-radius: 12px;
+  box-shadow: inset 0 -3px 0 #c29a58;
+}
+.kitchen-hen .pixel-icon {
+  width: 36px;
+  height: 36px;
+  transform-origin: 50% 90%;
+  animation: hen-peck 3s var(--ease-soft) infinite;
+}
+.kitchen-coop[data-ready] .kitchen-hen .pixel-icon {
+  animation: hen-happy 0.9s var(--ease-bounce) infinite;
+}
+.kitchen-coop-text b {
+  display: block;
+  font-size: 13px;
+}
+.kitchen-coop-text small {
+  display: block;
+  color: #5e4424;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.kitchen-coop button {
+  min-height: 40px;
+  padding: 0 12px;
+  color: #fff8dc;
+  background: linear-gradient(180deg, #4f7a33, var(--k-leaf));
+  border: 2px solid var(--k-ink);
+  border-radius: 9px;
+  box-shadow: inset 0 -3px 0 #2e4a1c;
+  font-weight: 900;
+  cursor: pointer;
+}
+.kitchen-coop[data-ready] button {
+  box-shadow: inset 0 -3px 0 #2e4a1c, 0 0 0 3px var(--k-gold);
+}
+.kitchen-coop button:disabled {
+  color: #5e4424;
+  background: #e2d2ac;
+  box-shadow: none;
+  cursor: default;
+}
+/* Talents : un bouton, les jauges s’ouvrent dessous. */
+.kitchen-talents {
+  position: relative;
+  flex: none;
+}
+.kitchen-talents > summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  color: var(--k-ink);
+  background: linear-gradient(180deg, var(--k-paper), var(--k-paper-2));
+  border: 2px solid var(--k-ink);
+  border-radius: 999px;
+  box-shadow: inset 0 -3px 0 #c8a86a;
+  font-size: 13px;
+  font-weight: 900;
+  list-style: none;
+  cursor: pointer;
+}
+.kitchen-talents > summary::-webkit-details-marker {
+  display: none;
+}
+.kitchen-talents > summary b {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  color: #fff8dc;
+  background: var(--k-seal);
+  border: 2px solid var(--k-ink);
+  border-radius: 999px;
+  font-size: 12px;
+  animation: stock-pop 0.5s var(--ease-bounce);
+}
+.kitchen-talents[data-points] > summary {
+  box-shadow: inset 0 -3px 0 #c8a86a, 0 0 0 3px var(--k-gold);
+}
+.kitchen-talents > ul {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + 10px);
+  right: 0;
+  display: grid;
+  gap: 8px;
+  width: min(460px, 80vw);
+  margin: 0;
+  padding: 12px 14px;
+  color: var(--k-ink);
+  background: linear-gradient(180deg, #fffaf0, #f3e2b5);
+  border: 3px solid var(--k-ink);
+  border-radius: 12px;
+  box-shadow: inset 0 -4px 0 #d8bd84, 0 8px 18px #2a1a0d55;
+  list-style: none;
+  animation: talents-drop 0.3s var(--ease-bounce) both;
+}
+.kitchen-talents li {
+  display: grid;
+  grid-template-columns: 88px 26px minmax(60px, 1fr) auto;
+  grid-template-areas: 'name value gauge plus' 'hint hint hint hint';
+  align-items: center;
+  column-gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.kitchen-talents li > span:first-child { grid-area: name; }
+.kitchen-talents li .talent-value { grid-area: value; text-align: center; }
+.kitchen-talents li .talent-gauge { grid-area: gauge; }
+.kitchen-talents li small {
+  grid-area: hint;
+  color: #6f5530;
+  font-size: 11px;
+  font-weight: 700;
+}
+.kitchen-talents li button {
+  grid-area: plus;
+  min-width: 44px;
+  min-height: 32px;
+  color: #fff8dc;
+  background: linear-gradient(180deg, #4f7a33, var(--k-leaf));
+  border: 2px solid var(--k-ink);
+  border-radius: 8px;
+  font-weight: 900;
+}
+.kitchen-talents li button:disabled {
+  color: #5e4424;
+  background: #e2d2ac;
+}
+.kitchen-talents .talent-gauge {
+  height: 10px;
+  overflow: hidden;
+  background: #e2d2ac;
+  border: 2px solid var(--k-ink);
+  border-radius: 999px;
+}
+.kitchen-talents .talent-gauge i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #d0922d, var(--k-gold));
+  transition: width 0.6s var(--ease-out);
+}
+.kitchen-talents .talent-value {
+  animation: stock-pop 0.5s var(--ease-bounce);
+}
+
+/* ---------- Filtres ---------- */
+.kitchen-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+}
+.kitchen-filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 14px;
+  color: var(--k-ink);
+  background: linear-gradient(180deg, #fffaf0, #f3e2b5);
+  border: 2px solid var(--k-ink);
+  border-radius: 999px;
+  box-shadow: inset 0 -3px 0 #d8bd84;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform var(--d-fast) var(--ease-out);
+}
+.kitchen-filters button:hover {
+  transform: translateY(-2px);
+}
+.kitchen-filters button small {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  color: var(--k-ink);
+  background: #e9d6a6;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.kitchen-filters button[aria-pressed='true'] {
+  color: #fff8dc;
+  background: linear-gradient(180deg, #954a28, #7a3a20);
+  box-shadow: inset 0 -3px 0 #4f2412, 0 3px 0 #2a1a0d40;
+}
+.kitchen-filters button[aria-pressed='true'] small {
+  color: var(--k-ink);
+  background: var(--k-paper);
+}
+.kitchen-filters .kitchen-ready-filter {
+  margin-left: auto;
+}
+.kitchen-check {
+  width: 18px;
+  height: 18px;
+  background: var(--k-paper);
+  border: 2px solid var(--k-ink);
+  border-radius: 5px;
+}
+.kitchen-filters .kitchen-ready-filter[aria-pressed='true'] {
+  background: linear-gradient(180deg, #4f7a33, var(--k-leaf));
+  box-shadow: inset 0 -3px 0 #2e4a1c;
+}
+.kitchen-ready-filter[aria-pressed='true'] .kitchen-check {
+  background:
+    linear-gradient(45deg, #0000 45%, var(--k-leaf) 45% 60%, #0000 60%) 2px 5px / 6px 7px no-repeat,
+    linear-gradient(-45deg, #0000 42%, var(--k-leaf) 42% 58%, #0000 58%) 5px 1px / 8px 11px no-repeat,
+    var(--k-paper);
+}
+
+/* ---------- La grille des recettes ---------- */
+.kitchen-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.kitchen-layout[data-detail] {
+  grid-template-columns: minmax(0, 1fr) 420px;
+}
+.kitchen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.kitchen-grid > li {
+  display: grid;
+  animation: tile-in 0.42s var(--ease-bounce) both;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+.recipe-tile {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 9px;
+  padding: 12px;
+  color: var(--k-ink);
+  background: linear-gradient(180deg, #fffdf6, #f7ebc9);
+  border: 3px solid var(--k-ink);
+  border-radius: 14px;
+  box-shadow: inset 0 -4px 0 #dcc38a, 0 4px 0 #2a1a0d40;
+  transition: transform var(--d-fast) var(--ease-out), box-shadow var(--d-fast);
+}
+.recipe-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: inset 0 -4px 0 #dcc38a, 0 7px 0 #2a1a0d33;
+}
+.recipe-tile[aria-current] {
+  box-shadow: inset 0 -4px 0 #dcc38a, 0 0 0 4px var(--k-gold), 0 4px 0 #2a1a0d40;
+}
+/* Faisable : un sceau vert au coin. */
+.recipe-tile[data-state='ready']::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 26px;
+  height: 26px;
+  background:
+    linear-gradient(45deg, #0000 45%, #fff8dc 45% 60%, #0000 60%) 5px 9px / 7px 8px no-repeat,
+    linear-gradient(-45deg, #0000 42%, #fff8dc 42% 58%, #0000 58%) 9px 4px / 10px 13px no-repeat,
+    var(--k-leaf);
+  border: 2px solid var(--k-ink);
+  border-radius: 50%;
+  box-shadow: 0 2px 0 #2a1a0d55;
+}
+.recipe-tile[data-state='missing'],
+.recipe-tile[data-state='locked'] {
+  background: linear-gradient(180deg, #f8f0dc, #eadcb8);
+}
+.recipe-tile[data-state='missing'] .tile-plate .pixel-icon,
+.recipe-tile[data-state='locked'] .tile-plate .pixel-icon {
+  filter: saturate(0.55);
+}
+.recipe-tile > header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.tile-plate {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  background: radial-gradient(circle, #fffaf0 0 58%, #e9d6a6 60% 66%, #fffaf0 68%);
+  border: 3px solid var(--k-ink);
+  border-radius: 50%;
+  box-shadow: 0 3px 0 #2a1a0d40;
+}
+.tile-plate .pixel-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+}
+.recipe-tile:hover .tile-plate .pixel-icon {
+  animation: plate-bob 1.2s var(--ease-soft) infinite;
+}
+.tile-plate[data-sent] {
+  animation: tile-sent 0.7s var(--ease-bounce);
+}
+.recipe-tile h4 {
+  margin: 0;
+  font: 700 16px/1.2 Georgia, serif;
+}
+.kitchen-dialog .mastery-stars {
+  color: #c98a12;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 0 var(--k-gold-text);
+}
+.kitchen-dialog .mastery-stars i {
+  color: #cdbb92;
+  font-style: normal;
+  text-shadow: none;
+}
+.tile-facts {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+}
+.tile-facts > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  background: #fffaf0;
+  border: 2px solid #c9a664;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.tile-ingredients {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background:
+    repeating-linear-gradient(180deg, #ffffff10 0 2px, #0000 2px 9px, #0000000f 9px 10px),
+    linear-gradient(180deg, #e2b77c, #c99658);
+  border: 2px solid var(--k-ink);
+  border-radius: 10px;
+}
+.tile-ingredients li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px 2px 3px;
+  background: var(--k-paper);
+  border: 2px solid var(--k-ink);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.tile-ingredients li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tile-ingredients li b {
+  font-variant-numeric: tabular-nums;
+}
+.tile-ingredients li[data-missing] {
+  color: var(--k-seal);
+  background: #ffe2d6;
+}
+.tile-ingredients .pixel-icon {
+  width: 22px;
+  height: 22px;
+}
+.tile-missing,
+.tile-lock {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  color: var(--k-seal);
+  font-size: 12px;
+  font-weight: 800;
+}
+.tile-lock {
+  align-self: start;
+  padding: 7px 9px;
+  color: #5e4424;
+  background: #efe3c3;
+  border: 2px dashed #b79a64;
+  border-radius: 10px;
+}
+.tile-actions {
+  display: flex;
+  gap: 6px;
+}
+.tile-actions button {
+  min-height: 44px;
+  border: 3px solid var(--k-ink);
+  border-radius: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform var(--d-fast) var(--ease-out), filter var(--d-fast);
+}
+.tile-actions button:not(:disabled):hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+.tile-actions button:not(:disabled):active {
+  transform: translateY(2px) scale(0.97);
+}
+.tile-cook {
+  position: relative;
+  flex: 1;
+  overflow: visible;
+  color: #fff8dc;
+  background: linear-gradient(180deg, #a85a28, #9a5024 55%, #7a3d17);
+  box-shadow: inset 0 3px 0 #d88a55, inset 0 -4px 0 #5e2f10;
+  font-size: 15px;
+  text-shadow: 0 1px 0 #5e2f10;
+}
+.tile-cook:disabled {
+  color: #6f5530;
+  background: #e2d2ac;
+  border-color: #9c8660;
+  box-shadow: none;
+  text-shadow: none;
+  cursor: default;
+}
+.tile-double {
+  min-width: 48px;
+  color: var(--k-ink);
+  background: linear-gradient(180deg, #f6dc92, var(--k-brass) 55%, #a57a26);
+  box-shadow: inset 0 2px 0 #fff2c2, inset 0 -3px 0 #7a5716;
+  font-size: 15px;
+}
+.tile-double:disabled {
+  opacity: 0.5;
+}
+.tile-more {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  color: var(--k-ink);
+  background: linear-gradient(180deg, #fffaf0, #f3e2b5);
+  box-shadow: inset 0 -3px 0 #d8bd84;
+}
+.tile-more[aria-expanded='true'] {
+  color: #fff8dc;
+  background: linear-gradient(180deg, #954a28, #7a3a20);
+  box-shadow: inset 0 -3px 0 #4f2412;
+}
+/* Recettes à venir : en ombre, sans nom. */
+.recipe-tile.mystery {
+  grid-template-rows: auto auto;
+  align-content: center;
+  justify-items: center;
+  min-height: 150px;
+  text-align: center;
+  background: repeating-linear-gradient(135deg, #efe3c3 0 12px, #e8d9b3 12px 24px);
+  border-style: dashed;
+  border-color: #8a7353;
+  box-shadow: none;
+}
+.recipe-tile.mystery:hover {
+  transform: none;
+}
+.recipe-tile.mystery > header {
+  flex-direction: column;
+}
+.recipe-tile.mystery .tile-plate .pixel-icon {
+  filter: brightness(0) opacity(0.35);
+}
+.recipe-tile.mystery h4 {
+  color: #6f5530;
+  font-size: 22px;
+}
+.recipe-tile.mystery.more b {
+  color: #6f5530;
+  font: 700 28px Georgia, serif;
+}
+.recipe-tile.mystery.more small {
+  color: #5e4424;
+  font-size: 13px;
+  font-weight: 800;
+}
+.kitchen-empty {
+  grid-column: 1 / -1;
+  padding: 24px;
+  color: #5e4424;
+  background: #efe3c3;
+  border: 2px dashed #b79a64;
+  border-radius: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* ---------- Le détail d’une recette, à côté ---------- */
+.kitchen-detail {
+  position: sticky;
+  top: 96px;
+  max-height: calc(100cqh - 112px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: detail-in 0.35s var(--ease-bounce) both;
+}
+.kitchen-detail-close {
+  position: absolute;
+  z-index: 3;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--k-ink);
+  background: linear-gradient(180deg, var(--k-paper), var(--k-paper-2));
+  border: 2px solid var(--k-ink);
+  border-radius: 9px;
+  box-shadow: inset 0 -2px 0 #c8a86a;
+  cursor: pointer;
+}
+.kitchen-detail .atelier-recipe {
+  width: 100%;
+  padding: 14px;
+  gap: 10px;
+  background: linear-gradient(180deg, #fffdf6, #f7ebc9);
+  border: 3px solid var(--k-ink);
+  border-radius: 14px;
+  box-shadow: inset 0 -4px 0 #dcc38a;
+}
+.kitchen-detail .recipe-head {
+  grid-template-columns: 52px minmax(0, 1fr);
+  padding-right: 40px;
+}
+.kitchen-detail .recipe-head .catalog-icon {
+  width: 52px;
+  height: 52px;
+}
+.kitchen-detail .recipe-head h3 {
+  font: 700 20px Georgia, serif;
+}
+.kitchen-detail .recipe-facts {
+  grid-column: 1 / -1;
+  justify-content: start;
+}
+.kitchen-detail .recipe-facts div {
+  padding: 4px 10px;
+  background: #fffaf0;
+  border: 2px solid #c9a664;
+  border-radius: 8px;
+}
+.kitchen-detail .recipe-effect {
+  padding: 8px 10px;
+  background: #fff3c6;
+  border: 2px dashed #c9a664;
+  border-radius: 8px;
+}
+.kitchen-detail .recipe-counter {
+  padding: 8px;
+  background:
+    repeating-linear-gradient(180deg, #ffffff10 0 2px, #0000 2px 9px, #0000000f 9px 10px),
+    linear-gradient(180deg, #e2b77c, #c99658);
+  border: 2px solid var(--k-ink);
+  border-radius: 10px;
+}
+.kitchen-detail .recipe-counter li {
+  padding: 3px 9px 3px 4px;
+  background: var(--k-paper);
+  border: 2px solid var(--k-ink);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.kitchen-detail .recipe-counter li[data-missing] {
+  color: var(--k-seal);
+  background: #ffe2d6;
+}
+.kitchen-detail .recipe-counter ul[data-sent] li {
+  animation: ingredient-toss 0.7s var(--ease-out) both;
+}
+.kitchen-detail .marmite-toggle {
+  padding: 8px 10px;
+  background: #fffaf0;
+  border: 2px solid #c9a664;
+  border-radius: 10px;
+}
+.kitchen-detail .marmite-toggle input {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 42px;
+  height: 24px;
+  margin: 0;
+  background: #d8c7a0;
+  border: 2px solid var(--k-ink);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color var(--d-base);
+}
+.kitchen-detail .marmite-toggle input::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  background: var(--k-paper);
+  border: 2px solid var(--k-ink);
+  border-radius: 50%;
+  transition: transform var(--d-base) var(--ease-bounce);
+}
+.kitchen-detail .marmite-toggle input:checked {
+  background: var(--k-copper);
+}
+.kitchen-detail .marmite-toggle input:checked::after {
+  transform: translateX(18px);
+}
+.kitchen-detail .atelier-cook {
+  position: relative;
+  overflow: visible;
+  min-height: 50px;
+  color: #fff8dc;
+  background: linear-gradient(180deg, #a85a28, #9a5024 55%, #7a3d17);
+  border: 3px solid var(--k-ink);
+  border-radius: 12px;
+  box-shadow: inset 0 3px 0 #d88a55, inset 0 -4px 0 #5e2f10;
+  font-size: 15px;
+  font-weight: 900;
+}
+.kitchen-detail .atelier-cook:disabled {
+  color: #6f5530;
+  background: #e2d2ac;
+  box-shadow: none;
+}
+.kitchen-detail .probability-bar {
+  height: 10px;
+  border: 2px solid var(--k-ink);
+  border-radius: 999px;
+}
+.kitchen-detail .recipe-options {
+  background: #fffaf0;
+  border: 2px solid #c9a664;
+  border-radius: 10px;
+}
+
+/* ---------- Bouffée au départ en cuisine ---------- */
+.kitchen-dialog .cook-puff {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.kitchen-dialog .cook-puff i {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  background: #fff8ecdd;
+  border: 2px solid #3b2a1a55;
+  border-radius: 50%;
+  animation: puff 0.9s var(--ease-out) forwards;
+}
+.kitchen-dialog .cook-puff i:nth-child(1) { --px: -40px; }
+.kitchen-dialog .cook-puff i:nth-child(2) { --px: -12px; animation-delay: 0.05s; }
+.kitchen-dialog .cook-puff i:nth-child(3) { --px: 16px; animation-delay: 0.1s; }
+.kitchen-dialog .cook-puff i:nth-child(4) { --px: 42px; animation-delay: 0.15s; }
+
+/* ---------- La porte, dans le carnet ---------- */
+.kitchen-entrance {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 20px;
+  color: var(--k-ink);
+  background:
+    repeating-linear-gradient(90deg, #0000 0 30px, #7a4f2a14 30px 32px),
+    linear-gradient(180deg, #fbefcf, #eed9a6);
+  border: 3px solid var(--k-ink);
+  border-radius: 14px;
+  box-shadow: inset 0 -5px 0 #d2b273, 0 4px 0 #2a1a0d40;
+}
+.kitchen-entrance-art {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  background: radial-gradient(circle at 40% 35%, var(--k-copper-light), var(--k-copper) 55%, #7c4118);
+  border: 3px solid var(--k-ink);
+  border-radius: 50%;
+}
+.kitchen-entrance-art .pixel-icon {
+  width: 50px;
+  height: 50px;
+}
+.kitchen-entrance[data-ready] .kitchen-entrance-art {
+  animation: pan-ready 1.8s var(--ease-soft) infinite;
+}
+.kitchen-entrance h3 {
+  margin: 0 0 4px;
+  font: 700 22px Georgia, serif;
+}
+.kitchen-entrance ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #5e4424;
+  font-size: 13px;
+  font-weight: 800;
+}
+.kitchen-entrance .kitchen-enter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 0 20px;
+  color: #fff8dc;
+  background: linear-gradient(180deg, #a85a28, #9a5024 55%, #7a3d17);
+  border: 3px solid var(--k-ink);
+  border-radius: 12px;
+  box-shadow: inset 0 3px 0 #d88a55, inset 0 -4px 0 #5e2f10;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+/* ---------- Écrans bas : l’enseigne se fait plus fine ---------- */
+@media (max-height: 820px) {
+  .kitchen-dialog .kitchen-sign {
+    padding-top: 30px;
+    padding-bottom: 10px;
+  }
+  .kitchen-dialog .kitchen-sign [data-slot='dialog-title'] {
+    font-size: 26px;
+  }
+  .kitchen-dialog .kitchen-sign [data-slot='dialog-description'] {
+    margin-top: 2px;
+    font-size: 13px;
+  }
+  .kitchen-range {
+    padding-top: 7px;
+    padding-bottom: 8px;
+  }
+  .kstove {
+    min-height: 54px;
+  }
+  .kitchen-rosalie {
+    width: 40px;
+    height: 48px;
+  }
+}
+
+/* ---------- Écrans moins larges ---------- */
+@media (max-width: 1180px) {
+  .kitchen-layout[data-detail] {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+  .kitchen-range {
+    flex-wrap: wrap;
+  }
+  .kitchen-stoves {
+    flex-basis: 100%;
+    order: 5;
+  }
+}
+
+/* ---------- Animations ---------- */
+@keyframes last-in {
+  from { opacity: 0; transform: scale(0.6) rotate(-6deg); }
+}
+@keyframes tile-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+}
+@keyframes tile-sent {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-12px) scale(1.12, 0.92) rotate(-6deg); }
+  70% { transform: translateY(2px) scale(0.96, 1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes detail-in {
+  from { opacity: 0; transform: translateX(24px); }
+}
+@keyframes talents-drop {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+}
+@keyframes bell-ring {
+  0%, 60%, 100% { transform: rotate(0); }
+  8% { transform: rotate(18deg); }
+  16% { transform: rotate(-16deg); }
+  24% { transform: rotate(12deg); }
+  32% { transform: rotate(-8deg); }
+  40% { transform: rotate(4deg); }
+}
+@keyframes bell-glow {
+  0%, 100% { box-shadow: inset 0 2px 0 #fff2c2, inset 0 -3px 0 #7a5716, 0 3px 0 #0006, 0 0 0 0 #ffd86a00; }
+  50% { box-shadow: inset 0 2px 0 #fff2c2, inset 0 -3px 0 #7a5716, 0 3px 0 #0006, 0 0 0 5px #ffd86a88; }
+}
+@keyframes flame {
+  0% { transform: scaleY(0.8) scaleX(1) rotate(-3deg); opacity: 0.85; }
+  100% { transform: scaleY(1.15) scaleX(0.85) rotate(3deg); opacity: 1; }
+}
+@keyframes pan-simmer {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-1px) rotate(-1.5deg); }
+  75% { transform: translateY(1px) rotate(1.5deg); }
+}
+@keyframes pan-ready {
+  0%, 100% { transform: scale(1); box-shadow: inset 0 -3px 0 #0005, 0 0 0 0 #ffd86a00; }
+  50% { transform: scale(1.06); box-shadow: inset 0 -3px 0 #0005, 0 0 16px 3px #ffd86acc; }
+}
+@keyframes hob-ready {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+@keyframes steam {
+  0% { opacity: 0; transform: translate(0, 8px) scale(0.5); }
+  25% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(var(--drift, 4px), -26px) scale(1.4); }
+}
+@keyframes ember {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
+@keyframes ignite {
+  0%, 100% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+@keyframes hen-peck {
+  0%, 70%, 100% { transform: rotate(0); }
+  76% { transform: rotate(14deg) translateY(2px); }
+  82% { transform: rotate(0); }
+  88% { transform: rotate(12deg) translateY(2px); }
+}
+@keyframes hen-happy {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes ingredient-toss {
+  0% { transform: translate(0, 0) rotate(0); }
+  45% { transform: translate(0, -14px) rotate(-8deg); }
+  100% { transform: translate(0, 0) rotate(0); }
+}
+@keyframes puff {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--px), -36px) scale(1.5); }
+}
+
+/* Mouvement réduit : les feux restent allumés, mais rien ne bouge. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion-full]) :is(.kitchen-dialog, .kitchen-entrance) :is(*, *::before, *::after) {
+    animation: none !important;
+    transition: none !important;
+  }
+  :root:not([data-motion-full]) .kitchen-dialog :is(.kstove-steam, .cook-puff) {
+    display: none;
+  }
+}
+[data-reduce-motion] :is(.kitchen-dialog, .kitchen-entrance) :is(*, *::before, *::after) {
+  animation: none !important;
+  transition: none !important;
+}
+[data-reduce-motion] .kitchen-dialog :is(.kstove-steam, .cook-puff) {
+  display: none;
+}

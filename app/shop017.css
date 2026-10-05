@@ -1,0 +1,672 @@
+/* ==========================================================================
+   0.17.1 — La graineterie en bois et parchemin
+   Enseigne à auvent rayé, présentoir d’étagères à gauche, comptoir à droite.
+   ========================================================================== */
+
+.shop-dialog {
+  --shop-ink: #3b2a1a;
+  --shop-paper: #fbf1d4;
+  --shop-paper-2: #f0dcaa;
+  --shop-wood: #a8723f;
+  --shop-wood-light: #d39a5c;
+  --shop-wood-dark: #744b27;
+  --shop-leaf: #44672b;
+  --shop-gold: #f4c24f;
+  --shop-gold-dark: #b9822a;
+  --shop-gold-text: #7a4f10;
+  --shop-seal: #b8432f;
+  width: min(1100px, calc(100vw - 24px)) !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  color: var(--shop-ink);
+  background:
+    repeating-linear-gradient(180deg, #0000 0 27px, #d9c28f40 27px 28px),
+    var(--shop-paper) !important;
+  border: 4px solid var(--shop-ink) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    inset 0 0 0 6px var(--shop-wood),
+    inset 0 0 0 9px var(--shop-ink),
+    0 8px 0 #2a1a0d66,
+    0 24px 70px #0008 !important;
+  animation: shop-open 0.42s var(--ease-bounce) both;
+}
+.shop-dialog > .dialog-scroll {
+  padding: 16px 22px 22px;
+}
+.shop-dialog [data-slot='dialog-close'] {
+  z-index: 3;
+  top: 18px !important;
+  right: 18px !important;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: var(--shop-ink);
+  background: linear-gradient(180deg, var(--shop-paper), var(--shop-paper-2));
+  border: 2px solid var(--shop-ink);
+  border-radius: 10px;
+  box-shadow: inset 0 -2px 0 #c8a86a;
+  opacity: 1;
+}
+
+/* ---------- Enseigne : auvent, titre, bourse ---------- */
+.shop-sign {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 36px 70px 16px 26px;
+  background:
+    repeating-linear-gradient(180deg, #ffffff0d 0 2px, #0000 2px 7px, #00000012 7px 8px, #0000 8px 13px),
+    linear-gradient(180deg, var(--shop-wood-light), var(--shop-wood) 60%, var(--shop-wood-dark));
+  border-bottom: 4px solid var(--shop-ink);
+  border-radius: 10px 10px 0 0;
+}
+.shop-awning {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 26px;
+  background: repeating-linear-gradient(90deg, #c8503a 0 36px, #f6ead0 36px 72px);
+  border-bottom: 3px solid var(--shop-ink);
+  border-radius: 10px 10px 0 0;
+  -webkit-mask: radial-gradient(18px 10px at 18px 100%, #0000 98%, #000) 0 0 / 36px 100%;
+  mask: radial-gradient(18px 10px at 18px 100%, #0000 98%, #000) 0 0 / 36px 100%;
+  transform-origin: 50% 0;
+  animation: awning-sway 5s var(--ease-soft) infinite;
+}
+.shop-title {
+  flex: 1;
+  min-width: 0;
+}
+.shop-dialog .shop-title [data-slot='dialog-title'] {
+  padding: 0;
+  color: var(--shop-paper);
+  font-family: Georgia, serif;
+  font-size: 32px;
+  line-height: 1.1;
+  text-shadow: 0 3px 0 var(--shop-ink), 2px 0 0 var(--shop-ink), -2px 0 0 var(--shop-ink), 0 -2px 0 var(--shop-ink);
+}
+.shop-dialog .shop-title [data-slot='dialog-description'] {
+  padding: 0;
+  margin-top: 4px;
+  color: #fff3d6;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 0 var(--shop-ink);
+}
+.shop-purse {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 16px 5px 7px;
+  background: linear-gradient(180deg, var(--shop-paper), var(--shop-paper-2));
+  border: 3px solid var(--shop-ink);
+  border-radius: 999px;
+  box-shadow: inset 0 -3px 0 #c8a86a, 0 3px 0 #2a1a0d66;
+}
+.shop-purse .pixel-icon {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+}
+.shop-purse b {
+  font-size: 22px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.purse-shake {
+  display: inline-block;
+  animation: purse-shake 0.5s var(--ease-out);
+}
+.purse-spent {
+  position: absolute;
+  top: calc(100% + 2px);
+  right: 14px;
+  color: #ffb8a6;
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 900;
+  white-space: nowrap;
+  -webkit-text-stroke: 4px var(--shop-ink);
+  paint-order: stroke fill;
+  pointer-events: none;
+  animation: purse-spent 1.4s var(--ease-out) forwards;
+}
+
+/* ---------- Mise en page : présentoir et comptoir ---------- */
+.shop-dialog .seed-shop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: start;
+}
+.shop-dialog .seed-shop p {
+  font-size: 14px;
+}
+
+/* ---------- Présentoir : sachets sur étagères ---------- */
+.shop-dialog .seed-shop .shop-shelves ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  grid-auto-rows: 162px;
+  gap: 0 12px;
+  margin: 0;
+  padding: 10px 12px 0;
+  list-style: none;
+  background:
+    linear-gradient(180deg, #0000 calc(100% - 18px), var(--shop-ink) calc(100% - 18px) calc(100% - 15px),
+      var(--shop-wood-light) calc(100% - 15px) calc(100% - 11px), var(--shop-wood) calc(100% - 11px) calc(100% - 4px),
+      var(--shop-wood-dark) calc(100% - 4px)) 0 0 / 100% 162px,
+    #e8d3a24d;
+  border: 3px solid var(--shop-ink);
+  border-radius: 10px;
+  box-shadow: inset 0 4px 10px #7a5a3040;
+}
+.shop-dialog .seed-shop .shop-shelves li {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+.shop-dialog .seed-shop .seed-packet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  width: 104px;
+  height: 128px;
+  min-height: 0;
+  padding: 18px 6px 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--shop-ink);
+  background:
+    linear-gradient(180deg, #f7e7bf, #ecd49e);
+  border: 2px solid var(--shop-ink);
+  border-radius: 4px 4px 8px 8px;
+  box-shadow: inset 0 -4px 0 #c9a664, 0 4px 0 #2a1a0d55;
+  transform: rotate(var(--tilt, -1.5deg));
+  transition:
+    transform var(--d-base) var(--ease-bounce),
+    box-shadow var(--d-fast) var(--ease-out);
+  animation: packet-in 0.45s var(--ease-bounce) both;
+}
+.shop-dialog .seed-shop .shop-shelves li:nth-child(even) .seed-packet {
+  --tilt: 1.5deg;
+}
+.shop-dialog .seed-shop .shop-shelves li:nth-child(3n) .seed-packet {
+  --tilt: -0.5deg;
+}
+.shop-dialog .seed-shop .shop-shelves li:nth-child(1) .seed-packet { animation-delay: 0.04s; },
+.shop-dialog .seed-shop .shop-shelves li:nth-child(2) .seed-packet { animation-delay: 0.08s; },
+.shop-dialog .seed-shop .shop-shelves li:nth-child(3) .seed-packet { animation-delay: 0.12s; },
+.shop-dialog .seed-shop .shop-shelves li:nth-child(4) .seed-packet { animation-delay: 0.16s; },
+.shop-dialog .seed-shop .shop-shelves li:nth-child(5) .seed-packet { animation-delay: 0.2s; },
+.shop-dialog .seed-shop .shop-shelves li:nth-child(6) .seed-packet { animation-delay: 0.24s; },
+.shop-dialog .seed-shop .shop-shelves li:nth-child(7) .seed-packet { animation-delay: 0.28s; },
+.shop-dialog .seed-shop .shop-shelves li:nth-child(n + 8) .seed-packet { animation-delay: 0.32s; },
+/* Haut du sachet plié et cranté. */
+.shop-dialog .seed-shop .seed-packet::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 12px;
+  background: repeating-linear-gradient(90deg, #d8b979 0 5px, #c9a664 5px 10px);
+  border-bottom: 2px solid var(--shop-ink);
+  border-radius: 2px 2px 0 0;
+}
+.shop-dialog .seed-shop .seed-packet .packet-art {
+  display: grid;
+  place-items: center;
+  margin-bottom: auto;
+}
+.shop-dialog .seed-shop .seed-packet .packet-art .pixel-icon {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  transition: transform var(--d-base) var(--ease-bounce);
+}
+.shop-dialog .seed-shop .seed-packet > b {
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+.shop-dialog .seed-shop .seed-packet > small {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0;
+  color: var(--shop-gold-text);
+  font-size: 12px;
+  font-weight: 800;
+}
+.shop-dialog .seed-shop .coin-dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe69a, var(--shop-gold) 55%, var(--shop-gold-dark));
+  box-shadow: 0 0 0 1.5px #7a4f10;
+  vertical-align: -1px;
+}
+.shop-dialog .seed-shop .packet-stock {
+  position: absolute;
+  top: 14px;
+  right: -8px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 5px;
+  color: var(--shop-paper);
+  background: var(--shop-leaf);
+  border: 2px solid var(--shop-ink);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 20px;
+  text-align: center;
+  animation: stock-pop 0.45s var(--ease-bounce);
+}
+.shop-dialog .seed-shop .seed-packet[data-season]::after {
+  content: 'Saison';
+  position: absolute;
+  top: 16px;
+  left: -8px;
+  padding: 1px 6px;
+  color: var(--shop-paper);
+  background: #b86b2a;
+  border: 2px solid var(--shop-ink);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 900;
+  transform: rotate(-8deg);
+}
+.shop-dialog .seed-shop .seed-packet[data-empty] .packet-art .pixel-icon {
+  filter: saturate(0.6);
+}
+.shop-dialog .seed-shop button.seed-packet:hover,
+.shop-dialog .seed-shop button.seed-packet:focus-visible {
+  transform: translateY(-8px) rotate(0);
+  box-shadow: inset 0 -4px 0 #c9a664, 0 10px 0 #2a1a0d40;
+}
+.shop-dialog .seed-shop button.seed-packet:hover .packet-art .pixel-icon {
+  transform: scale(1.12) rotate(-5deg);
+}
+.shop-dialog .seed-shop button.seed-packet[aria-pressed='true'] {
+  background:
+    linear-gradient(180deg, #fff6d8, #f5dfa7);
+  border-color: var(--shop-ink);
+  transform: translateY(-12px) rotate(0);
+  box-shadow:
+    0 0 0 3px var(--shop-gold),
+    0 0 0 5px var(--shop-ink),
+    0 14px 0 #2a1a0d40,
+    0 0 26px #ffd86a;
+}
+.shop-dialog .seed-shop button.seed-packet[aria-pressed='true'] .packet-art .pixel-icon {
+  animation: packet-sprout 2.2s var(--ease-soft) infinite;
+}
+.shop-dialog .seed-shop .packet-hop {
+  animation: packet-hop 0.6s var(--ease-bounce);
+}
+/* 0.17.2 : graines à venir, en ombre, sans nom. */
+.shop-dialog .seed-shop .seed-packet.locked {
+  background: linear-gradient(180deg, #d9c9a4, #c9b68b);
+  box-shadow: inset 0 -4px 0 #a9946a, 0 4px 0 #2a1a0d40;
+}
+.shop-dialog .seed-shop .seed-packet.locked .packet-art .pixel-icon {
+  filter: brightness(0) opacity(0.4);
+}
+.shop-dialog .seed-shop .seed-packet.locked > b {
+  color: #5e4424;
+  font-size: 20px;
+}
+.shop-dialog .seed-shop .seed-packet.locked > small {
+  color: #5e4424;
+}
+.shop-dialog .seed-shop .seed-packet.locked::after {
+  content: '';
+  position: absolute;
+  inset: 12px 0 0;
+  background: repeating-linear-gradient(135deg, #0000 0 8px, #3b2a1a10 8px 11px);
+  pointer-events: none;
+}
+.shop-dialog .seed-shop .seed-packet.more {
+  justify-content: center;
+}
+.shop-dialog .seed-shop .seed-packet.more > b {
+  font-size: 26px;
+}
+
+/* ---------- Comptoir ---------- */
+.shop-dialog .seed-shop .shop-counter {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  background: linear-gradient(180deg, #fffaf0, var(--shop-paper-2));
+  border: 3px solid var(--shop-ink);
+  border-radius: 12px;
+  box-shadow: inset 0 -4px 0 #c8a86a, 0 5px 0 #2a1a0d55;
+}
+.shop-dialog .seed-shop .counter-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: counter-in 0.35s var(--ease-out);
+}
+.shop-dialog .seed-shop .counter-plate {
+  display: grid;
+  place-items: center;
+  flex: 0 0 88px;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, #fff8e2, #f1d9a3 70%);
+  border: 3px solid var(--shop-ink);
+  box-shadow: inset 0 -5px 0 #c9a664, 0 4px 0 #2a1a0d55;
+}
+.shop-dialog .seed-shop .counter-plate .pixel-icon {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  animation: plate-bob 2.6s var(--ease-soft) infinite;
+}
+.shop-dialog .seed-shop .shop-counter h3 {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  line-height: 1.1;
+}
+.shop-dialog .seed-shop .shop-counter .season-badge {
+  position: static;
+  display: inline-block;
+  margin: 5px 0 2px;
+  padding: 1px 8px;
+  color: var(--shop-paper);
+  background: #8a4a14;
+  border: 2px solid var(--shop-ink);
+  border-radius: 999px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+.shop-dialog .seed-shop .shop-counter .counter-hero p {
+  min-height: 0;
+  margin: 3px 0 0;
+  color: #5e4424;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.shop-dialog .seed-shop .counter-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+}
+.shop-dialog .seed-shop .counter-stats > div {
+  display: grid;
+  justify-content: start;
+  gap: 2px;
+  padding: 7px 10px;
+  background: #fffaf0;
+  border: 2px solid #c9a664;
+  border-radius: 8px;
+}
+.shop-dialog .seed-shop .counter-stats dt {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #5e4424;
+  font-size: 12px;
+  font-weight: 700;
+}
+.shop-dialog .seed-shop .counter-stats dt .pixel-icon {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+}
+.shop-dialog .seed-shop .counter-stats dd {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 900;
+}
+.shop-dialog .seed-shop .counter-stats .stock-pop {
+  display: inline-block;
+  color: var(--shop-leaf);
+  animation: stock-pop 0.5s var(--ease-bounce);
+}
+
+/* Achats : quatre étiquettes, un clic. */
+.shop-dialog .buy-amounts {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.shop-dialog .seed-shop .buy-amounts button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 58px;
+  padding: 6px;
+  color: #fff8dc;
+  background: linear-gradient(180deg, #5b8a38, var(--shop-leaf));
+  border: 3px solid var(--shop-ink);
+  border-radius: 10px;
+  box-shadow: inset 0 3px 0 #86b35a, inset 0 -4px 0 #2e4a1c, 0 4px 0 #2a1a0d55;
+  position: relative;
+  overflow: visible;
+  transition:
+    transform var(--d-fast) var(--ease-out),
+    box-shadow var(--d-fast) var(--ease-out),
+    filter var(--d-fast);
+}
+.shop-dialog .seed-shop .buy-amounts button b {
+  font-size: 18px;
+  font-weight: 900;
+}
+.shop-dialog .seed-shop .buy-amounts button small {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  color: #fff3c6;
+  font-size: 13px !important;
+  font-weight: 800;
+  opacity: 1;
+}
+.shop-dialog .seed-shop .buy-amounts button[data-amount='max'] {
+  background: linear-gradient(180deg, #d48a36, #9c5a1a);
+  box-shadow: inset 0 3px 0 #f0b064, inset 0 -4px 0 #6a3a0c, 0 4px 0 #2a1a0d55;
+}
+.shop-dialog .seed-shop .buy-amounts button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  filter: brightness(1.08);
+}
+.shop-dialog .seed-shop .buy-amounts button:active:not(:disabled) {
+  transform: translateY(2px) scale(0.96);
+  box-shadow: inset 0 3px 0 #0003, 0 1px 0 #2a1a0d55;
+}
+.shop-dialog .seed-shop .buy-amounts button:disabled {
+  color: #5e4424;
+  background: #e2d2ac;
+  box-shadow: none;
+  opacity: 1;
+  cursor: default;
+}
+.shop-dialog .seed-shop .buy-amounts button:only-of-type {
+  grid-column: 1 / -1;
+}
+/* Graines qui jaillissent à l’achat. */
+.shop-dialog .seed-shop .seed-burst {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.shop-dialog .seed-shop .seed-burst i {
+  position: absolute;
+  width: 7px;
+  height: 9px;
+  margin: -4px 0 0 -3px;
+  border-radius: 50% 50% 45% 45%;
+  background: #8a5a2a;
+  box-shadow: inset -1px -1px 0 #5e3a16, 0 0 0 1px #3b2a1a;
+  animation: seed-fly 0.75s var(--ease-out) forwards;
+}
+.shop-dialog .seed-shop .seed-burst i:nth-child(3n) {
+  background: #e3c177;
+}
+.shop-dialog .seed-shop .seed-burst i:nth-child(3n + 1) {
+  background: #9cc062;
+}
+
+/* Message d’achat : une étiquette qui tombe sous l’enseigne, sans pousser le contenu. */
+.shop-dialog > .dialog-notice {
+  position: absolute;
+  z-index: 4;
+  top: 108px;
+  left: 50%;
+  width: max-content;
+  max-width: 80%;
+  margin: 0;
+  padding: 6px 14px;
+  color: var(--shop-ink);
+  background: linear-gradient(180deg, #fff6d8, var(--shop-paper-2));
+  border: 3px solid var(--shop-ink);
+  border-radius: 999px;
+  box-shadow: 0 4px 0 #2a1a0d55;
+  font-size: 13px;
+  font-weight: 800;
+  transform: translateX(-50%);
+  animation: notice-drop 0.4s var(--ease-bounce);
+  pointer-events: none;
+}
+.shop-dialog > .dialog-notice[data-empty] {
+  display: none;
+}
+
+/* ---------- Coup de pouce : seulement quand il sert ---------- */
+.shop-dialog .seed-rescue.available {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  color: var(--shop-ink);
+  background: linear-gradient(180deg, #fff3c6, #f5d98c);
+  border: 3px solid var(--shop-ink);
+  border-radius: 12px;
+  box-shadow: 0 4px 0 #2a1a0d55, 0 0 0 4px #ffd86a88;
+  animation: rescue-glow 2s var(--ease-soft) infinite;
+}
+.shop-dialog .seed-rescue.available button {
+  color: #fff8dc;
+  background: var(--shop-leaf);
+  border: 3px solid var(--shop-ink);
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+/* ---------- Écrans plus étroits ---------- */
+@media (max-width: 860px) {
+  .shop-dialog .seed-shop {
+    grid-template-columns: 1fr;
+  }
+  .shop-counter {
+    position: static;
+    order: -1;
+  }
+  .shop-sign {
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- Animations ---------- */
+@keyframes notice-drop {
+  from { opacity: 0; transform: translate(-50%, -12px); }
+}
+@keyframes shop-open {
+  from { opacity: 0; transform: translateY(18px) scale(0.94); }
+}
+@keyframes awning-sway {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.08); }
+}
+@keyframes packet-in {
+  from { opacity: 0; transform: translateY(18px) rotate(var(--tilt, 0deg)) scale(0.9); }
+}
+@keyframes packet-sprout {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  30% { transform: translateY(-4px) rotate(-4deg); }
+  60% { transform: translateY(-2px) rotate(3deg); }
+}
+@keyframes packet-hop {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-14px) scale(1.15, 0.92); }
+  70% { transform: translateY(2px) scale(0.95, 1.06); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes stock-pop {
+  0% { transform: scale(0.4); }
+  65% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+@keyframes counter-in {
+  from { opacity: 0; transform: translateX(14px); }
+}
+@keyframes plate-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes seed-fly {
+  0% { opacity: 1; transform: rotate(var(--a)) translateY(0) scale(0.6); }
+  60% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-1 * var(--d))) scale(1); }
+}
+@keyframes purse-shake {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-14deg) scale(1.1); }
+  60% { transform: rotate(10deg); }
+}
+@keyframes purse-spent {
+  0% { opacity: 0; transform: translateY(-6px); }
+  15% { opacity: 1; transform: translateY(2px); }
+  100% { opacity: 0; transform: translateY(22px); }
+}
+@keyframes rescue-glow {
+  0%, 100% { box-shadow: 0 4px 0 #2a1a0d55, 0 0 0 4px #ffd86a55; }
+  50% { box-shadow: 0 4px 0 #2a1a0d55, 0 0 0 7px #ffd86acc; }
+}
+
+/* Mouvement réduit : tout reste immobile, les chiffres changent sans effet. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion-full]) :is(.shop-dialog, .shop-dialog > .dialog-notice, .shop-awning, .seed-packet, .seed-packet .pixel-icon, .packet-hop,
+    .packet-stock, .counter-hero, .counter-plate .pixel-icon, .stock-pop, .purse-shake, .seed-rescue) {
+    animation: none !important;
+  }
+  :root:not([data-motion-full]) :is(.seed-burst, .purse-spent) {
+    display: none;
+  }
+}
+[data-reduce-motion] :is(.shop-dialog, .shop-dialog > .dialog-notice, .shop-awning, .seed-packet, .seed-packet .pixel-icon, .packet-hop,
+  .packet-stock, .counter-hero, .counter-plate .pixel-icon, .stock-pop, .purse-shake, .seed-rescue) {
+  animation: none !important;
+}
+[data-reduce-motion] :is(.seed-burst, .purse-spent) {
+  display: none;
+}

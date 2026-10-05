@@ -1,0 +1,188 @@
+{
+  "world": {
+    "width": 768,
+    "height": 512,
+    "tile": 8,
+    "spawn": {
+      "x": 378,
+      "y": 195
+    }
+  },
+  "places": [
+    {
+      "id": "halle",
+      "name": "Halle des terroirs",
+      "project": "halle-terroirs",
+      "requires": [
+        "pepiniere-voisins"
+      ],
+      "level": 7,
+      "sprite": "halle",
+      "x": 151,
+      "y": 181,
+      "door": [
+        151,
+        195
+      ],
+      "footprint": [
+        91,
+        132,
+        119,
+        47
+      ],
+      "description": "Les spécialités de Rosalie trouvent leur place au marché.",
+      "reward": "Un second contrat de spécialité."
+    },
+    {
+      "id": "pepiniere",
+      "name": "Pépinière des voisins",
+      "project": "pepiniere-voisins",
+      "level": 3,
+      "sprite": "pepiniere",
+      "x": 383,
+      "y": 181,
+      "door": [
+        383,
+        195
+      ],
+      "footprint": [
+        319,
+        133,
+        126,
+        47
+      ],
+      "description": "Semis, variétés de la ferme et graines à partager.",
+      "reward": "Une graine de lignée supplémentaire toutes les deux récoltes."
+    },
+    {
+      "id": "atelier",
+      "name": "Atelier de cuisine",
+      "upgrade": "workshop",
+      "level": 4,
+      "sprite": "atelier",
+      "x": 606,
+      "y": 181,
+      "door": [
+        606,
+        195
+      ],
+      "footprint": [
+        548,
+        134,
+        116,
+        46
+      ],
+      "description": "Un four, une table de travail et les recettes du village.",
+      "reward": "Accès à la cuisine ; le banquet de Lucie améliore le four."
+    },
+    {
+      "id": "verger",
+      "name": "Verger de Jeanne",
+      "project": "verger",
+      "level": 5,
+      "sprite": "verger",
+      "x": 151,
+      "y": 325,
+      "door": [
+        151,
+        337
+      ],
+      "footprint": [
+        86,
+        262,
+        127,
+        59
+      ],
+      "description": "Un vieux verger retrouve ses couleurs et ses fruits.",
+      "reward": "Trois fruits de belle qualité ou mieux toutes les 30 minutes."
+    },
+    {
+      "id": "poulailler",
+      "name": "Poulailler",
+      "upgrade": "coop",
+      "level": 6,
+      "sprite": "poulailler",
+      "x": 383,
+      "y": 325,
+      "door": [
+        383,
+        337
+      ],
+      "footprint": [
+        334,
+        276,
+        99,
+        48
+      ],
+      "description": "Un abri et une petite rampe pour les poules de Rosalie.",
+      "reward": "Production d’œufs selon les règles du jeu."
+    },
+    {
+      "id": "relais",
+      "name": "Relais de la vallée",
+      "valley": true,
+      "level": 3,
+      "sprite": "relais",
+      "x": 606,
+      "y": 325,
+      "door": [
+        606,
+        337
+      ],
+      "footprint": [
+        551,
+        276,
+        115,
+        48
+      ],
+      "description": "Les livraisons financent un relais au bord de la rivière.",
+      "reward": "Troisième emplacement de caravane après 8 matériaux."
+    }
+  ],
+  "actors": [
+    {
+      "id": "rosalie",
+      "name": "Rosalie",
+      "x": 378,
+      "y": 195
+    },
+    {
+      "id": "anais",
+      "name": "Anaïs",
+      "x": 560,
+      "y": 365
+    },
+    {
+      "id": "mathis",
+      "name": "Mathis",
+      "x": 590,
+      "y": 195
+    },
+    {
+      "id": "noe",
+      "name": "Noé",
+      "x": 408,
+      "y": 195
+    }
+  ],
+  "background": "terrain.png",
+  "order": [
+    "terrain",
+    "ponton",
+    "depth-sorted places and actors"
+  ],
+  "navigation": {
+    "horizontalPaths": [
+      195,
+      337
+    ],
+    "verticalPaths": [
+      285,
+      494
+    ],
+    "leftBound": 68,
+    "rightBound": 710
+  },
+  "progression": "world.mjs: stateFor(place, game, level(game)); read-only adapter",
+  "note": "Interactive art prototype; construction states are preview states, not a new game timer."
+}

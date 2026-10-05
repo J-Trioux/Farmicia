@@ -1,0 +1,51 @@
+/* ==========================================================================
+   0.9.7 — Rosalie animée (sprites de l’auteur préparés avec ChatGPT :
+   public/assets/pixel/rosalie-v100/, 64 images de 80 × 96, atlas 8 × 8).
+   Les images défilent en JavaScript (durées propres à chaque image) ;
+   ici : taille, ancrage des pieds, rendu et effets.
+   ========================================================================== */
+
+/* Le personnage mesure 82 pixels dans une cellule de 96 ; ses pieds (pivot 40, 88)
+   restent au même point de la carte qu’avant. */
+.pixel-farm .rosalie-player {
+  width: 6.2%;
+  height: auto;
+  aspect-ratio: 80 / 96;
+  transform: translate(-50%, -71%);
+}
+/* Atlas haute définition (160 × 192 par image, tiré des planches sans réduction
+   au plus proche voisin) réduit en douceur par le navigateur : les sprites de
+   ChatGPT gardent tous leurs détails, sans pixels déformés. */
+.pixel-farm .rosalie-player .rosalie-sprite,
+.pixel-farm .rosalie-player.walking .rosalie-sprite,
+.pixel-farm .rosalie-player.landing .rosalie-sprite {
+  background-image: url('/assets/pixel/rosalie-v100/rosalie-atlas-hd.png');
+  background-size: 800% 1200%;
+  background-repeat: no-repeat;
+  background-position: 0% 0%;
+  image-rendering: auto;
+  transform: none;
+  animation: none;
+}
+
+/* Effets des gestes, posés sur les repères de l’animation. */
+.pixel-farm .rosalie-player .rosalie-fx {
+  position: absolute;
+  z-index: 2;
+  background-repeat: no-repeat;
+  background-position: 0% 0%;
+  image-rendering: auto;
+  pointer-events: none;
+  animation: rosalie-fx var(--fx-duration, 360ms) steps(var(--fx-steps, 6)) forwards;
+}
+@keyframes rosalie-fx {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: var(--fx-end, 120%) 0%;
+  }
+}
+[data-reduce-motion] .pixel-farm .rosalie-player .rosalie-fx {
+  display: none;
+}

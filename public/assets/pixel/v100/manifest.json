@@ -1,0 +1,1107 @@
+{
+  "version": "1.0.0-assets.1",
+  "palette": {
+    "ink": "#303440",
+    "charcoal": "#474957",
+    "woodDark": "#584349",
+    "wood": "#866052",
+    "woodLight": "#b88668",
+    "woodTop": "#d5aa87",
+    "earth": "#87695e",
+    "sand": "#bbab99",
+    "path": "#d6c8b5",
+    "pathLight": "#e5dbcd",
+    "greenDark": "#294f45",
+    "greenShadow": "#3d6a50",
+    "green": "#56875e",
+    "grass": "#77a56c",
+    "greenLight": "#a2c985",
+    "mint": "#c7ddab",
+    "waterDeep": "#285568",
+    "water": "#367e96",
+    "waterLight": "#60adc0",
+    "foam": "#b9e1e2",
+    "slateDark": "#394d69",
+    "slate": "#576d8c",
+    "slateLight": "#8096b1",
+    "greyDark": "#78828d",
+    "grey": "#a7b1b9",
+    "greyLight": "#ced6dc",
+    "white": "#f4f6f4",
+    "redDark": "#853e50",
+    "red": "#bc5864",
+    "coral": "#e58885",
+    "roofDark": "#884b46",
+    "roof": "#b56855",
+    "roofLight": "#dc9172",
+    "purpleDark": "#605077",
+    "purple": "#9074ac",
+    "lilac": "#c2a3d6",
+    "skinDark": "#965c49",
+    "skin": "#cf9273",
+    "skinLight": "#efbb96",
+    "gold": "#d5ad61",
+    "straw": "#e9cd93"
+  },
+  "render": {
+    "filter": "nearest",
+    "integerScaleOnly": true,
+    "alpha": "binary",
+    "light": "upper-left",
+    "tileSize": 16
+  },
+  "atlas": {
+    "image": "atlas.png",
+    "width": 512,
+    "height": 256,
+    "gutter": 2,
+    "frames": {
+      "tiles/grass": {
+        "x": 2,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": false
+      },
+      "tiles/path": {
+        "x": 20,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": false
+      },
+      "tiles/water-0": {
+        "x": 38,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": true
+      },
+      "tiles/water-1": {
+        "x": 56,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": true
+      },
+      "tiles/soil": {
+        "x": 74,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": false
+      },
+      "tiles/paving": {
+        "x": 92,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": false
+      },
+      "tiles/bank-north": {
+        "x": 110,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": true
+      },
+      "tiles/bank-south": {
+        "x": 128,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": true
+      },
+      "tiles/bank-west": {
+        "x": 146,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": true
+      },
+      "tiles/bank-east": {
+        "x": 164,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": true
+      },
+      "tiles/bank-nw": {
+        "x": 182,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": true
+      },
+      "tiles/bank-ne": {
+        "x": 200,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": true
+      },
+      "tiles/bank-sw": {
+        "x": 218,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": true
+      },
+      "tiles/bank-se": {
+        "x": 236,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "tile": true,
+        "solid": true
+      },
+      "props/crate-apples": {
+        "x": 254,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "anchor": [
+          8,
+          15
+        ],
+        "collision": {
+          "x": 2,
+          "y": 9,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/crate-pears": {
+        "x": 272,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "anchor": [
+          8,
+          15
+        ],
+        "collision": {
+          "x": 2,
+          "y": 9,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/barrel": {
+        "x": 290,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "anchor": [
+          8,
+          15
+        ],
+        "collision": {
+          "x": 2,
+          "y": 9,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/bollard": {
+        "x": 308,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "anchor": [
+          8,
+          15
+        ],
+        "collision": {
+          "x": 2,
+          "y": 9,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/rope": {
+        "x": 326,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "anchor": [
+          8,
+          15
+        ],
+        "collision": {
+          "x": 2,
+          "y": 9,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/lavender": {
+        "x": 344,
+        "y": 2,
+        "w": 16,
+        "h": 24,
+        "anchor": [
+          8,
+          23
+        ],
+        "collision": {
+          "x": 2,
+          "y": 17,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/reed": {
+        "x": 362,
+        "y": 2,
+        "w": 16,
+        "h": 24,
+        "anchor": [
+          8,
+          23
+        ],
+        "collision": {
+          "x": 2,
+          "y": 17,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/sign": {
+        "x": 380,
+        "y": 2,
+        "w": 16,
+        "h": 24,
+        "anchor": [
+          8,
+          23
+        ],
+        "collision": {
+          "x": 2,
+          "y": 17,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/bench": {
+        "x": 398,
+        "y": 2,
+        "w": 32,
+        "h": 24,
+        "anchor": [
+          16,
+          23
+        ],
+        "collision": {
+          "x": 2,
+          "y": 17,
+          "w": 28,
+          "h": 6
+        }
+      },
+      "props/flower-box": {
+        "x": 432,
+        "y": 2,
+        "w": 32,
+        "h": 16,
+        "anchor": [
+          16,
+          15
+        ],
+        "collision": {
+          "x": 2,
+          "y": 9,
+          "w": 28,
+          "h": 6
+        }
+      },
+      "props/beehive": {
+        "x": 466,
+        "y": 2,
+        "w": 24,
+        "h": 32,
+        "anchor": [
+          12,
+          31
+        ],
+        "collision": {
+          "x": 2,
+          "y": 25,
+          "w": 20,
+          "h": 6
+        }
+      },
+      "props/watering-can": {
+        "x": 492,
+        "y": 2,
+        "w": 16,
+        "h": 16,
+        "anchor": [
+          8,
+          15
+        ],
+        "collision": {
+          "x": 2,
+          "y": 9,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/seed-bag": {
+        "x": 2,
+        "y": 36,
+        "w": 16,
+        "h": 16,
+        "anchor": [
+          8,
+          15
+        ],
+        "collision": {
+          "x": 2,
+          "y": 9,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/basket": {
+        "x": 20,
+        "y": 36,
+        "w": 16,
+        "h": 16,
+        "anchor": [
+          8,
+          15
+        ],
+        "collision": {
+          "x": 2,
+          "y": 9,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/fence": {
+        "x": 38,
+        "y": 36,
+        "w": 32,
+        "h": 16,
+        "anchor": [
+          16,
+          15
+        ],
+        "collision": {
+          "x": 2,
+          "y": 9,
+          "w": 28,
+          "h": 6
+        }
+      },
+      "props/lamp": {
+        "x": 72,
+        "y": 36,
+        "w": 16,
+        "h": 32,
+        "anchor": [
+          8,
+          31
+        ],
+        "collision": {
+          "x": 2,
+          "y": 25,
+          "w": 12,
+          "h": 6
+        }
+      },
+      "props/boat": {
+        "x": 90,
+        "y": 36,
+        "w": 48,
+        "h": 32,
+        "anchor": [
+          24,
+          31
+        ],
+        "collision": {
+          "x": 2,
+          "y": 25,
+          "w": 44,
+          "h": 6
+        }
+      },
+      "props/stall": {
+        "x": 140,
+        "y": 36,
+        "w": 48,
+        "h": 48,
+        "anchor": [
+          24,
+          47
+        ],
+        "collision": {
+          "x": 2,
+          "y": 41,
+          "w": 44,
+          "h": 6
+        }
+      },
+      "props/apple-tree": {
+        "x": 190,
+        "y": 36,
+        "w": 32,
+        "h": 40,
+        "anchor": [
+          16,
+          37
+        ],
+        "collision": {
+          "x": 13,
+          "y": 30,
+          "w": 7,
+          "h": 8
+        }
+      },
+      "props/tree": {
+        "x": 224,
+        "y": 36,
+        "w": 32,
+        "h": 40,
+        "anchor": [
+          16,
+          37
+        ],
+        "collision": {
+          "x": 13,
+          "y": 30,
+          "w": 7,
+          "h": 8
+        }
+      },
+      "buildings/warehouse": {
+        "x": 258,
+        "y": 36,
+        "w": 80,
+        "h": 80,
+        "anchor": [
+          40,
+          74
+        ],
+        "collision": {
+          "x": 9,
+          "y": 31,
+          "w": 60,
+          "h": 42
+        },
+        "door": [
+          40,
+          74
+        ]
+      },
+      "buildings/seed-house": {
+        "x": 340,
+        "y": 36,
+        "w": 80,
+        "h": 80,
+        "anchor": [
+          40,
+          74
+        ],
+        "collision": {
+          "x": 9,
+          "y": 31,
+          "w": 60,
+          "h": 42
+        },
+        "door": [
+          40,
+          74
+        ]
+      }
+    }
+  },
+  "extras": {
+    "props/dock": {
+      "image": "dock.png",
+      "w": 96,
+      "h": 64,
+      "anchor": [
+        48,
+        54
+      ],
+      "collision": null
+    }
+  },
+  "characters": {
+    "rosalie": {
+      "name": "Rosalie",
+      "role": "Jardinière · tenue de voyage",
+      "shirt": "white",
+      "coat": "green",
+      "shade": "greenDark",
+      "hair": "woodDark",
+      "skin": "skinLight",
+      "hat": "straw",
+      "accent": "purple",
+      "image": "characters/rosalie.png",
+      "frameSize": [
+        16,
+        24
+      ],
+      "anchor": [
+        8,
+        23
+      ],
+      "directions": [
+        "south",
+        "west",
+        "east",
+        "north"
+      ],
+      "frames": {
+        "south-0": {
+          "x": 0,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-1": {
+          "x": 16,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-2": {
+          "x": 32,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-3": {
+          "x": 48,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "west-0": {
+          "x": 0,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-1": {
+          "x": 16,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-2": {
+          "x": 32,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-3": {
+          "x": 48,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "east-0": {
+          "x": 0,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-1": {
+          "x": 16,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-2": {
+          "x": 32,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-3": {
+          "x": 48,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "north-0": {
+          "x": 0,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-1": {
+          "x": 16,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-2": {
+          "x": 32,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-3": {
+          "x": 48,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        }
+      },
+      "fps": 7,
+      "walk": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "idle": [
+        0
+      ],
+      "collision": {
+        "x": 4,
+        "y": 19,
+        "w": 8,
+        "h": 4
+      }
+    },
+    "anais": {
+      "name": "Anaïs",
+      "role": "Batelière du Port des Vergers",
+      "shirt": "white",
+      "coat": "water",
+      "shade": "waterDeep",
+      "hair": "ink",
+      "skin": "skinDark",
+      "hat": "slateDark",
+      "accent": "red",
+      "image": "characters/anais.png",
+      "frameSize": [
+        16,
+        24
+      ],
+      "anchor": [
+        8,
+        23
+      ],
+      "directions": [
+        "south",
+        "west",
+        "east",
+        "north"
+      ],
+      "frames": {
+        "south-0": {
+          "x": 0,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-1": {
+          "x": 16,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-2": {
+          "x": 32,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-3": {
+          "x": 48,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "west-0": {
+          "x": 0,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-1": {
+          "x": 16,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-2": {
+          "x": 32,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-3": {
+          "x": 48,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "east-0": {
+          "x": 0,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-1": {
+          "x": 16,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-2": {
+          "x": 32,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-3": {
+          "x": 48,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "north-0": {
+          "x": 0,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-1": {
+          "x": 16,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-2": {
+          "x": 32,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-3": {
+          "x": 48,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        }
+      },
+      "fps": 7,
+      "walk": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "idle": [
+        0
+      ],
+      "collision": {
+        "x": 4,
+        "y": 19,
+        "w": 8,
+        "h": 4
+      }
+    },
+    "mathis": {
+      "name": "Mathis",
+      "role": "Meunier du Bourg des Moulins",
+      "shirt": "white",
+      "coat": "red",
+      "shade": "redDark",
+      "hair": "wood",
+      "skin": "skinLight",
+      "hat": null,
+      "accent": "woodTop",
+      "image": "characters/mathis.png",
+      "frameSize": [
+        16,
+        24
+      ],
+      "anchor": [
+        8,
+        23
+      ],
+      "directions": [
+        "south",
+        "west",
+        "east",
+        "north"
+      ],
+      "frames": {
+        "south-0": {
+          "x": 0,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-1": {
+          "x": 16,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-2": {
+          "x": 32,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-3": {
+          "x": 48,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "west-0": {
+          "x": 0,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-1": {
+          "x": 16,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-2": {
+          "x": 32,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-3": {
+          "x": 48,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "east-0": {
+          "x": 0,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-1": {
+          "x": 16,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-2": {
+          "x": 32,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-3": {
+          "x": 48,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "north-0": {
+          "x": 0,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-1": {
+          "x": 16,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-2": {
+          "x": 32,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-3": {
+          "x": 48,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        }
+      },
+      "fps": 7,
+      "walk": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "idle": [
+        0
+      ],
+      "collision": {
+        "x": 4,
+        "y": 19,
+        "w": 8,
+        "h": 4
+      }
+    },
+    "noe": {
+      "name": "Noé",
+      "role": "Nouveau personnage · pépiniériste",
+      "shirt": "greenLight",
+      "coat": "slate",
+      "shade": "slateDark",
+      "hair": "greyLight",
+      "skin": "skin",
+      "hat": null,
+      "accent": "greenDark",
+      "image": "characters/noe.png",
+      "frameSize": [
+        16,
+        24
+      ],
+      "anchor": [
+        8,
+        23
+      ],
+      "directions": [
+        "south",
+        "west",
+        "east",
+        "north"
+      ],
+      "frames": {
+        "south-0": {
+          "x": 0,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-1": {
+          "x": 16,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-2": {
+          "x": 32,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "south-3": {
+          "x": 48,
+          "y": 0,
+          "w": 16,
+          "h": 24
+        },
+        "west-0": {
+          "x": 0,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-1": {
+          "x": 16,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-2": {
+          "x": 32,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "west-3": {
+          "x": 48,
+          "y": 24,
+          "w": 16,
+          "h": 24
+        },
+        "east-0": {
+          "x": 0,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-1": {
+          "x": 16,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-2": {
+          "x": 32,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "east-3": {
+          "x": 48,
+          "y": 48,
+          "w": 16,
+          "h": 24
+        },
+        "north-0": {
+          "x": 0,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-1": {
+          "x": 16,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-2": {
+          "x": 32,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        },
+        "north-3": {
+          "x": 48,
+          "y": 72,
+          "w": 16,
+          "h": 24
+        }
+      },
+      "fps": 7,
+      "walk": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "idle": [
+        0
+      ],
+      "collision": {
+        "x": 4,
+        "y": 19,
+        "w": 8,
+        "h": 4
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+/* ==========================================================================
+   0.21 — Performance (Firefox gelait), sans perte de qualité
+
+   - Teintes de saison, flou des bords et fanions cuits dans les images
+     (scripts/cuire-saisons.py) : plus de filtre ni de masque à l’exécution.
+   - La petite carte est retirée de l’affichage dès que la carte HD est là.
+   - Ombres de nuages en mélange normal ; teinte du ciel absente de jour.
+   ========================================================================== */
+.pixel-farm > .farm-backdrop[data-covered] {
+  display: none;
+}
+.pixel-farm[data-season] .bunting-right {
+  background-image: url('/assets/pixel/carte-hd/saisons/fanions-printemps-droite.png');
+}
+.pixel-farm[data-season='ete'] .bunting-left { background-image: url('/assets/pixel/carte-hd/saisons/fanions-ete-gauche.png'); }
+.pixel-farm[data-season='ete'] .bunting-right { background-image: url('/assets/pixel/carte-hd/saisons/fanions-ete-droite.png'); }
+.pixel-farm[data-season='automne'] .bunting-left { background-image: url('/assets/pixel/carte-hd/saisons/fanions-automne-gauche.png'); }
+.pixel-farm[data-season='automne'] .bunting-right { background-image: url('/assets/pixel/carte-hd/saisons/fanions-automne-droite.png'); }
+.pixel-farm[data-season='hiver'] .bunting-left { background-image: url('/assets/pixel/carte-hd/saisons/fanions-hiver-gauche.png'); }
+.pixel-farm[data-season='hiver'] .bunting-right { background-image: url('/assets/pixel/carte-hd/saisons/fanions-hiver-droite.png'); }
+
+/* Une fenêtre couvre la carte (fond flouté) : ses décors animés (fanions, nuages,
+   lampes, ailes, épingles…) se mettent en pause, Rosalie continue. Le flou de
+   l’arrière-plan n’est plus recalculé à chaque image. */
+[data-map-covered] .pixel-farm :not(.rosalie-player, .rosalie-player *),
+[data-map-covered] .pixel-farm :not(.rosalie-player, .rosalie-player *)::before,
+[data-map-covered] .pixel-farm :not(.rosalie-player, .rosalie-player *)::after {
+  animation-play-state: paused !important;
+}

@@ -1,0 +1,1903 @@
+{
+  "width": 960,
+  "height": 640,
+  "terrain": "terrain.png",
+  "places": [
+    {
+      "id": "atelier",
+      "name": "Atelier de Rosalie",
+      "x": 520,
+      "y": 190,
+      "upgrade": "workshop",
+      "level": 4,
+      "feature": "Cuisine et préparations de la ferme."
+    },
+    {
+      "id": "silo",
+      "name": "Réserves de la ferme",
+      "x": 768,
+      "y": 190,
+      "project": "moissons",
+      "level": 3,
+      "feature": "Silo obtenu par le projet des moissons."
+    },
+    {
+      "id": "poulailler",
+      "name": "Poulailler de Rosalie",
+      "x": 798,
+      "y": 348,
+      "upgrade": "coop",
+      "level": 6,
+      "feature": "Production d’œufs à partir du blé."
+    },
+    {
+      "id": "verger",
+      "name": "Verger de la ferme",
+      "x": 798,
+      "y": 508,
+      "project": "verger",
+      "level": 5,
+      "feature": "Cueillette du verger restauré."
+    }
+  ],
+  "plots": [
+    {
+      "index": 0,
+      "x": 270,
+      "y": 300,
+      "terroir": "soleil"
+    },
+    {
+      "index": 1,
+      "x": 332,
+      "y": 300,
+      "terroir": "soleil"
+    },
+    {
+      "index": 2,
+      "x": 394,
+      "y": 300,
+      "terroir": "soleil"
+    },
+    {
+      "index": 3,
+      "x": 456,
+      "y": 300,
+      "terroir": "soleil"
+    },
+    {
+      "index": 4,
+      "x": 518,
+      "y": 300,
+      "terroir": "soleil"
+    },
+    {
+      "index": 5,
+      "x": 580,
+      "y": 300,
+      "terroir": "soleil"
+    },
+    {
+      "index": 6,
+      "x": 270,
+      "y": 375,
+      "terroir": "humide"
+    },
+    {
+      "index": 7,
+      "x": 332,
+      "y": 375,
+      "terroir": "humide"
+    },
+    {
+      "index": 8,
+      "x": 394,
+      "y": 375,
+      "terroir": "humide"
+    },
+    {
+      "index": 9,
+      "x": 456,
+      "y": 375,
+      "terroir": "humide"
+    },
+    {
+      "index": 10,
+      "x": 518,
+      "y": 375,
+      "terroir": "humide"
+    },
+    {
+      "index": 11,
+      "x": 580,
+      "y": 375,
+      "terroir": "humide"
+    },
+    {
+      "index": 12,
+      "x": 270,
+      "y": 450,
+      "terroir": "abrite"
+    },
+    {
+      "index": 13,
+      "x": 332,
+      "y": 450,
+      "terroir": "abrite"
+    },
+    {
+      "index": 14,
+      "x": 394,
+      "y": 450,
+      "terroir": "abrite"
+    },
+    {
+      "index": 15,
+      "x": 456,
+      "y": 450,
+      "terroir": "abrite"
+    },
+    {
+      "index": 16,
+      "x": 518,
+      "y": 450,
+      "terroir": "abrite"
+    },
+    {
+      "index": 17,
+      "x": 580,
+      "y": 450,
+      "terroir": "abrite"
+    }
+  ],
+  "sprites": {
+    "atelier": {
+      "image": "sprites/atelier.png",
+      "width": 173,
+      "height": 150,
+      "anchor": [
+        86,
+        149
+      ],
+      "source": "public/assets/pixel/v100-v2/sprites/atelier.png"
+    },
+    "silo": {
+      "image": "sprites/silo.png",
+      "width": 146,
+      "height": 146,
+      "anchor": [
+        73,
+        145
+      ],
+      "source": "public/assets/pixel/v100-v2/sprites/silo.png"
+    },
+    "poulailler": {
+      "image": "sprites/poulailler.png",
+      "width": 151,
+      "height": 112,
+      "anchor": [
+        75,
+        111
+      ],
+      "source": "public/assets/pixel/v100-v2/sprites/poulailler.png"
+    },
+    "verger": {
+      "image": "sprites/verger.png",
+      "width": 169,
+      "height": 151,
+      "anchor": [
+        84,
+        150
+      ],
+      "source": "public/assets/pixel/v100-v2/sprites/verger.png"
+    },
+    "terrain-ferme": {
+      "image": "sprites/terrain-ferme.png",
+      "width": 173,
+      "height": 108,
+      "anchor": [
+        86,
+        107
+      ],
+      "source": "public/assets/pixel/v100-v2/sprites/terrain-ferme.png"
+    },
+    "fondations": {
+      "image": "sprites/fondations.png",
+      "width": 173,
+      "height": 106,
+      "anchor": [
+        86,
+        105
+      ],
+      "source": "public/assets/pixel/v100-v2/sprites/fondations.png"
+    },
+    "chantier": {
+      "image": "sprites/chantier.png",
+      "width": 167,
+      "height": 150,
+      "anchor": [
+        83,
+        149
+      ],
+      "source": "public/assets/pixel/v100-v2/sprites/chantier.png"
+    },
+    "verger-abandonne": {
+      "image": "sprites/verger-abandonne.png",
+      "width": 183,
+      "height": 150,
+      "anchor": [
+        91,
+        149
+      ],
+      "source": "public/assets/pixel/v100-v2/sprites/verger-abandonne.png"
+    },
+    "verger-jeune": {
+      "image": "sprites/verger-jeune.png",
+      "width": 153,
+      "height": 128,
+      "anchor": [
+        76,
+        127
+      ],
+      "source": "public/assets/pixel/v100-v2/sprites/verger-jeune.png"
+    },
+    "rosalie-south": {
+      "image": "sprites/rosalie-south.png",
+      "width": 31,
+      "height": 48,
+      "anchor": [
+        15,
+        47
+      ],
+      "source": "public/assets/pixel/v100-v2/sprites/rosalie-south.png"
+    },
+    "radis-0": {
+      "image": "sprites/radis-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        0,
+        128,
+        128
+      ]
+    },
+    "radis-1": {
+      "image": "sprites/radis-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        0,
+        128,
+        128
+      ]
+    },
+    "radis-2": {
+      "image": "sprites/radis-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        0,
+        128,
+        128
+      ]
+    },
+    "radis-3": {
+      "image": "sprites/radis-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        0,
+        128,
+        128
+      ]
+    },
+    "radis-4": {
+      "image": "sprites/radis-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        0,
+        128,
+        128
+      ]
+    },
+    "carotte-0": {
+      "image": "sprites/carotte-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        128,
+        128,
+        128
+      ]
+    },
+    "carotte-1": {
+      "image": "sprites/carotte-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        128,
+        128,
+        128
+      ]
+    },
+    "carotte-2": {
+      "image": "sprites/carotte-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        128,
+        128,
+        128
+      ]
+    },
+    "carotte-3": {
+      "image": "sprites/carotte-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        128,
+        128,
+        128
+      ]
+    },
+    "carotte-4": {
+      "image": "sprites/carotte-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        128,
+        128,
+        128
+      ]
+    },
+    "salade-0": {
+      "image": "sprites/salade-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        256,
+        128,
+        128
+      ]
+    },
+    "salade-1": {
+      "image": "sprites/salade-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        256,
+        128,
+        128
+      ]
+    },
+    "salade-2": {
+      "image": "sprites/salade-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        256,
+        128,
+        128
+      ]
+    },
+    "salade-3": {
+      "image": "sprites/salade-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        256,
+        128,
+        128
+      ]
+    },
+    "salade-4": {
+      "image": "sprites/salade-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        256,
+        128,
+        128
+      ]
+    },
+    "ble-0": {
+      "image": "sprites/ble-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        384,
+        128,
+        128
+      ]
+    },
+    "ble-1": {
+      "image": "sprites/ble-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        384,
+        128,
+        128
+      ]
+    },
+    "ble-2": {
+      "image": "sprites/ble-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        384,
+        128,
+        128
+      ]
+    },
+    "ble-3": {
+      "image": "sprites/ble-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        384,
+        128,
+        128
+      ]
+    },
+    "ble-4": {
+      "image": "sprites/ble-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        384,
+        128,
+        128
+      ]
+    },
+    "tomate-0": {
+      "image": "sprites/tomate-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        512,
+        128,
+        128
+      ]
+    },
+    "tomate-1": {
+      "image": "sprites/tomate-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        512,
+        128,
+        128
+      ]
+    },
+    "tomate-2": {
+      "image": "sprites/tomate-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        512,
+        128,
+        128
+      ]
+    },
+    "tomate-3": {
+      "image": "sprites/tomate-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        512,
+        128,
+        128
+      ]
+    },
+    "tomate-4": {
+      "image": "sprites/tomate-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        512,
+        128,
+        128
+      ]
+    },
+    "fraise-0": {
+      "image": "sprites/fraise-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        640,
+        128,
+        128
+      ]
+    },
+    "fraise-1": {
+      "image": "sprites/fraise-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        640,
+        128,
+        128
+      ]
+    },
+    "fraise-2": {
+      "image": "sprites/fraise-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        640,
+        128,
+        128
+      ]
+    },
+    "fraise-3": {
+      "image": "sprites/fraise-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        640,
+        128,
+        128
+      ]
+    },
+    "fraise-4": {
+      "image": "sprites/fraise-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        640,
+        128,
+        128
+      ]
+    },
+    "mais-0": {
+      "image": "sprites/mais-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        768,
+        128,
+        128
+      ]
+    },
+    "mais-1": {
+      "image": "sprites/mais-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        768,
+        128,
+        128
+      ]
+    },
+    "mais-2": {
+      "image": "sprites/mais-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        768,
+        128,
+        128
+      ]
+    },
+    "mais-3": {
+      "image": "sprites/mais-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        768,
+        128,
+        128
+      ]
+    },
+    "mais-4": {
+      "image": "sprites/mais-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        768,
+        128,
+        128
+      ]
+    },
+    "aubergine-0": {
+      "image": "sprites/aubergine-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        896,
+        128,
+        128
+      ]
+    },
+    "aubergine-1": {
+      "image": "sprites/aubergine-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        896,
+        128,
+        128
+      ]
+    },
+    "aubergine-2": {
+      "image": "sprites/aubergine-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        896,
+        128,
+        128
+      ]
+    },
+    "aubergine-3": {
+      "image": "sprites/aubergine-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        896,
+        128,
+        128
+      ]
+    },
+    "aubergine-4": {
+      "image": "sprites/aubergine-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        896,
+        128,
+        128
+      ]
+    },
+    "myrtille-0": {
+      "image": "sprites/myrtille-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        1024,
+        128,
+        128
+      ]
+    },
+    "myrtille-1": {
+      "image": "sprites/myrtille-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        1024,
+        128,
+        128
+      ]
+    },
+    "myrtille-2": {
+      "image": "sprites/myrtille-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        1024,
+        128,
+        128
+      ]
+    },
+    "myrtille-3": {
+      "image": "sprites/myrtille-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        1024,
+        128,
+        128
+      ]
+    },
+    "myrtille-4": {
+      "image": "sprites/myrtille-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        1024,
+        128,
+        128
+      ]
+    },
+    "citrouille-0": {
+      "image": "sprites/citrouille-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        1152,
+        128,
+        128
+      ]
+    },
+    "citrouille-1": {
+      "image": "sprites/citrouille-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        1152,
+        128,
+        128
+      ]
+    },
+    "citrouille-2": {
+      "image": "sprites/citrouille-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        1152,
+        128,
+        128
+      ]
+    },
+    "citrouille-3": {
+      "image": "sprites/citrouille-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        1152,
+        128,
+        128
+      ]
+    },
+    "citrouille-4": {
+      "image": "sprites/citrouille-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        1152,
+        128,
+        128
+      ]
+    },
+    "raisin-0": {
+      "image": "sprites/raisin-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        1280,
+        128,
+        128
+      ]
+    },
+    "raisin-1": {
+      "image": "sprites/raisin-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        1280,
+        128,
+        128
+      ]
+    },
+    "raisin-2": {
+      "image": "sprites/raisin-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        1280,
+        128,
+        128
+      ]
+    },
+    "raisin-3": {
+      "image": "sprites/raisin-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        1280,
+        128,
+        128
+      ]
+    },
+    "raisin-4": {
+      "image": "sprites/raisin-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        1280,
+        128,
+        128
+      ]
+    },
+    "melon-0": {
+      "image": "sprites/melon-0.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        0,
+        1408,
+        128,
+        128
+      ]
+    },
+    "melon-1": {
+      "image": "sprites/melon-1.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        128,
+        1408,
+        128,
+        128
+      ]
+    },
+    "melon-2": {
+      "image": "sprites/melon-2.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        256,
+        1408,
+        128,
+        128
+      ]
+    },
+    "melon-3": {
+      "image": "sprites/melon-3.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        384,
+        1408,
+        128,
+        128
+      ]
+    },
+    "melon-4": {
+      "image": "sprites/melon-4.png",
+      "width": 54,
+      "height": 54,
+      "anchor": [
+        27,
+        53
+      ],
+      "source": "assets/pixel-pack-claude/ameliorations/crops-atlas.png",
+      "sourceRect": [
+        512,
+        1408,
+        128,
+        128
+      ]
+    },
+    "soil": {
+      "image": "sprites/soil.png",
+      "width": 56,
+      "height": 56,
+      "anchor": [
+        28,
+        55
+      ],
+      "source": "assets/pixel-pack-claude/1x/tuile/terre-labouree.png"
+    },
+    "wet-soil": {
+      "image": "sprites/wet-soil.png",
+      "width": 56,
+      "height": 56,
+      "anchor": [
+        28,
+        55
+      ],
+      "source": "assets/pixel-pack-claude/1x/tuile/terre-arrosee.png"
+    },
+    "hen": {
+      "image": "sprites/hen.png",
+      "width": 24,
+      "height": 24,
+      "anchor": [
+        12,
+        23
+      ],
+      "source": "assets/pixel-pack-claude/1x/animal/poule-1.png"
+    },
+    "chick": {
+      "image": "sprites/chick.png",
+      "width": 16,
+      "height": 16,
+      "anchor": [
+        8,
+        15
+      ],
+      "source": "assets/pixel-pack-claude/1x/animal/poussin-1.png"
+    },
+    "crate": {
+      "image": "sprites/crate.png",
+      "width": 24,
+      "height": 24,
+      "anchor": [
+        12,
+        23
+      ],
+      "source": "assets/pixel-pack-claude/1x/decor/caisse.png"
+    },
+    "barrel": {
+      "image": "sprites/barrel.png",
+      "width": 24,
+      "height": 24,
+      "anchor": [
+        12,
+        23
+      ],
+      "source": "assets/pixel-pack-claude/1x/decor/tonneau.png"
+    }
+  },
+  "spawn": [
+    620,
+    485
+  ],
+  "permanent": [
+    "maison-de-rosalie",
+    "mare",
+    "clotures"
+  ],
+  "layers": [
+    "terrain",
+    "soil",
+    "crops",
+    "places-and-rosalie-sorted-by-feet"
+  ],
+  "states": {
+    "start": {
+      "plots": 6,
+      "done": [],
+      "upgrades": [],
+      "level": 1,
+      "layers": [
+        {
+          "image": "sprites/soil.png",
+          "x": 242,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 304,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 366,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 428,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 490,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 552,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/chantier.png",
+          "x": 437,
+          "y": 41,
+          "z": 190
+        },
+        {
+          "image": "sprites/terrain-ferme.png",
+          "x": 682,
+          "y": 83,
+          "z": 190
+        },
+        {
+          "image": "sprites/radis-1.png",
+          "x": 243,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/carotte-2.png",
+          "x": 305,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/ble-3.png",
+          "x": 367,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/tomate-1.png",
+          "x": 429,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/mais-2.png",
+          "x": 491,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/carotte-3.png",
+          "x": 553,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/rosalie-south.png",
+          "x": 622,
+          "y": 293,
+          "z": 340
+        },
+        {
+          "image": "sprites/chantier.png",
+          "x": 715,
+          "y": 199,
+          "z": 348
+        },
+        {
+          "image": "sprites/verger-abandonne.png",
+          "x": 707,
+          "y": 359,
+          "z": 508
+        }
+      ]
+    },
+    "growing": {
+      "plots": 12,
+      "done": [
+        "moissons"
+      ],
+      "upgrades": [
+        "workshop"
+      ],
+      "active": "verger",
+      "level": 5,
+      "layers": [
+        {
+          "image": "sprites/soil.png",
+          "x": 242,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 304,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 366,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 428,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 490,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 552,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 242,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 304,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 366,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 428,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 490,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 552,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/atelier.png",
+          "x": 434,
+          "y": 41,
+          "z": 190
+        },
+        {
+          "image": "sprites/silo.png",
+          "x": 695,
+          "y": 45,
+          "z": 190
+        },
+        {
+          "image": "sprites/crate.png",
+          "x": 560,
+          "y": 175,
+          "z": 198
+        },
+        {
+          "image": "sprites/barrel.png",
+          "x": 584,
+          "y": 175,
+          "z": 198
+        },
+        {
+          "image": "sprites/radis-2.png",
+          "x": 243,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/carotte-3.png",
+          "x": 305,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/ble-4.png",
+          "x": 367,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/tomate-2.png",
+          "x": 429,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/mais-3.png",
+          "x": 491,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/carotte-4.png",
+          "x": 553,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/rosalie-south.png",
+          "x": 622,
+          "y": 293,
+          "z": 340
+        },
+        {
+          "image": "sprites/terrain-ferme.png",
+          "x": 712,
+          "y": 241,
+          "z": 348
+        },
+        {
+          "image": "sprites/salade-2.png",
+          "x": 243,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/fraise-3.png",
+          "x": 305,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/myrtille-4.png",
+          "x": 367,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/aubergine-2.png",
+          "x": 429,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/melon-3.png",
+          "x": 491,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/salade-4.png",
+          "x": 553,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/barrel.png",
+          "x": 616,
+          "y": 353,
+          "z": 376
+        },
+        {
+          "image": "sprites/verger-jeune.png",
+          "x": 722,
+          "y": 381,
+          "z": 508
+        }
+      ]
+    },
+    "complete": {
+      "plots": 18,
+      "done": [
+        "moissons",
+        "verger"
+      ],
+      "upgrades": [
+        "workshop",
+        "coop"
+      ],
+      "level": 11,
+      "layers": [
+        {
+          "image": "sprites/soil.png",
+          "x": 242,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 304,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 366,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 428,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 490,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 552,
+          "y": 245,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 242,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 304,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 366,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 428,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 490,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/wet-soil.png",
+          "x": 552,
+          "y": 320,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 242,
+          "y": 395,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 304,
+          "y": 395,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 366,
+          "y": 395,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 428,
+          "y": 395,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 490,
+          "y": 395,
+          "z": 0
+        },
+        {
+          "image": "sprites/soil.png",
+          "x": 552,
+          "y": 395,
+          "z": 0
+        },
+        {
+          "image": "sprites/atelier.png",
+          "x": 434,
+          "y": 41,
+          "z": 190
+        },
+        {
+          "image": "sprites/silo.png",
+          "x": 695,
+          "y": 45,
+          "z": 190
+        },
+        {
+          "image": "sprites/crate.png",
+          "x": 560,
+          "y": 175,
+          "z": 198
+        },
+        {
+          "image": "sprites/barrel.png",
+          "x": 584,
+          "y": 175,
+          "z": 198
+        },
+        {
+          "image": "sprites/radis-4.png",
+          "x": 243,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/carotte-4.png",
+          "x": 305,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/ble-4.png",
+          "x": 367,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/tomate-4.png",
+          "x": 429,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/mais-4.png",
+          "x": 491,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/carotte-4.png",
+          "x": 553,
+          "y": 244,
+          "z": 297
+        },
+        {
+          "image": "sprites/rosalie-south.png",
+          "x": 622,
+          "y": 293,
+          "z": 340
+        },
+        {
+          "image": "sprites/poulailler.png",
+          "x": 723,
+          "y": 237,
+          "z": 348
+        },
+        {
+          "image": "sprites/hen.png",
+          "x": 739,
+          "y": 337,
+          "z": 360
+        },
+        {
+          "image": "sprites/chick.png",
+          "x": 841,
+          "y": 350,
+          "z": 365
+        },
+        {
+          "image": "sprites/salade-4.png",
+          "x": 243,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/fraise-4.png",
+          "x": 305,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/myrtille-4.png",
+          "x": 367,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/aubergine-4.png",
+          "x": 429,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/melon-4.png",
+          "x": 491,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/salade-4.png",
+          "x": 553,
+          "y": 319,
+          "z": 372
+        },
+        {
+          "image": "sprites/hen.png",
+          "x": 815,
+          "y": 349,
+          "z": 372
+        },
+        {
+          "image": "sprites/barrel.png",
+          "x": 616,
+          "y": 353,
+          "z": 376
+        },
+        {
+          "image": "sprites/citrouille-4.png",
+          "x": 243,
+          "y": 394,
+          "z": 447
+        },
+        {
+          "image": "sprites/raisin-4.png",
+          "x": 305,
+          "y": 394,
+          "z": 447
+        },
+        {
+          "image": "sprites/fraise-4.png",
+          "x": 367,
+          "y": 394,
+          "z": 447
+        },
+        {
+          "image": "sprites/myrtille-4.png",
+          "x": 429,
+          "y": 394,
+          "z": 447
+        },
+        {
+          "image": "sprites/melon-4.png",
+          "x": 491,
+          "y": 394,
+          "z": 447
+        },
+        {
+          "image": "sprites/citrouille-4.png",
+          "x": 553,
+          "y": 394,
+          "z": 447
+        },
+        {
+          "image": "sprites/verger.png",
+          "x": 714,
+          "y": 358,
+          "z": 508
+        }
+      ]
+    }
+  }
+}

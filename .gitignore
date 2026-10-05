@@ -1,4 +1,4 @@
-# dependencies
+# Dépendances
 /node_modules
 /.pnp
 .pnp.*
@@ -8,34 +8,39 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# Compilation et exécution
 /.next/
 /.vinext/
 /out/
+/dist/
+/.wrangler/
+/coverage
+next-env.d.ts
+*.tsbuildinfo
 
-# misc
-.DS_Store
+# Environnement local
+.env*
 *.pem
-
-# debug
+.DS_Store
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# local environment
-.env*
-
-# deployment and generated files
+__pycache__/
 .vercel
-next-env.d.ts
-*.tsbuildinfo
-/dist/
-/.wrangler/
+
+# Atelier : ce qui ne sert pas à faire tourner le jeu publié.
+# Ces dossiers restent sur le poste de travail, hors du dépôt :
+# sources et planches HD, archives de versions, scripts de
+# fabrication des images, suites de tests.
+/assets/
+/releases/
+/scripts/
+/tests/
 /outputs/
 /work/
-/releases/
 /.sites-runtime/
+
+# Documentation : seule l'image du README est versionnée.
+/docs/*
+!/docs/apercu.webp

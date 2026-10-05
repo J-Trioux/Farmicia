@@ -1,0 +1,208 @@
+/* ==========================================================================
+   0.10 — Tutoriel : bulle de Rosalie, élément mis en évidence, Guide du carnet.
+   ========================================================================== */
+.tutorial-coach {
+  z-index: 2000;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 10px;
+  width: min(360px, calc(100vw - 24px));
+  padding: 12px 14px;
+  color: var(--c-ink);
+  background: var(--c-paper-light);
+  border: 3px solid var(--c-wood);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-float), 0 0 0 4px rgb(255 246 220 / 55%);
+  pointer-events: auto;
+  animation: coach-in var(--d-base) var(--ease-out);
+}
+.tutorial-coach::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -11px;
+  width: 16px;
+  height: 16px;
+  background: var(--c-paper-light);
+  border-right: 3px solid var(--c-wood);
+  border-bottom: 3px solid var(--c-wood);
+  transform: translateX(-50%) rotate(45deg);
+}
+.tutorial-coach[data-below]::before {
+  top: -11px;
+  bottom: auto;
+  transform: translateX(-50%) rotate(225deg);
+}
+.coach-face {
+  width: 56px;
+  height: 67px;
+  background-size: 800% 1200%;
+  background-repeat: no-repeat;
+  image-rendering: auto;
+}
+.coach-chapter {
+  display: block;
+  color: var(--c-ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+.tutorial-coach p {
+  margin: 4px 0 8px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.coach-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.coach-actions button {
+  min-height: 36px;
+  padding: 0 12px;
+  color: var(--c-ink);
+  background: #f3e7c4;
+  border: 2px solid #c9ab76;
+  border-radius: var(--r-md);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.coach-actions .coach-read {
+  color: #fff;
+  background: var(--c-leaf);
+  border-color: #3d5e27;
+}
+.coach-actions .coach-off {
+  margin-left: auto;
+  color: var(--c-ink-soft);
+  background: transparent;
+  border-color: transparent;
+  text-decoration: underline;
+}
+.coach-actions button:focus-visible {
+  outline: 3px solid var(--c-sky);
+  outline-offset: 2px;
+}
+@keyframes coach-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+/* L’élément à utiliser : un anneau doré qui respire (fixe en mouvement réduit). */
+[data-tutorial-target] {
+  outline: 3px solid var(--c-gold) !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgb(246 201 85 / 35%), var(--glow-gold) !important;
+  animation: tutorial-pulse 1.6s ease-in-out infinite;
+}
+.farm-plot[data-tutorial-target] {
+  z-index: 11;
+}
+@keyframes tutorial-pulse {
+  50% {
+    box-shadow: 0 0 0 10px rgb(246 201 85 / 15%), var(--glow-gold);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion-full]) [data-tutorial-target],
+  :root:not([data-motion-full]) .tutorial-coach {
+    animation: none;
+  }
+}
+
+/* ---------- Guide du carnet ---------- */
+.guide-book header {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.guide-book h3 {
+  margin: 0;
+  font: 700 18px Georgia, serif;
+}
+.guide-book header p {
+  margin: 0;
+  color: var(--c-ink-soft);
+}
+.guide-toggle {
+  justify-self: start;
+  min-height: 40px;
+  padding: 0 14px;
+  color: var(--c-ink);
+  background: #f3e7c4;
+  border: 2px solid #c9ab76;
+  border-radius: var(--r-md);
+  font-weight: 700;
+  cursor: pointer;
+}
+.guide-chapters {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.guide-chapters li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--c-paper-light);
+  border: 2px solid #dcc697;
+  border-radius: var(--r-md);
+}
+.guide-chapters li[data-state='active'] {
+  border-color: var(--c-gold-deep);
+  background: #fff4d6;
+}
+.guide-chapters li[data-state='locked'] {
+  background: #f3ead2;
+}
+.guide-chapters b {
+  color: var(--c-ink);
+}
+.guide-chapters small {
+  margin-left: 8px;
+  color: var(--c-ink-soft);
+  font-size: 12px;
+}
+.guide-chapters p {
+  margin: 3px 0 0;
+  color: var(--c-ink-soft);
+  font-size: 13px;
+}
+.guide-chapters button {
+  min-height: 40px;
+  padding: 0 14px;
+  color: #fff;
+  background: var(--c-leaf);
+  border: 2px solid #3d5e27;
+  border-radius: var(--r-md);
+  font-weight: 700;
+  cursor: pointer;
+}
+.guide-chapters button:disabled {
+  color: var(--c-ink-soft);
+  background: #e8dcb8;
+  border-color: #c5ae7b;
+  cursor: default;
+}
+.guide-toggle:focus-visible,
+.guide-chapters button:focus-visible {
+  outline: 3px solid var(--c-sky);
+  outline-offset: 2px;
+}
+@media (max-width: 600px) {
+  .tutorial-coach {
+    grid-template-columns: 40px 1fr;
+  }
+  .coach-face {
+    width: 40px;
+    height: 48px;
+  }
+  .guide-chapters li {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,484 @@
+/* ==========================================================================
+   0.5.5 — Rosalie, gestes et interface. Sans !important : les règles sont
+   rendues plus précises que celles qu’elles remplacent.
+   ========================================================================== */
+
+/* ---------- Rosalie ---------- */
+/* La position est interpolée par le moteur de marche : plus de transition. */
+.pixel-farm .rosalie-player {
+  transition: none;
+}
+.pixel-farm .rosalie-player::before {
+  width: 56%;
+  height: 12%;
+  left: 22%;
+  bottom: 2%;
+  background: radial-gradient(closest-side, rgb(30 38 20 / 45%), transparent);
+  transition: transform var(--d-fast) var(--ease-out);
+}
+.pixel-farm .rosalie-player.walking::before {
+  animation: shadow-step 0.26s steps(2) infinite;
+}
+.pixel-farm .rosalie-player.walking .rosalie-sprite {
+  animation:
+    walking-frames 0.26s steps(1) infinite,
+    walk-bob 0.13s var(--ease-soft) infinite alternate;
+}
+.pixel-farm .rosalie-player.landing .rosalie-sprite {
+  animation: land-squash 0.22s var(--ease-out);
+  transform-origin: 50% 92%;
+}
+.rosalie-bubble {
+  position: absolute;
+  left: 58%;
+  top: -18%;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 20px;
+  color: var(--c-berry);
+  background: var(--c-paper);
+  border: 2px solid var(--c-wood);
+  border-radius: var(--r-sm);
+  box-shadow: var(--relief-wood);
+  font:
+    900 13px/1 ui-monospace,
+    monospace;
+  animation:
+    bubble-pop 0.3s var(--ease-bounce) both,
+    bubble-bob 1.6s var(--ease-soft) 0.3s infinite;
+}
+.rosalie-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 3px;
+  border: 4px solid transparent;
+  border-top-color: var(--c-wood);
+}
+@keyframes walk-bob {
+  to {
+    transform: translateY(-1.5px);
+  }
+}
+@keyframes shadow-step {
+  50% {
+    transform: scaleX(0.85);
+  }
+}
+@keyframes land-squash {
+  40% {
+    transform: scale(1.06, 0.9);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes bubble-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4) translateY(6px);
+  }
+}
+@keyframes bubble-bob {
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* ---------- Parcelles : pousse, croissance, ondulation ---------- */
+.crop-sway,
+.crop-pop {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 88%;
+  pointer-events: none;
+}
+.pixel-farm .farm-plot.ripe .crop-sprite {
+  animation: none;
+}
+/* Même durée pour toutes : l’origine de temps est commune (voir FarmPlot). */
+.farm-plot.ripe .crop-sway {
+  animation: crop-sway 3.2s var(--ease-soft) infinite;
+}
+.crop-pop.pop-sprout {
+  animation: sprout-pop 0.45s var(--ease-bounce) both;
+}
+.crop-pop.pop-grow {
+  animation: grow-hop 0.4s var(--ease-out) both;
+}
+@keyframes crop-sway {
+  0%,
+  100% {
+    transform: skewX(0deg);
+  }
+  30% {
+    transform: skewX(-4deg);
+  }
+  65% {
+    transform: skewX(3deg);
+  }
+}
+@keyframes sprout-pop {
+  0% {
+    transform: scale(0.1, 0.1);
+  }
+  55% {
+    transform: scale(0.9, 1.25);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes grow-hop {
+  35% {
+    transform: translateY(-4px) scale(1.04, 0.96);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* ---------- Récolte exceptionnelle ---------- */
+.golden-wave {
+  position: absolute;
+  left: 0;
+  top: 20%;
+  width: 90px;
+  height: 90px;
+  border: 3px solid var(--c-gold);
+  border-radius: 50%;
+  box-shadow:
+    0 0 14px var(--c-gold),
+    inset 0 0 10px var(--c-coin-shine);
+  transform: translate(-50%, -50%) scale(0.1);
+  animation: golden-wave 0.7s var(--ease-out) 0.15s both;
+  pointer-events: none;
+}
+.pixel-farm.shake {
+  animation: farm-shake 0.3s steps(2) 0.15s;
+}
+@keyframes golden-wave {
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.4);
+  }
+}
+@keyframes farm-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -2px 1px;
+  }
+  50% {
+    translate: 2px -1px;
+  }
+  75% {
+    translate: -1px -2px;
+  }
+}
+
+/* ---------- Mouvement réduit ---------- */
+[data-reduce-motion] .golden-wave {
+  display: none;
+}
+[data-reduce-motion] .pixel-farm .rosalie-player .rosalie-sprite,
+[data-reduce-motion] .pixel-farm .rosalie-player::before,
+[data-reduce-motion] .crop-sway,
+[data-reduce-motion] .crop-pop,
+[data-reduce-motion] .rosalie-bubble,
+[data-reduce-motion] .pixel-farm.shake {
+  animation: none;
+}
+
+
+/* ---------- HUD : pièces, XP ---------- */
+.hud-resource > span {
+  display: inline-grid;
+}
+.coin-pulse {
+  animation: coin-gulp 0.45s var(--ease-bounce);
+}
+.hud-resource b {
+  min-width: 3ch;
+  font-variant-numeric: tabular-nums;
+}
+.xp-track i {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(#8fbf55, #5d8a36);
+  transition: width var(--d-slow) var(--ease-out);
+}
+.xp-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgb(255 255 255 / 75%) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  animation: xp-shine 0.9s var(--ease-out) 0.2s both;
+}
+@keyframes coin-gulp {
+  35% {
+    transform: scale(1.35) rotate(-8deg);
+    filter: drop-shadow(0 0 6px var(--c-coin-shine));
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes xp-shine {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ---------- Dock : sachets de graines ---------- */
+.seed-strip button {
+  transition:
+    transform var(--d-fast) var(--ease-out),
+    box-shadow var(--d-fast) var(--ease-out);
+}
+.seed-strip button:hover,
+.seed-strip button:focus-visible {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 0 rgb(0 0 0 / 22%);
+}
+.action-dock .seed-strip button.selected {
+  animation: packet-float 2.4s var(--ease-soft) infinite;
+  box-shadow: 0 5px 0 rgb(0 0 0 / 22%);
+}
+@keyframes packet-float {
+  0%,
+  100% {
+    transform: translateY(-3px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* ---------- Passage de niveau en plein écran ---------- */
+.levelup-dialog[data-slot='dialog-content'] {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 22px;
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 24px;
+  overflow: hidden;
+  color: var(--c-paper);
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    rgb(58 90 52 / 96%),
+    rgb(20 32 24 / 97%)
+  );
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.levelup-banner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: min(520px, 90vw);
+  padding: 18px 48px 16px;
+  color: var(--c-ink);
+  background: var(--c-paper);
+  border: 3px solid var(--c-wood);
+  box-shadow:
+    inset 0 0 0 3px var(--c-paper-light),
+    0 6px 0 var(--c-wood-dark);
+  clip-path: polygon(0 0, 100% 0, 96% 50%, 100% 100%, 0 100%, 4% 50%);
+  animation: banner-unroll 0.6s var(--ease-out) both;
+}
+.levelup-banner [data-slot='dialog-title'] {
+  font-size: 40px;
+  line-height: 1;
+}
+.levelup-banner [data-slot='dialog-description'] {
+  color: var(--c-ink-soft);
+}
+.levelup-kicker {
+  color: var(--c-gold-deep);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.levelup-cards {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  perspective: 800px;
+}
+.levelup-card {
+  position: relative;
+  width: 168px;
+  height: 180px;
+  transform-style: preserve-3d;
+  animation: card-flip 0.7s var(--ease-out) both;
+  animation-delay: calc(0.55s + var(--i) * 0.22s);
+}
+.levelup-card-back,
+.levelup-card-front {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border: 3px solid var(--c-wood);
+  border-radius: var(--r-md);
+  text-align: center;
+}
+.levelup-card-back,
+.levelup-card-front {
+  animation: 0.7s both;
+  animation-delay: calc(0.55s + var(--i) * 0.22s);
+}
+/* Faces échangées à mi-rotation : ne dépend pas de backface-visibility. */
+.levelup-card-back {
+  animation-name: face-out;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--c-wood-light) 0 8px,
+    var(--c-wood) 8px 16px
+  );
+}
+.levelup-card-front {
+  animation-name: face-in;
+  color: var(--c-ink);
+  background: var(--c-paper);
+  box-shadow: inset 0 0 0 3px var(--c-paper-light);
+  transform: rotateY(180deg);
+}
+.levelup-card-front .pixel-icon {
+  width: 52px;
+  height: 52px;
+}
+.levelup-card-front b {
+  font-size: 14px;
+  line-height: 1.2;
+}
+.levelup-card-front small {
+  color: var(--c-ink-soft);
+  font-size: 12px;
+}
+.levelup-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 10px;
+  animation: fade-up 0.4s var(--ease-out) 1.3s both;
+}
+.levelup-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.levelup-confetti i {
+  position: absolute;
+  left: var(--x);
+  top: -12px;
+  width: 8px;
+  height: 8px;
+  animation: confetti-fall var(--fall) linear var(--delay) both;
+}
+.levelup-confetti i:nth-child(3n) {
+  width: 6px;
+  height: 10px;
+}
+@keyframes face-out {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes face-in {
+  0%,
+  49% {
+    opacity: 0;
+  }
+  50%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes banner-unroll {
+  from {
+    clip-path: polygon(48% 0, 52% 0, 52% 50%, 52% 100%, 48% 100%, 48% 50%);
+    transform: translateY(-12px);
+  }
+}
+@keyframes card-flip {
+  from {
+    transform: rotateY(0deg) translateY(16px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: rotateY(180deg);
+    opacity: 1;
+  }
+}
+@keyframes confetti-fall {
+  to {
+    transform: translate(var(--drift), 105dvh) rotate(var(--spin));
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+[data-reduce-motion] .levelup-card,
+[data-reduce-motion] .levelup-banner,
+[data-reduce-motion] .levelup-actions,
+[data-reduce-motion] .xp-shine,
+[data-reduce-motion] .coin-pulse,
+[data-reduce-motion] .action-dock .seed-strip button.selected {
+  animation: none;
+}
+[data-reduce-motion] .levelup-card {
+  transform: rotateY(180deg);
+}
+[data-reduce-motion] .levelup-card-back {
+  opacity: 0;
+}
+[data-reduce-motion] .levelup-confetti {
+  display: none;
+}
+
+
+[data-reduce-motion] .levelup-card { transform: rotateY(180deg); }
+[data-reduce-motion] .levelup-card-back { opacity: 0; }
+[data-reduce-motion] .levelup-confetti { display: none; }

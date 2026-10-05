@@ -1,0 +1,825 @@
+/* ==========================================================================
+   0.9.1 — Prendre le temps
+   Carnet progressif, dock resserré, panier groupé. Aucun !important.
+   ========================================================================== */
+
+/* ---------- Annonce d’une nouvelle page du carnet ---------- */
+.page-announce {
+  /* Dans le bandeau du haut, entre le titre et le niveau : ne cache ni la carte ni le dock. */
+  flex: 0 1 460px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-left: auto;
+  padding: 4px 4px 4px 10px;
+  color: var(--c-ink);
+  background: var(--c-paper-light);
+  border: 2px solid #b08a5a;
+  border-radius: var(--r-lg);
+  box-shadow: inset 4px 0 0 var(--c-berry);
+  animation: page-announce-in 0.45s var(--ease-out) both;
+}
+.page-announce .pixel-icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+.page-announce > div {
+  flex: 1;
+  min-width: 0;
+}
+.page-announce small {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #8a6238;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.page-announce b {
+  display: block;
+  overflow: hidden;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.page-announce button {
+  flex: none;
+  min-height: 34px;
+  padding: 4px 12px;
+  color: #fff8e4;
+  background: #557548;
+  border: 1px solid #3d5a33;
+  border-radius: 6px;
+  font-weight: 800;
+}
+.page-announce button.page-announce-close {
+  min-width: 32px;
+  padding: 0;
+  color: #6b4c2f;
+  background: transparent;
+  border-color: transparent;
+  font-size: 20px;
+  line-height: 1;
+}
+.page-announce button:focus-visible {
+  outline: 3px solid #ffd96f;
+  outline-offset: 2px;
+}
+@keyframes page-announce-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+[data-reduce-motion] .page-announce {
+  animation: none;
+}
+
+/* Carnet du dock : une étoile tant qu’une page reste à découvrir. */
+.dock-actions .dock-notebook {
+  position: relative;
+}
+.dock-actions .dock-notebook[data-new]::before {
+  content: '✦';
+  position: absolute;
+  top: -7px;
+  left: -5px;
+  color: #ffd96f;
+  font-size: 15px;
+  text-shadow: 0 1px 0 #3b2a1b;
+}
+
+/* ---------- Marque-page « Nouveau » ---------- */
+.book-tab-new {
+  flex: none;
+  padding: 1px 5px;
+  color: #3b2a1b;
+  background: #ffd96f;
+  border-radius: 4px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.notebook-tab-list [data-slot='tabs-trigger'][data-new] .pixel-icon {
+  animation: book-tab-new 1.8s ease-in-out 3;
+}
+@keyframes book-tab-new {
+  50% {
+    transform: translateY(-2px) rotate(-6deg);
+  }
+}
+[data-reduce-motion] .notebook-tab-list [data-slot='tabs-trigger'][data-new] .pixel-icon {
+  animation: none;
+}
+
+@media (max-width: 900px) {
+  /* Bandeau trop étroit : l’annonce flotte sous lui. */
+  .page-announce {
+    position: fixed;
+    z-index: 50;
+    top: calc(64px + env(safe-area-inset-top));
+    left: 12px;
+    right: 12px;
+    margin: 0;
+    box-shadow:
+      inset 4px 0 0 var(--c-berry),
+      0 6px 18px #1c301b44;
+  }
+  .page-announce b {
+    white-space: normal;
+  }
+}
+
+/* ---------- Projets : trois pistes à la fois ---------- */
+.project-pick-tag {
+  display: inline-block;
+  margin-bottom: 3px;
+  padding: 1px 7px;
+  color: var(--c-paper-light);
+  background: var(--c-leaf);
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.project-card[data-pick='À découvrir'] .project-pick-tag {
+  background: var(--c-violet);
+}
+.project-card[data-pick='En pause'] .project-pick-tag {
+  background: var(--c-wood);
+}
+.project-card .project-pick-reason {
+  margin: 5px 0 0;
+  padding: 5px 8px;
+  color: #3f5a33;
+  background: #eef2dc;
+  border-left: 3px solid var(--c-leaf);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- Dock : cinq sachets épinglés et un tiroir ---------- */
+@media (min-width: 701px) {
+  .seed-strip {
+    flex: 0 1 auto;
+    overflow: visible;
+  }
+  .seed-strip button[data-extra] {
+    display: none;
+  }
+}
+.seed-strip .seed-key {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  min-width: 14px;
+  padding: 0 3px;
+  color: #6a5a3c;
+  background: #f1e7c6;
+  border: 1px solid #cdbb8f;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 13px;
+  text-align: center;
+}
+.seed-strip button.selected .seed-key {
+  color: var(--c-paper-light);
+  background: var(--c-leaf);
+  border-color: #3d5a33;
+}
+.seed-strip .seed-all-toggle {
+  flex-basis: 52px;
+  width: 52px;
+  color: #3b4d2d;
+  background: #eee4c3;
+}
+.seed-strip .seed-all-toggle > span {
+  font-size: 14px;
+  line-height: 1;
+}
+.seed-strip .seed-all-toggle[aria-expanded='true'] {
+  background: #e5edc9;
+  border: 2px solid #678746;
+}
+.seed-all {
+  position: absolute;
+  z-index: 2;
+  left: 8px;
+  bottom: calc(100% + 8px);
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(430px, 60vh);
+  overflow-y: auto;
+  padding: 10px;
+  color: var(--c-ink);
+  background: var(--c-paper-light);
+  border: 2px solid #b08a5a;
+  border-radius: var(--r-lg);
+  box-shadow: 0 -6px 22px #1c301b55;
+}
+.seed-all header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 2px 8px;
+}
+.seed-all header b {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+}
+.seed-all header small {
+  color: var(--c-ink-soft);
+  font-size: 12px;
+}
+.seed-all ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.seed-all li {
+  display: flex;
+  min-width: 0;
+  border: 1px solid #cdbb8f;
+  border-radius: var(--r-md);
+  background: #fffdf3;
+}
+.seed-all li[data-pinned] {
+  border-color: #c98a2e;
+  background: #fff4d2;
+}
+.seed-all li > button:first-child {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 6px;
+  color: inherit;
+  background: none;
+  border: 0;
+  text-align: left;
+}
+.seed-all li > button.selected {
+  box-shadow: inset 3px 0 0 var(--c-leaf);
+}
+.seed-all li .pixel-icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+.seed-all li span {
+  min-width: 0;
+}
+.seed-all li b,
+.seed-all li small {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.seed-all li b {
+  font-size: 13px;
+}
+.seed-all li small {
+  color: var(--c-ink-soft);
+  font-size: 11px;
+}
+.seed-all .seed-pin {
+  flex: none;
+  width: 40px;
+  min-height: 44px;
+  color: var(--c-gold-deep);
+  background: none;
+  border: 0;
+  border-left: 1px dashed #cdbb8f;
+  font-size: 18px;
+}
+.seed-all .seed-pin:disabled {
+  color: #c9bfa6;
+  cursor: not-allowed;
+}
+.seed-all button:focus-visible {
+  outline: 3px solid #d99b32;
+  outline-offset: -3px;
+}
+@media (max-width: 700px) {
+  .seed-strip .seed-key,
+  .seed-strip .seed-all-toggle {
+    display: none;
+  }
+}
+
+/* ---------- Panier : une ligne par culture ---------- */
+.basket-groups {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.basket-group {
+  background: #fff9df;
+  border: 1px solid #c9ad72;
+  border-radius: var(--r-md);
+}
+.basket-group[data-reserved] {
+  box-shadow: inset 4px 0 #c9892f;
+}
+.basket-group[data-open] {
+  border-color: #8a9f64;
+}
+.basket-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 2px 6px 2px 2px;
+}
+.basket-row .basket-expand {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 2px 6px;
+  color: var(--c-ink);
+  background: none;
+  border: 0;
+  border-radius: var(--r-md);
+  text-align: left;
+}
+.basket-row .basket-expand:hover {
+  background: #f6ebc9;
+}
+.basket-row .basket-expand:focus-visible,
+.basket-group button:focus-visible {
+  outline: 3px solid #d99b32;
+  outline-offset: -2px;
+}
+.basket-chevron {
+  width: 12px;
+  color: #8a6238;
+  font-size: 12px;
+}
+.basket-row .pixel-icon {
+  flex: none;
+  width: 30px;
+  height: 30px;
+}
+.basket-name {
+  min-width: 0;
+}
+.basket-name b {
+  display: block;
+  font-size: 14px;
+  line-height: 1.2;
+}
+.basket-name b span {
+  color: var(--c-ink-soft);
+  font-style: normal;
+  font-weight: 700;
+}
+.basket-name small,
+.notebook-dialog .basket-name small,
+.paper-dialog .basket-name small {
+  display: block;
+  overflow: hidden;
+  color: var(--c-ink-soft);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.basket-goals {
+  flex: none;
+  margin: 0;
+}
+.basket-group button.basket-sell-all,
+.basket-detail button {
+  flex: none;
+  min-height: 34px;
+  margin: 0;
+  padding: 4px 10px;
+  color: #fff;
+  background: #557f39;
+  border: 1px solid #3d5a33;
+  border-radius: 5px;
+  box-shadow: inset 0 -3px #31551e;
+  font-size: 13px;
+  font-weight: 800;
+}
+.basket-detail button.secondary-action,
+.basket-detail button.sell-one {
+  color: #3a5130;
+  background: #e7eecd;
+  border-color: #a2b082;
+  box-shadow: inset 0 -3px #b9c79a;
+}
+.basket-detail {
+  padding: 0 8px 8px 44px;
+}
+.basket-quality + .basket-quality {
+  margin-top: 6px;
+}
+.basket-quality header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px dashed #c9ad72;
+}
+.basket-quality header b {
+  font-size: 13px;
+}
+.basket-quality header small {
+  flex: 1;
+  color: var(--c-ink-soft);
+  font-size: 12px;
+}
+.basket-quality[data-rank='1'] header b {
+  color: #2f6aa0;
+}
+.basket-quality[data-rank='2'] header b {
+  color: #9a5b12;
+}
+.basket-quality ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.basket-quality li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 4px 0;
+}
+.basket-variant {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.basket-variant b {
+  display: block;
+  font-size: 13px;
+}
+.basket-variant small,
+.paper-dialog .basket-variant small {
+  display: block;
+  color: var(--c-ink-soft);
+  font-size: 12px;
+}
+.basket-detail .basket-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.basket-verb-short {
+  display: none;
+}
+@media (max-width: 700px) {
+  .basket-goals {
+    display: none;
+  }
+  .basket-detail {
+    padding-left: 8px;
+  }
+  /* Téléphone : le prix suffit, le libellé complet reste dans aria-label. */
+  .basket-row .basket-verb {
+    display: none;
+  }
+  .basket-quality .basket-verb {
+    display: none;
+  }
+  .basket-quality .basket-verb-short,
+  .basket-row .basket-verb-short {
+    display: inline;
+  }
+  .basket-quality header {
+    flex-wrap: wrap;
+  }
+}
+
+/* Dock : les actions restent à droite maintenant que les graines ne prennent plus toute la place. */
+@media (min-width: 701px) {
+  .action-dock .dock-actions {
+    margin-left: auto;
+  }
+}
+
+/* ---------- Carte : zones cliquables qui ne se chevauchent plus ---------- */
+/* L’atelier s’arrêtait sous le toit du poulailler : 10 % de la carte
+   répondaient aux deux bâtiments. Il s’arrête maintenant où le poulailler commence. */
+.workshop-zone {
+  height: 12%;
+  --zh: 12;
+}
+/* Compost et rigoles mordaient sur la première colonne de parcelles. */
+.place-compost,
+.place-rigoles {
+  left: 27.6%;
+}
+/* 0.9.8 : la caravane attend sur le chemin, devant le portail (valley090.css),
+   et ne mord plus sur les parcelles. */
+
+/* ---------- Grand écran (1920 × 1080 et plus) ---------- */
+@media (min-width: 1700px) and (min-height: 1000px) {
+  /* Le carnet profite de la place : 1400 × 940 au lieu de 1160 × 820. */
+  .notebook-dialog.book-dialog {
+    --book-width: min(1400px, calc(100vw - 160px));
+    --book-height: min(940px, calc(100dvh - 110px));
+  }
+  .book-dialog .notebook-tabs {
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+  /* Les trois pistes du village côte à côte. */
+  .projects-panel .project-list.project-picks {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  /* Tiroir des graines : quatre colonnes. */
+  .seed-all {
+    width: 700px;
+  }
+  .seed-all ul {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---------- 0.9.2 : Rosalie bine avant de semer ---------- */
+.pixel-farm .action-hoe .rosalie-sprite {
+  animation: hoe 0.2s ease-in-out;
+}
+
+/* ---------- 0.9.5 : l’Allant règle la cadence des pas ---------- */
+.pixel-farm .rosalie-player.walking::before {
+  animation-duration: var(--walk-step, 0.26s);
+}
+.pixel-farm .rosalie-player.walking .rosalie-sprite {
+  animation-duration: var(--walk-step, 0.26s), calc(var(--walk-step, 0.26s) / 2);
+}
+.allant-card {
+  margin: 10px 0 12px;
+  padding: 10px 14px;
+  color: var(--c-ink);
+  background: #f3f6e4;
+  border: 1px solid #a9b98a;
+  border-left: 4px solid var(--c-leaf);
+  border-radius: var(--r-md);
+}
+.allant-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+.allant-head h4 {
+  margin: 0;
+  font: 700 17px Georgia, 'Times New Roman', serif;
+}
+.allant-head b {
+  color: #3f6a35;
+  font-size: 18px;
+}
+.allant-card ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 8px 0 6px;
+  padding: 0;
+  list-style: none;
+}
+.allant-card li {
+  display: flex;
+  gap: 6px;
+  padding: 2px 8px;
+  color: #7a7461;
+  background: #fffdf3;
+  border: 1px solid #d8d2b8;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+}
+.allant-card li[data-active] {
+  color: #33502b;
+  border-color: #9ab27c;
+}
+.allant-card > small {
+  color: var(--c-ink-soft);
+  font-size: 12px;
+}
+
+/* ---------- 0.9.5 : avance rapide des gestes groupés ---------- */
+.bulk-job-status {
+  grid-template-columns: 1fr auto auto;
+}
+
+/* ==========================================================================
+   0.9.5 — Saisons visibles
+   ========================================================================== */
+/* Le décor change de teinte avec la saison ; parcelles, cultures et Rosalie
+   gardent leurs couleurs pour rester lisibles.
+   0.21 : les teintes (et le flou des bords) sont cuites dans les images de la
+   carte, une par saison (scripts/cuire-saisons.py, components/farm/map-backdrop.tsx) :
+   mêmes couleurs, sans filtre à l’exécution. */
+@media (min-width: 901px) {
+  .farm-card[data-season='ete']::before {
+    background-image: url('/assets/pixel/carte-hd/saisons/ete-fond.png');
+  }
+  .farm-card[data-season='automne']::before {
+    background-image: url('/assets/pixel/carte-hd/saisons/automne-fond.png');
+  }
+  .farm-card[data-season='hiver']::before {
+    background-image: url('/assets/pixel/carte-hd/saisons/hiver-fond.png');
+  }
+}
+
+/* Pastille de saison dans le HUD. */
+.hud-season .pixel-icon {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+}
+/* Graines de saison : un liseré doré sous le sachet et une étiquette. */
+.seed-strip > button[data-season]::after,
+.seed-all button[data-season]::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  bottom: 2px;
+  left: 10px;
+  height: 3px;
+  border-radius: 2px;
+  background: #e0a93b;
+  pointer-events: none;
+}
+.seed-all button[data-season] {
+  position: relative;
+}
+.seed-shop article[data-season] {
+  box-shadow: inset 0 0 0 2px #e0a93b, 0 2px 2px #765a2222;
+}
+.season-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: 1px solid #b07a22;
+  border-radius: 999px;
+  background: #fbe7b0;
+  padding: 1px 8px;
+  color: #5a3b0c;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   0.9.5 — Semis de garde
+   ========================================================================== */
+.dock-garde-select {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 132px;
+  max-width: 190px;
+  color: #e9dfb7;
+  font-size: 12px;
+  font-weight: 700;
+}
+.dock-garde-select select {
+  max-width: 100%;
+  min-height: 30px;
+  padding: 2px 6px;
+  border: 1px solid #b8945e;
+  border-radius: 4px;
+  background: #fff5d8;
+  color: #332b1c;
+  font-size: 13px;
+}
+.dock-garde-select select[data-garde] {
+  border-color: #e0a93b;
+  background: #fbe7b0;
+  box-shadow: 0 0 0 1px #e0a93b;
+}
+.seed-strip .garde-mobile {
+  display: none;
+}
+@media (max-width: 900px) {
+  .seed-strip .garde-mobile {
+    display: flex;
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    max-width: none;
+    color: #e9dfb7;
+  }
+  .seed-strip .garde-mobile select {
+    flex: 1;
+    min-height: 40px;
+  }
+}
+/* Parcelle de garde : un liseré de paille et le nombre de récoltes attendues. */
+.farm-plot.garde-crop .soil-tile {
+  outline: 2px dashed #e0c07a;
+  outline-offset: -3px;
+}
+.garde-mark {
+  position: absolute;
+  z-index: 12;
+  left: 2%;
+  bottom: 0;
+  padding: 0 4px;
+  border: 1px solid #3a2a1b;
+  border-radius: 4px;
+  background: #fbe7b0;
+  color: #3a2a1b;
+  font-size: clamp(11px, 1.1cqw, 14px);
+  font-weight: 800;
+  line-height: 1.3;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   0.9.5 — Longues tournées de la caravane
+   ========================================================================== */
+.valley-tours {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 7px;
+  margin: 10px 0;
+  padding: 0;
+  border: 0;
+}
+.valley-tours legend {
+  margin-bottom: 5px;
+  padding: 0;
+  color: #503820;
+  font: 700 15px Georgia, serif;
+}
+.valley-tours button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 52px;
+  padding: 7px 9px;
+  border: 2px solid #ac8958;
+  background: #f6e9c4;
+  color: #3b2d1c;
+  text-align: left;
+  box-shadow: 2px 3px 0 #85694a66;
+}
+.valley-tours button[aria-pressed='true'] {
+  border-color: #456c47;
+  background: #e9d6a0;
+  box-shadow: inset 0 0 0 2px #82a574;
+}
+.valley-tours button:disabled {
+  opacity: 0.6;
+  box-shadow: none;
+}
+.valley-tours small {
+  font-size: 12px;
+}
+
+/* 0.9.5 : Rosalie reste au premier plan, même au-dessus d’une parcelle survolée
+   (qui monte à 25 pour son anneau). */
+.pixel-farm .rosalie-player {
+  z-index: 26;
+}
+
+/* 0.9.5 : même terre pour toutes les parcelles (celle des premières). Le terroir
+   de chaque parcelle reste indiqué dans la ligne d’état au survol. */
+.bed .terroir-ground.terroir-humide,
+.bed .terroir-ground.terroir-abrite {
+  background-position: 0 0;
+}
+
+/* La butte dessinée au pied (15 % de la cellule) garde l’ancrage du premier
+   stade. Les tailles restent celles de chaque croissance, sans modifier l’atlas.
+   La pastille de croissance reste sur le bord droit. */
+.pixel-farm .bed .farm-plot[data-stage] .crop-sprite {
+  /* Même point de terre que le premier stade ; la taille croît autour de lui. */
+  bottom: 39.2%;
+  transform: translateY(var(--crop-ground-shift, 0%));
+}
+.pixel-farm .bed .plot-ring {
+  top: 8%;
+  right: -8%;
+}

@@ -1,0 +1,1130 @@
+{
+  "version": "1.0-art-v2",
+  "world": {
+    "width": 768,
+    "height": 512,
+    "tile": 8,
+    "spawn": {
+      "x": 378,
+      "y": 195
+    }
+  },
+  "palette": [
+    "#4c6971",
+    "#40b647",
+    "#4ac34e",
+    "#3aae48",
+    "#43b250",
+    "#c0ad9e",
+    "#4dbb55",
+    "#44bc4d",
+    "#0098e6",
+    "#019eea",
+    "#c5b5a4",
+    "#0092e2",
+    "#54c654",
+    "#02a5ed",
+    "#b9a498",
+    "#080407",
+    "#33a543",
+    "#03aef1",
+    "#453026",
+    "#06232d",
+    "#4ebc45",
+    "#5d3e29",
+    "#054442",
+    "#3ea54e",
+    "#190d0f",
+    "#2d231e",
+    "#2b9948",
+    "#382b26",
+    "#042e33",
+    "#1e1a1b",
+    "#51ac56",
+    "#cbc6ca",
+    "#6b462d",
+    "#061c22",
+    "#07504a",
+    "#5fcc59",
+    "#06b8f5",
+    "#4f3b31",
+    "#298e3a",
+    "#513524",
+    "#05343e",
+    "#008adb",
+    "#fbfbf8",
+    "#0e5832",
+    "#bcc7d4",
+    "#7e91ab",
+    "#5f4537",
+    "#b29b91",
+    "#5cb860",
+    "#083e33",
+    "#794f33",
+    "#0a1116",
+    "#0d6e50",
+    "#156d33",
+    "#0dc4f8",
+    "#b0c5dd",
+    "#bdcee1",
+    "#1a7d3b",
+    "#0e6042",
+    "#7487a5",
+    "#9f7556",
+    "#fbf4e4",
+    "#4a5c7c",
+    "#906a51",
+    "#6d4f3c",
+    "#4aac41",
+    "#805e48",
+    "#d1bfad",
+    "#3e5571",
+    "#085e54",
+    "#3b993f",
+    "#b1bece",
+    "#093524",
+    "#402219",
+    "#2c1613",
+    "#cad1d9",
+    "#0c4a28",
+    "#212930",
+    "#ced8e4",
+    "#1f8749",
+    "#7cde4b",
+    "#8c9fb1",
+    "#7e98b9",
+    "#5ec945",
+    "#f7e7d1",
+    "#5e7693",
+    "#a5b4c3",
+    "#5fba4e",
+    "#98a9bd",
+    "#e0cbb7",
+    "#0f7c5b",
+    "#6dd24c",
+    "#3a874b",
+    "#15d0fa",
+    "#4b9a52",
+    "#657da2",
+    "#865735",
+    "#92613d",
+    "#6ead6c",
+    "#a2bbd6",
+    "#70c05f",
+    "#8aa2c1",
+    "#a88062",
+    "#3c4b61",
+    "#265348",
+    "#556a87",
+    "#a06941",
+    "#5da262",
+    "#a29898",
+    "#3a3738",
+    "#0f2817",
+    "#b68c6a",
+    "#8de954",
+    "#2a6135",
+    "#dce3e6",
+    "#1d4738",
+    "#305f54",
+    "#b57e52",
+    "#2a551f",
+    "#95afcc",
+    "#ad7243",
+    "#045e92",
+    "#3b6923",
+    "#c59a73",
+    "#233347",
+    "#2a7248",
+    "#72d462",
+    "#a38e80",
+    "#497d23",
+    "#6d8794",
+    "#1e3b1a",
+    "#f2d8bd",
+    "#b6b59a",
+    "#7fbf71",
+    "#938c8f",
+    "#2f7838",
+    "#3f725c",
+    "#4e4a48",
+    "#363e4f",
+    "#53575f",
+    "#6b594e",
+    "#017fcf",
+    "#f4793d",
+    "#e9f0f0",
+    "#1a915e",
+    "#91402b",
+    "#a8b58e",
+    "#03436a",
+    "#044f80",
+    "#84aa79",
+    "#e6d8c9",
+    "#4e8761",
+    "#7ba420",
+    "#656467",
+    "#927c6e",
+    "#d3a77e",
+    "#4f7471",
+    "#bd552d",
+    "#868083",
+    "#5c8a7d",
+    "#c58d57",
+    "#7e6c61",
+    "#0275bd",
+    "#27435c",
+    "#94be80",
+    "#628e1c",
+    "#81a797",
+    "#26ddfb",
+    "#6c8cb4",
+    "#a54c2a",
+    "#518638",
+    "#d36134",
+    "#709d87",
+    "#8bd563",
+    "#0266a7",
+    "#afa6a6",
+    "#747279",
+    "#e96933",
+    "#669934",
+    "#066374",
+    "#f88a4b",
+    "#2ea75f",
+    "#495125",
+    "#092e58",
+    "#7c311f",
+    "#586728",
+    "#8dba2e",
+    "#a5f15d",
+    "#db9b5f",
+    "#e1b88e",
+    "#99aa86",
+    "#5e251c",
+    "#c0baba",
+    "#a6cd90",
+    "#393e1c",
+    "#f6cc9e",
+    "#94b8a7",
+    "#c2793d",
+    "#22072a",
+    "#abc733",
+    "#728f6b",
+    "#efb26f",
+    "#707828",
+    "#294427",
+    "#087a86",
+    "#8bd47e",
+    "#beca9a",
+    "#7ca743",
+    "#380a3a",
+    "#d88546",
+    "#aeceb9",
+    "#f7a458",
+    "#a4e17a",
+    "#4c0f4e",
+    "#45edfb",
+    "#0c7da4",
+    "#367388",
+    "#f8cb7e",
+    "#9ea62b",
+    "#8b8732",
+    "#7b1480",
+    "#cde7c1",
+    "#611168",
+    "#bde59d",
+    "#c5db3d",
+    "#302e7e",
+    "#0a90c4",
+    "#48359d",
+    "#f3f3c0",
+    "#e83b21",
+    "#5c4faa",
+    "#633ec9",
+    "#75f5fb",
+    "#f3ed99",
+    "#b31f1d",
+    "#844fe3",
+    "#792f4a",
+    "#c7f178",
+    "#a26eed",
+    "#8e11a4",
+    "#755fc2",
+    "#8b72d2",
+    "#9f2790",
+    "#e9eb4c",
+    "#884980",
+    "#a9fafc",
+    "#21b2dc",
+    "#c197f1",
+    "#bc5694",
+    "#ef9e1b",
+    "#a58fd8",
+    "#57cce5",
+    "#349fac",
+    "#a95db1",
+    "#f1a9f3",
+    "#e27fc7"
+  ],
+  "sampling": "nearest",
+  "alpha": "binary",
+  "sprites": {
+    "halle": {
+      "image": "sprites/halle.png",
+      "master": "masters/halle.png",
+      "w": 186,
+      "h": 143,
+      "anchor": [
+        93,
+        142
+      ],
+      "atlas": {
+        "x": 2,
+        "y": 2,
+        "w": 186,
+        "h": 143
+      },
+      "source": {
+        "sheet": "landmarks.png",
+        "rect": [
+          23,
+          54,
+          583,
+          448
+        ]
+      }
+    },
+    "pepiniere": {
+      "image": "sprites/pepiniere.png",
+      "master": "masters/pepiniere.png",
+      "w": 150,
+      "h": 142,
+      "anchor": [
+        75,
+        141
+      ],
+      "atlas": {
+        "x": 192,
+        "y": 2,
+        "w": 150,
+        "h": 142
+      },
+      "source": {
+        "sheet": "landmarks.png",
+        "rect": [
+          614,
+          105,
+          407,
+          386
+        ]
+      }
+    },
+    "atelier": {
+      "image": "sprites/atelier.png",
+      "master": "masters/atelier.png",
+      "w": 173,
+      "h": 150,
+      "anchor": [
+        86,
+        149
+      ],
+      "atlas": {
+        "x": 346,
+        "y": 2,
+        "w": 173,
+        "h": 150
+      },
+      "source": {
+        "sheet": "landmarks.png",
+        "rect": [
+          1044,
+          80,
+          474,
+          411
+        ]
+      }
+    },
+    "silo": {
+      "image": "sprites/silo.png",
+      "master": "masters/silo.png",
+      "w": 146,
+      "h": 146,
+      "anchor": [
+        73,
+        145
+      ],
+      "atlas": {
+        "x": 523,
+        "y": 2,
+        "w": 146,
+        "h": 146
+      },
+      "source": {
+        "sheet": "landmarks.png",
+        "rect": [
+          41,
+          502,
+          449,
+          450
+        ]
+      }
+    },
+    "poulailler": {
+      "image": "sprites/poulailler.png",
+      "master": "masters/poulailler.png",
+      "w": 151,
+      "h": 112,
+      "anchor": [
+        75,
+        111
+      ],
+      "atlas": {
+        "x": 673,
+        "y": 2,
+        "w": 151,
+        "h": 112
+      },
+      "source": {
+        "sheet": "landmarks.png",
+        "rect": [
+          532,
+          620,
+          454,
+          338
+        ]
+      }
+    },
+    "relais": {
+      "image": "sprites/relais.png",
+      "master": "masters/relais.png",
+      "w": 178,
+      "h": 145,
+      "anchor": [
+        89,
+        144
+      ],
+      "atlas": {
+        "x": 828,
+        "y": 2,
+        "w": 178,
+        "h": 145
+      },
+      "source": {
+        "sheet": "landmarks.png",
+        "rect": [
+          1026,
+          547,
+          484,
+          395
+        ]
+      }
+    },
+    "verger": {
+      "image": "sprites/verger.png",
+      "master": "masters/verger.png",
+      "w": 169,
+      "h": 151,
+      "anchor": [
+        84,
+        150
+      ],
+      "atlas": {
+        "x": 2,
+        "y": 154,
+        "w": 169,
+        "h": 151
+      },
+      "source": {
+        "sheet": "props.png",
+        "rect": [
+          22,
+          41,
+          506,
+          453
+        ]
+      }
+    },
+    "ponton": {
+      "image": "sprites/ponton.png",
+      "master": "masters/ponton.png",
+      "w": 169,
+      "h": 100,
+      "anchor": [
+        84,
+        99
+      ],
+      "atlas": {
+        "x": 175,
+        "y": 154,
+        "w": 169,
+        "h": 100
+      },
+      "source": {
+        "sheet": "props.png",
+        "rect": [
+          544,
+          196,
+          531,
+          314
+        ]
+      }
+    },
+    "barque": {
+      "image": "sprites/barque.png",
+      "master": "masters/barque.png",
+      "w": 110,
+      "h": 67,
+      "anchor": [
+        55,
+        66
+      ],
+      "atlas": {
+        "x": 348,
+        "y": 154,
+        "w": 110,
+        "h": 67
+      },
+      "source": {
+        "sheet": "props.png",
+        "rect": [
+          1114,
+          251,
+          397,
+          242
+        ]
+      }
+    },
+    "etal": {
+      "image": "sprites/etal.png",
+      "master": "masters/etal.png",
+      "w": 137,
+      "h": 106,
+      "anchor": [
+        68,
+        105
+      ],
+      "atlas": {
+        "x": 462,
+        "y": 154,
+        "w": 137,
+        "h": 106
+      },
+      "source": {
+        "sheet": "props.png",
+        "rect": [
+          35,
+          573,
+          495,
+          383
+        ]
+      }
+    },
+    "potager": {
+      "image": "sprites/potager.png",
+      "master": "masters/potager.png",
+      "w": 153,
+      "h": 123,
+      "anchor": [
+        76,
+        122
+      ],
+      "atlas": {
+        "x": 603,
+        "y": 154,
+        "w": 153,
+        "h": 123
+      },
+      "source": {
+        "sheet": "props.png",
+        "rect": [
+          530,
+          546,
+          484,
+          390
+        ]
+      }
+    },
+    "banquet": {
+      "image": "sprites/banquet.png",
+      "master": "masters/banquet.png",
+      "w": 146,
+      "h": 107,
+      "anchor": [
+        73,
+        106
+      ],
+      "atlas": {
+        "x": 760,
+        "y": 154,
+        "w": 146,
+        "h": 107
+      },
+      "source": {
+        "sheet": "props.png",
+        "rect": [
+          1014,
+          598,
+          498,
+          364
+        ]
+      }
+    },
+    "terrain-ferme": {
+      "image": "sprites/terrain-ferme.png",
+      "master": "masters/terrain-ferme.png",
+      "w": 173,
+      "h": 108,
+      "anchor": [
+        86,
+        107
+      ],
+      "atlas": {
+        "x": 2,
+        "y": 307,
+        "w": 173,
+        "h": 108
+      },
+      "source": {
+        "sheet": "construction.png",
+        "rect": [
+          9,
+          142,
+          513,
+          320
+        ]
+      }
+    },
+    "fondations": {
+      "image": "sprites/fondations.png",
+      "master": "masters/fondations.png",
+      "w": 173,
+      "h": 106,
+      "anchor": [
+        86,
+        105
+      ],
+      "atlas": {
+        "x": 179,
+        "y": 307,
+        "w": 173,
+        "h": 106
+      },
+      "source": {
+        "sheet": "construction.png",
+        "rect": [
+          536,
+          169,
+          486,
+          297
+        ]
+      }
+    },
+    "chantier": {
+      "image": "sprites/chantier.png",
+      "master": "masters/chantier.png",
+      "w": 167,
+      "h": 150,
+      "anchor": [
+        83,
+        149
+      ],
+      "atlas": {
+        "x": 356,
+        "y": 307,
+        "w": 167,
+        "h": 150
+      },
+      "source": {
+        "sheet": "construction.png",
+        "rect": [
+          1057,
+          66,
+          470,
+          421
+        ]
+      }
+    },
+    "verger-abandonne": {
+      "image": "sprites/verger-abandonne.png",
+      "master": "masters/verger-abandonne.png",
+      "w": 183,
+      "h": 150,
+      "anchor": [
+        91,
+        149
+      ],
+      "atlas": {
+        "x": 527,
+        "y": 307,
+        "w": 183,
+        "h": 150
+      },
+      "source": {
+        "sheet": "construction.png",
+        "rect": [
+          21,
+          558,
+          501,
+          411
+        ]
+      }
+    },
+    "verger-jeune": {
+      "image": "sprites/verger-jeune.png",
+      "master": "masters/verger-jeune.png",
+      "w": 153,
+      "h": 128,
+      "anchor": [
+        76,
+        127
+      ],
+      "atlas": {
+        "x": 714,
+        "y": 307,
+        "w": 153,
+        "h": 128
+      },
+      "source": {
+        "sheet": "construction.png",
+        "rect": [
+          556,
+          563,
+          453,
+          378
+        ]
+      }
+    },
+    "acces-ferme": {
+      "image": "sprites/acces-ferme.png",
+      "master": "masters/acces-ferme.png",
+      "w": 113,
+      "h": 83,
+      "anchor": [
+        56,
+        82
+      ],
+      "atlas": {
+        "x": 871,
+        "y": 307,
+        "w": 113,
+        "h": 83
+      },
+      "source": {
+        "sheet": "construction.png",
+        "rect": [
+          1084,
+          682,
+          398,
+          292
+        ]
+      }
+    },
+    "rosalie-south": {
+      "image": "sprites/rosalie-south.png",
+      "master": "masters/rosalie-south.png",
+      "w": 31,
+      "h": 48,
+      "anchor": [
+        15,
+        47
+      ],
+      "atlas": {
+        "x": 988,
+        "y": 307,
+        "w": 31,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          104,
+          25,
+          194,
+          296
+        ]
+      }
+    },
+    "rosalie-east": {
+      "image": "sprites/rosalie-east.png",
+      "master": "masters/rosalie-east.png",
+      "w": 30,
+      "h": 48,
+      "anchor": [
+        15,
+        47
+      ],
+      "atlas": {
+        "x": 2,
+        "y": 459,
+        "w": 30,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          401,
+          23,
+          186,
+          297
+        ]
+      }
+    },
+    "rosalie-north": {
+      "image": "sprites/rosalie-north.png",
+      "master": "masters/rosalie-north.png",
+      "w": 31,
+      "h": 48,
+      "anchor": [
+        15,
+        47
+      ],
+      "atlas": {
+        "x": 36,
+        "y": 459,
+        "w": 31,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          672,
+          23,
+          193,
+          298
+        ]
+      }
+    },
+    "rosalie-step": {
+      "image": "sprites/rosalie-step.png",
+      "master": "masters/rosalie-step.png",
+      "w": 30,
+      "h": 48,
+      "anchor": [
+        15,
+        47
+      ],
+      "atlas": {
+        "x": 71,
+        "y": 459,
+        "w": 30,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          972,
+          25,
+          187,
+          297
+        ]
+      }
+    },
+    "anais-south": {
+      "image": "sprites/anais-south.png",
+      "master": "masters/anais-south.png",
+      "w": 26,
+      "h": 48,
+      "anchor": [
+        13,
+        47
+      ],
+      "atlas": {
+        "x": 105,
+        "y": 459,
+        "w": 26,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          112,
+          332,
+          163,
+          301
+        ]
+      }
+    },
+    "anais-east": {
+      "image": "sprites/anais-east.png",
+      "master": "masters/anais-east.png",
+      "w": 25,
+      "h": 48,
+      "anchor": [
+        12,
+        47
+      ],
+      "atlas": {
+        "x": 135,
+        "y": 459,
+        "w": 25,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          418,
+          331,
+          158,
+          303
+        ]
+      }
+    },
+    "anais-north": {
+      "image": "sprites/anais-north.png",
+      "master": "masters/anais-north.png",
+      "w": 24,
+      "h": 48,
+      "anchor": [
+        12,
+        47
+      ],
+      "atlas": {
+        "x": 164,
+        "y": 459,
+        "w": 24,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          691,
+          335,
+          151,
+          299
+        ]
+      }
+    },
+    "anais-step": {
+      "image": "sprites/anais-step.png",
+      "master": "masters/anais-step.png",
+      "w": 24,
+      "h": 48,
+      "anchor": [
+        12,
+        47
+      ],
+      "atlas": {
+        "x": 192,
+        "y": 459,
+        "w": 24,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          985,
+          322,
+          156,
+          316
+        ]
+      }
+    },
+    "mathis-south": {
+      "image": "sprites/mathis-south.png",
+      "master": "masters/mathis-south.png",
+      "w": 29,
+      "h": 48,
+      "anchor": [
+        14,
+        47
+      ],
+      "atlas": {
+        "x": 220,
+        "y": 459,
+        "w": 29,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          117,
+          641,
+          177,
+          295
+        ]
+      }
+    },
+    "mathis-east": {
+      "image": "sprites/mathis-east.png",
+      "master": "masters/mathis-east.png",
+      "w": 28,
+      "h": 48,
+      "anchor": [
+        14,
+        47
+      ],
+      "atlas": {
+        "x": 253,
+        "y": 459,
+        "w": 28,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          418,
+          641,
+          177,
+          303
+        ]
+      }
+    },
+    "mathis-north": {
+      "image": "sprites/mathis-north.png",
+      "master": "masters/mathis-north.png",
+      "w": 26,
+      "h": 48,
+      "anchor": [
+        13,
+        47
+      ],
+      "atlas": {
+        "x": 285,
+        "y": 459,
+        "w": 26,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          676,
+          642,
+          162,
+          294
+        ]
+      }
+    },
+    "mathis-step": {
+      "image": "sprites/mathis-step.png",
+      "master": "masters/mathis-step.png",
+      "w": 28,
+      "h": 48,
+      "anchor": [
+        14,
+        47
+      ],
+      "atlas": {
+        "x": 315,
+        "y": 459,
+        "w": 28,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          982,
+          641,
+          175,
+          298
+        ]
+      }
+    },
+    "noe-south": {
+      "image": "sprites/noe-south.png",
+      "master": "masters/noe-south.png",
+      "w": 25,
+      "h": 48,
+      "anchor": [
+        12,
+        47
+      ],
+      "atlas": {
+        "x": 347,
+        "y": 459,
+        "w": 25,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          125,
+          945,
+          150,
+          291
+        ]
+      }
+    },
+    "noe-east": {
+      "image": "sprites/noe-east.png",
+      "master": "masters/noe-east.png",
+      "w": 24,
+      "h": 48,
+      "anchor": [
+        12,
+        47
+      ],
+      "atlas": {
+        "x": 376,
+        "y": 459,
+        "w": 24,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          419,
+          944,
+          150,
+          294
+        ]
+      }
+    },
+    "noe-north": {
+      "image": "sprites/noe-north.png",
+      "master": "masters/noe-north.png",
+      "w": 24,
+      "h": 48,
+      "anchor": [
+        12,
+        47
+      ],
+      "atlas": {
+        "x": 404,
+        "y": 459,
+        "w": 24,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          689,
+          946,
+          145,
+          290
+        ]
+      }
+    },
+    "noe-step": {
+      "image": "sprites/noe-step.png",
+      "master": "masters/noe-step.png",
+      "w": 26,
+      "h": 48,
+      "anchor": [
+        13,
+        47
+      ],
+      "atlas": {
+        "x": 432,
+        "y": 459,
+        "w": 26,
+        "h": 48
+      },
+      "source": {
+        "sheet": "characters.png",
+        "rect": [
+          987,
+          946,
+          158,
+          294
+        ]
+      }
+    }
+  },
+  "atlas": {
+    "image": "sprites-atlas.png",
+    "w": 1024,
+    "h": 509,
+    "gutter": 2
+  }
+}

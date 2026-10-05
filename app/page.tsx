@@ -1,1144 +1,1485 @@
 'use client';
-import {
-  CultureJournal,
-  RecipeBook,
-  FriendBook,
-} from '@/components/progression';
-import {
-  BUILD,
-  LEVEL_XP,
-  growTime,
-  marketEvent,
-  marketBonus,
-  itemName,
-  itemIcon,
-  fulfillment,
-  levelContent,
-  maxPlots,
-} from '@/lib/game';
-import { useEffect, useRef, useState } from 'react';
-import {
-  Sprout,
-  BookOpen,
-  Settings,
-  Volume2,
-  VolumeX,
-  Sun,
-  Coins,
-  ChevronRight,
-  Check,
-  Lock,
-  Leaf,
-} from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from '@/components/ui/alert-dialog';
-import {
-  CROPS,
-  RECIPES,
-  UPGRADES,
-  MISSIONS,
-  KEY,
-  fresh,
-  restore,
-  level,
-  crop,
-  act,
-  price,
-  order,
-  upgradeCost,
-  duration,
-  type ActionArgument,
-  type Game,
-} from '@/lib/game';
+
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BookOpen, Settings, Sprout, Volume2, VolumeX } from 'lucide-react';
+import { CultureJournal, SkillsPanel, FriendBook } from '@/components/progression';
+import { FarmMap, type Errand } from '@/components/farm/farm-map';
+import { GuidePanel, TutorialCoach } from '@/components/tutorial';
+import { tutorialAdvance, tutorialRead, tutorialReplay, tutorialSetOff, tutorialSkipChapter } from '@/lib/tutorial';
+import { BuffChips, ProjectsPanel } from '@/components/projects';
+import { GrowTimeTip } from '@/components/grow-time-tip';
+import { CoinCounter, XpBar } from '@/components/hud';
+import { LevelUpScene } from '@/components/level-up';
+import { FestivalTab } from '@/components/festival/festival-tab';
+import { LineagesPanel } from '@/components/lineages';
+import { ValleyPanel } from '@/components/valley';
+import { GameConfirmDialog, type AskConfirm, type PendingConfirm } from '@/components/game-confirm';
+import { PixelIcon, VillagerPortrait } from '@/components/farm/sprites';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { BUILD, CROPS, LEVEL_XP, MAX_LEVEL, GOALS, goalProgress, PROJECTS, RECIPES, readyDishes, upgradeTier, gestureMs, bulkChores, act, crop, duration, gardeOptions, fresh, growTime, level, type ActionArgument, type Game, type VillageProject } from '@/lib/game';
+import { actionFeedback, plainMessage, type ActionFeedback } from '@/lib/action-feedback';
+import { weatherFor } from '@/lib/farm-visuals';
+import { useReducedMotion } from '@/hooks/use-game-clock';
+import { reduceMotionFor } from '@/lib/motion';
+import { absenceSummary, awayLabel, canRescue, DOCK_FAVORITES, dockFavorites, toggleFavorite, notebookBadges, inSeason, seasonChip } from '@/lib/farm-ui';
+import { exportGame, loadGame, parseImportedGame, persistGame, SaveRecoveryError, protectUnreadableSave, acceptRecoveredGame, saveIsBlocked } from '@/lib/save';
+import { SaveRecoveryDialog } from '@/components/save-recovery';
+import { NOTEBOOK_CHAPTERS, PAGE_KEYS, markPageSeen, newPages, notebookPage, pageKeysHint, revealedPages, settleNotebook, type NotebookPage } from '@/lib/notebook';
+import { OrdersPanel } from '@/components/notebook/orders-panel';
+import { GardeSelect } from '@/components/notebook/seed-card';
+import { SeedShop, ShopPurse } from '@/components/seed-shop';
+import { BasketList } from '@/components/notebook/basket-list';
+import { DialogNotice } from '@/components/notebook/dialog-notice';
+import { UpgradesPanel } from '@/components/notebook/upgrades-panel';
+import { GoalsPanel } from '@/components/notebook/goals-panel';
+import { WorkshopPanel } from '@/components/notebook/workshop-panel';
+import { KitchenDialog } from '@/components/kitchen';
+import { useLevelCheer } from '@/hooks/use-level-cheer';
+import { CollectionPanel } from '@/components/notebook/collection-panel';
+import { SettingToggle } from '@/components/notebook/setting-toggle';
+
+const ERRAND_PLACE: Record<Errand['action'], [Errand['place'], Errand['activity']]> = {
+  craft: ['atelier', 'cook'],
+  collect: ['atelier', 'cook'],
+  hens: ['poulailler', 'eggs'],
+  orchard: ['verger', 'harvest'],
+};
+const ERRAND_NOTICE: Record<Errand['action'], string> = {
+  craft: 'Rosalie part à l’atelier mettre la recette sur le feu.',
+  collect: 'Rosalie part à l’atelier sortir les plats.',
+  hens: 'Rosalie part au poulailler.',
+  orchard: 'Rosalie part cueillir au verger.',
+};
+
 export default function Home() {
-  const [g, setG] = useState<Game>(() => fresh(0));
-  const state = useRef(g);
+  const [game, setGame] = useState<Game>(() => fresh(0));
+  const gameRef = useRef(game);
   const [loaded, setLoaded] = useState(false);
+  const [epoch, setEpoch] = useState(0);
+  const [feedback, setFeedback] = useState<ActionFeedback>();
+  const feedbackId = useRef(0);
   const [now, setNow] = useState(0);
-  const [selected, setSelected] = useState('radis');
-  const [tab, setTab] = useState('village');
+  const [selectedCrop, setSelectedCrop] = useState('radis');
+  const [selectedLineage, setSelectedLineage] = useState(0);
+  // 0.9.5 : semis de garde choisi (heures, 0 = semis normal).
+  const [gardeChoice, setGardeChoice] = useState(0);
+  const gardeRef = useRef(0);
   const [modal, setModal] = useState('');
-  const [reset, setReset] = useState(false);
+  const [notebookTab, setNotebookTab] = useState('projects');
+  // 0.13 : un lieu de l’anneau ouvre « Améliorer » sur « Restaurer le domaine ».
+  const [upgradeFocus, setUpgradeFocus] = useState(0);
+  const [notices, setNotices] = useState<{ id: number; text: string }[]>([]);
+  const noticeId = useRef(0);
+  const [drawer, setDrawer] = useState<'' | 'seeds' | 'actions' | 'all'>('');
+  const [absence, setAbsence] = useState<ReturnType<typeof absenceSummary>>();
   const [sound, setSound] = useState(false);
-  const [notice, setNotice] = useState('');
+  const toggleSound = () => {
+    const enabled = !sound;
+    setSound(enabled);
+    try { window.localStorage.setItem('rosalie-sound', String(enabled)); } catch { /* La préférence reste active pour cette session. */ }
+  };
+  const [resetOpen, setResetOpen] = useState(false);
+  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm>(null);
+  const askConfirm: AskConfirm = useCallback((choice, onConfirm) => setPendingConfirm({ choice, onConfirm }), []);
   const [saveError, setSaveError] = useState(false);
-  const [pop, setPop] = useState<number | null>(null);
-  const [levelUp, setLevelUp] = useState<
-    { level: number; crop: string | null; system: string } | undefined
-  >();
+  const [recovery, setRecovery] = useState<SaveRecoveryError | null>(null);
+  const [recoveryOpen, setRecoveryOpen] = useState(false);
+  const [levelUps, setLevelUps] = useState<{
+    level: number;
+    crop: string | null;
+    system: string;
+  }[]>([]);
+  const levelUp = levelUps[0];
+  const [projectDone, setProjectDone] = useState<VillageProject>();
+  // 0.20 : Rosalie fête le niveau sur la carte avant sa fenêtre.
+  const [cheerFor, announceLevel] = useLevelCheer(modal === '' && !projectDone && !absence);
   const audio = useRef<AudioContext | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  function notify(text: string) {
-    setNotice(text);
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setNotice(''), 4500);
-  }
-  function save(next: Game) {
-    state.current = next;
-    setG(next);
+  const seedDialogTitle = useRef<HTMLHeadingElement>(null);
+
+  // File de messages : un message à la fois, au plus deux en attente.
+  const notify = useCallback((message: string) => {
+    const text = plainMessage(message);
+    if (!text) return;
+    setNotices((queue) => {
+      if (queue.at(-1)?.text === text) return queue;
+      const next = [...queue, { id: ++noticeId.current, text }];
+      return next.length > 3 ? [next[0], ...next.slice(-2)] : next;
+    });
+  }, []);
+  const notice = notices[0];
+  // Hors fenêtre, les touches 1 à 5 choisissent une graine du dock (0.9.1).
+  const favorites = dockFavorites(game);
+  const seedKeys = useRef(favorites);
+  useEffect(() => {
+    seedKeys.current = favorites;
+  });
+  useEffect(() => {
+    function key(event: KeyboardEvent) {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select')) return;
+      if (document.querySelector('[role="dialog"]')) return;
+      if (!/^[1-5]$/.test(event.key)) return;
+      const choice = seedKeys.current[Number(event.key) - 1];
+      if (!choice) return;
+      event.preventDefault();
+      setSelectedCrop(choice);
+      setSelectedLineage(0);
+    }
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, []);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(
+      () => setNotices((queue) => queue.slice(1)),
+      notices.length > 1 ? 2600 : 4500,
+    );
+    return () => clearTimeout(timer);
+  }, [notice, notices.length]);
+  const save = useCallback((nextGame: Game) => {
+    if (saveIsBlocked()) return;
+    // Carnet progressif : fixe les pages déjà connues d’une nouvelle partie.
+    const next = settleNotebook(nextGame);
+    gameRef.current = next;
+    setGame(next);
     try {
-      localStorage.setItem(KEY, JSON.stringify(next));
+      persistGame(next);
       setSaveError(false);
     } catch {
       setSaveError(true);
     }
-  }
-  useEffect(() => {
-    const t = Date.now();
-    let saved = fresh(t);
-    try {
-      saved = restore(localStorage.getItem(KEY));
-    } catch {
-      setSaveError(true);
-    }
-    state.current = saved;
-    setG(saved);
-    setNow(t);
-    setLoaded(true);
-    if (saved.plots.some((p) => p && p.end <= t))
-      notify('Bon retour ! Vos récoltes vous attendent, bien à l’abri.');
-    const i = setInterval(() => setNow(Date.now()), 500);
-    return () => clearInterval(i);
   }, []);
-  function play() {
-    if (!sound) return;
+  const finishRecovery = (next: Game) => {
     try {
-      audio.current ??= new AudioContext();
-      void audio.current.resume();
-      const osc = audio.current.createOscillator(),
-        gain = audio.current.createGain();
-      osc.connect(gain);
-      gain.connect(audio.current.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(660, audio.current.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(
-        990,
-        audio.current.currentTime + 0.12,
-      );
-      gain.gain.setValueAtTime(0.06, audio.current.currentTime);
-      gain.gain.exponentialRampToValueAtTime(
-        0.001,
-        audio.current.currentTime + 0.3,
-      );
-      osc.start();
-      osc.stop(audio.current.currentTime + 0.3);
-    } catch {}
-  }
-  function dispatch(action: string, arg?: ActionArgument) {
-    setNow(Date.now());
-    const result = act(state.current, action, arg, Date.now());
-    if (result.g !== state.current) {
-      save(result.g);
-      play();
-      if (action === 'harvest' && typeof arg === 'number') {
-        setPop(arg);
-        setTimeout(() => setPop(null), 850);
-      }
+      acceptRecoveredGame(next);
+      save(next);
+      setRecovery(null);
+      setRecoveryOpen(false);
+      setModal('');
+      setEpoch((value) => value + 1);
+      return true;
+    } catch {
+      notify('La copie reste protégée. Le stockage est indisponible.');
+      return false;
     }
-    if (result.levelUp) setLevelUp(result.levelUp);
-    notify(result.message);
-    return result;
-  }
-  function plotClick(index: number) {
-    const p = state.current.plots[index];
-    if (p && p.end <= Date.now()) dispatch('harvest', index);
-    else if (p) dispatch('water', index);
-    else dispatch('plant', { index, crop: selected });
-  }
+  };
+  const retryRecovery = () => {
+    if (!recovery) return;
+    try {
+      finishRecovery(recovery.source === 'local' ? loadGame() : parseImportedGame(recovery.raw));
+    } catch (error) {
+      if (error instanceof SaveRecoveryError) setRecovery(error);
+      notify('La sauvegarde reste illisible. Vous pouvez télécharger sa copie.');
+    }
+  };
+  useEffect(() => {
+    const kickoff = setTimeout(() => {
+      const time = Date.now();
+      try { setSound(window.localStorage.getItem('rosalie-sound') === 'true'); } catch { /* Son facultatif. */ }
+      try {
+        const restored = settleNotebook(loadGame());
+        gameRef.current = restored;
+        setGame(restored);
+        // La graine choisie au départ est la première du dock.
+        setSelectedCrop(dockFavorites(restored)[0]);
+        const summary = absenceSummary(restored, time);
+        if (summary.worthShowing) setAbsence(summary);
+      } catch (error) {
+        if (error instanceof SaveRecoveryError) {
+          setRecovery(error);
+          setRecoveryOpen(true);
+        } else setSaveError(true);
+      }
+      setNow(time);
+      setLoaded(true);
+    }, 0);
+    return () => {
+      clearTimeout(kickoff);
+    };
+  }, []);
+  // Le conteneur ne change qu’à une échéance de jeu, jamais à chaque seconde.
   useEffect(() => {
     if (!loaded) return;
-    const context = (document as any).modelContext;
-    if (!context?.registerTool) return;
-    const lifecycle = new AbortController();
-    const register = (tool: any) => {
+    const time = Date.now();
+    const deadlines = [
+      ...game.plots.map(p => p?.end), game.hens, game.orchard,
+      ...[game.job, ...game.stoves].map(job => job?.end), game.valley.trip?.returnAt,
+      ...Object.values(game.buffs),
+      game.created + (Math.floor((time - game.created) / 1200000) + 1) * 1200000,
+    ].filter((end): end is number => typeof end === 'number' && end > time);
+    if (!deadlines.length) return;
+    const timer = setTimeout(() => setNow(Date.now()), Math.min(2147483647, Math.min(...deadlines) - time + 20));
+    return () => clearTimeout(timer);
+  }, [game, loaded, now]);
+  const play = useCallback(
+    (kind = 'action') => {
+      if (!sound) return;
       try {
-        Promise.resolve(
-          context.registerTool(tool, { signal: lifecycle.signal }),
-        ).catch(() => {});
-      } catch {}
-    };
-    register({
-      name: 'read_garden',
-      description:
-        'Lire le niveau, les pièces, les graines et les parcelles du jardin.',
-      inputSchema: {
-        type: 'object',
-        properties: {},
-        additionalProperties: false,
-      },
-      annotations: { readOnlyHint: true },
-      execute: () => ({
-        level: level(state.current),
-        coins: state.current.coins,
-        seeds: state.current.seeds,
-        plots: state.current.plots,
-        stock: state.current.stock,
-      }),
-    });
-    register({
-      name: 'tend_garden',
-      description:
-        'Planter, arroser ou récolter une liste de parcelles du jardin. Les indices commencent à zéro.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          action: { type: 'string', enum: ['plant', 'water', 'harvest'] },
-          indices: {
-            type: 'array',
-            items: { type: 'integer', minimum: 0 },
-            minItems: 1,
-            maxItems: 18,
-          },
-          crop: { type: 'string', enum: CROPS.map((c) => c.id) },
-        },
-        required: ['action', 'indices'],
-        additionalProperties: false,
-      },
-      annotations: { readOnlyHint: false },
-      execute: (input: any) => {
-        if (
-          !input ||
-          !['plant', 'water', 'harvest'].includes(input.action) ||
-          !Array.isArray(input.indices) ||
-          !input.indices.length ||
-          input.indices.length > 18 ||
-          input.indices.some(
-            (i: any) =>
-              !Number.isInteger(i) || i < 0 || i >= state.current.plots.length,
-          ) ||
-          (input.action === 'plant' && !CROPS.some((c) => c.id === input.crop))
-        )
-          throw new Error('Action ou parcelles invalides.');
-        const results = input.indices.map(
-          (i: number) =>
-            dispatch(
-              input.action,
-              input.action === 'plant' ? { index: i, crop: input.crop } : i,
-            ).message,
+        audio.current ??= new AudioContext();
+        void audio.current.resume();
+        const oscillator = audio.current.createOscillator(),
+          gain = audio.current.createGain();
+        oscillator.connect(gain);
+        gain.connect(audio.current.destination);
+        oscillator.type = kind === 'exceptional' ? 'triangle' : 'sine';
+        oscillator.frequency.setValueAtTime(
+          kind === 'exceptional' ? 880 : 620,
+          audio.current.currentTime,
         );
-        return {
-          results,
-          coins: state.current.coins,
-          stock: state.current.stock,
-        };
-      },
-    });
-    return () => lifecycle.abort();
-  }, [loaded]);
-  const lv = level(g),
-    o = order(g),
-    selectedCrop = crop(selected),
-    ready = g.plots.filter((p) => p && p.end <= now).length,
-    inventory = Object.values(g.stock).reduce((a, b) => a + b, 0),
-    event = marketEvent(g, now),
-    nextXP = LEVEL_XP[Math.min(lv, 11)],
-    previousXP = LEVEL_XP[lv - 1],
-    xpProgress =
-      lv === 12 ? 100 : ((g.xp - previousXP) / (nextXP - previousXP)) * 100,
-    nextContent = lv < 12 ? levelContent(lv + 1) : null,
-    nextCrop = CROPS.filter((c) => c.level > lv).sort(
-      (a, b) => a.level - b.level,
-    )[0],
-    orderDelivery = fulfillment(g.stock, o.crop, o.amount);
-  const tutorial =
-    g.harvests === 0
-      ? g.plots.some(Boolean)
-        ? 'Vos graines prennent vie. Touchez une pousse pour l’arroser et améliorer sa qualité.'
-        : 'Bienvenue au jardin ! Sélectionnez une graine, puis touchez une parcelle pour la planter.'
-      : g.sold === 0
-        ? 'Votre première récolte ! Ouvrez le panier pour la vendre, ou gardez-la pour Lucie.'
-        : g.plots.length === 6
-          ? 'Un peu plus de place ? Votre première extension coûte seulement 35 pièces, dans Améliorer.'
-          : 'Un jardin à votre rythme. Les plantes vous attendront toujours, même après une longue absence.';
+        oscillator.frequency.exponentialRampToValueAtTime(
+          kind === 'exceptional' ? 1320 : 840,
+          audio.current.currentTime + 0.14,
+        );
+        gain.gain.setValueAtTime(0.045, audio.current.currentTime);
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          audio.current.currentTime + 0.28,
+        );
+        oscillator.start();
+        oscillator.stop(audio.current.currentTime + 0.3);
+      } catch {}
+    },
+    [sound],
+  );
+  const dispatch = useCallback(
+    (action: string, argument?: ActionArgument) => {
+      if (saveIsBlocked()) return { g: gameRef.current, message: 'La sauvegarde attend votre choix.', feedback: actionFeedback(gameRef.current, gameRef.current, action, ++feedbackId.current) };
+      const time = Date.now();
+      setNow(time);
+      const before = gameRef.current;
+      const result = act(before, action, argument, time);
+      const feedback = actionFeedback(
+        gameRef.current,
+        result.g,
+        action,
+        ++feedbackId.current,
+        action === 'upgrade' && typeof argument === 'string'
+          ? argument
+          : undefined,
+      );
+      if (feedback.changed) setFeedback(feedback);
+      if (result.g !== gameRef.current) {
+        save(result.g);
+        if (action !== 'bulkTick' || !result.g.bulkJob)
+          play(result.message.includes('Exceptionnelle') || result.message.includes('Chef-d’œuvre') ? 'exceptional' : 'action');
+      }
+      if (result.levelUps?.length) {
+        // 0.20 : Rosalie fête le niveau, sauf si une fenêtre de niveau est déjà ouverte.
+        setLevelUps(previous => {
+          if (!previous.length) announceLevel(result.levelUps!.map((entry) => entry.level));
+          return [...previous, ...result.levelUps!];
+        });
+      }
+      const finished = result.g.projects.done.find(
+        (id) => !before.projects.done.includes(id),
+      );
+      if (finished) {
+        setModal('');
+        setProjectDone(PROJECTS.find((project) => project.id === finished));
+      }
+      if (action === 'upgrade' && feedback.changed) setModal('');
+      if (action !== 'bulkTick' || !result.g.bulkJob) notify(result.message);
+      return { ...result, feedback };
+    },
+    [save, play, notify, announceLevel],
+  );
+  // 0.9.9 : les gestes groupés et les courses avancent au pas de Rosalie, sur la carte.
+  const errandRef = useRef<((errand: Errand) => void) | null>(null);
+  const errandKey = useRef(0);
+  const [errands, setErrands] = useState<Errand[]>([]);
+  const sendRosalie = useCallback((action: Errand['action'], argument?: ActionArgument) => {
+    const [place, activity] = ERRAND_PLACE[action];
+    if (!errandRef.current) return dispatch(action, argument);
+    const errand: Errand = { key: ++errandKey.current, action, argument, place, activity };
+    setErrands((list) => [...list, errand]);
+    errandRef.current(errand);
+    notify(ERRAND_NOTICE[action]);
+    return undefined;
+  }, [dispatch, notify]);
+  const runErrand = useCallback((errand: Errand) => {
+    setErrands((list) => list.filter((entry) => entry.key !== errand.key));
+    return dispatch(errand.action, errand.argument);
+  }, [dispatch]);
+  const bulkStep = useCallback((step: { index: number; id: string }) => dispatch('bulkTick', step), [dispatch]);
+  /** 0.9.9 : « Tout récupérer » à pied : poulailler, verger, atelier, puis la cueillette. */
+  const collectOnFoot = useCallback(() => {
+    const g = gameRef.current;
+    const time = Date.now();
+    if (g.upgrades.includes('coop') && g.hens !== null && g.hens <= time) sendRosalie('hens');
+    if (g.orchard !== null && g.orchard <= time) sendRosalie('orchard');
+    if (readyDishes(g, time) > 0) sendRosalie('collect');
+    if (g.upgrades.includes('tools') && !bulkChores(g.bulkJob).includes('harvest') && g.plots.some((plot) => plot && plot.end <= time))
+      dispatch('bulkStart', { id: 'harvest' });
+  }, [dispatch, sendRosalie]);
+  /** Ce que les panneaux déclenchent : l’atelier, le poulailler et le verger passent par Rosalie. */
+  const errandDispatch = useCallback((action: string, argument?: ActionArgument) =>
+    action in ERRAND_PLACE
+      ? sendRosalie(action as Errand['action'], argument)
+      : dispatch(action, argument), [dispatch, sendRosalie]);
+  const performPlotAction = useCallback(
+    (index: number, seed: string, lineageId?: number) => {
+      const plot = gameRef.current.plots[index];
+      if (plot && plot.end <= Date.now()) return dispatch('harvest', index);
+      if (plot) return dispatch('water', index);
+      const garde = lineageId ? 0 : gardeRef.current;
+      return dispatch('plant', { index, crop: seed, lineageId, garde: garde || undefined });
+    },
+    [dispatch],
+  );
+  // Affiche une page du carnet et retire sa pastille « nouvelle ».
+  const showPage = useCallback(
+    (id: string) => {
+      setNotebookTab(id);
+      const seen = markPageSeen(gameRef.current, id);
+      if (seen !== gameRef.current) save(seen);
+    },
+    [save],
+  );
+  const openPanel = useCallback(
+    (requested: string) => {
+      const panel = requested === 'restore' ? 'upgrades' : requested;
+      setUpgradeFocus((n) => (requested === 'restore' ? Math.abs(n) + 1 : -Math.abs(n)));
+      if (['home', 'seeds', 'basket', 'settings'].includes(panel)) {
+        setModal(panel);
+        return;
+      }
+      const page = notebookPage(panel);
+      const open = revealedPages(gameRef.current);
+      if (page && !open.some((entry) => entry.value === page.value)) {
+        // Page pas encore ouverte : un mot d’annonce, pas de panneau vide.
+        notify(page.teaser);
+        return;
+      }
+      // 0.17.5 : l’atelier s’ouvre dans sa propre fenêtre.
+      if (panel === 'recipes') {
+        const seen = markPageSeen(gameRef.current, panel);
+        if (seen !== gameRef.current) save(seen);
+        setModal('kitchen');
+        return;
+      }
+      showPage(panel);
+      setModal('notebook');
+    },
+    [notify, showPage, save],
+  );
+  /** Ouvre le carnet sur une nouvelle page, sinon sur la dernière lue si elle existe. */
+  const openNotebook = useCallback(() => {
+    setUpgradeFocus((n) => -Math.abs(n));
+    const g = gameRef.current;
+    const open = revealedPages(g);
+    const unseen = newPages(g)[0];
+    showPage(
+      unseen?.value ||
+        (open.some((page) => page.value === notebookTab)
+          ? notebookTab
+          : open[0].value),
+    );
+    setModal('notebook');
+  }, [notebookTab, showPage]);
+  // Tiroir de toutes les graines : Échap ou un clic ailleurs le referment.
+  useEffect(() => {
+    if (drawer !== 'all') return;
+    // Le clavier entre dans le tiroir, sur la graine choisie.
+    const frame = requestAnimationFrame(() =>
+      document
+        .querySelector<HTMLElement>('.seed-all li button.selected, .seed-all li button')
+        ?.focus(),
+    );
+    function key(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return;
+      setDrawer('');
+      document.querySelector<HTMLElement>('.seed-all-toggle')?.focus();
+    }
+    function pointer(event: PointerEvent) {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest('.seed-all, .seed-all-toggle')) setDrawer('');
+    }
+    window.addEventListener('keydown', key);
+    window.addEventListener('pointerdown', pointer);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('keydown', key);
+      window.removeEventListener('pointerdown', pointer);
+    };
+  }, [drawer]);
+  // Carnet : 1 à 9 puis A, Z, E ouvrent directement une page visible.
+  const pagesRef = useRef<NotebookPage[]>([]);
+  useEffect(() => {
+    pagesRef.current = revealedPages(game);
+  });
+  useEffect(() => {
+    if (modal !== 'notebook') return;
+    function key(event: KeyboardEvent) {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select')) return;
+      const index = PAGE_KEYS.indexOf(event.key.toLowerCase());
+      const page = index >= 0 ? pagesRef.current[index] : undefined;
+      if (!page) return;
+      event.preventDefault();
+      showPage(page.value);
+      // Le focus suit la page choisie (sinon l’anneau reste sur l’ancienne).
+      requestAnimationFrame(() =>
+        document
+          .querySelector<HTMLElement>(
+            '.book-dialog [data-slot="tabs-trigger"][data-active]',
+          )
+          ?.focus(),
+      );
+    }
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, [modal, showPage]);
+
+  const unlockedCount = CROPS.filter((item) => item.level <= level(game)).length;
+  const currentLevel = level(game),
+    selected = crop(selectedCrop),
+    nextXP = LEVEL_XP[Math.min(currentLevel, MAX_LEVEL - 1)],
+    previousXP = LEVEL_XP[currentLevel - 1];
+  const xpProgress =
+    currentLevel === MAX_LEVEL
+      ? 100
+      : ((game.xp - previousXP) / (nextXP - previousXP)) * 100;
+  const weather = weatherFor(game, now);
+  const season = seasonChip(game);
+  const ready = game.plots.filter((plot) => plot && plot.end <= now).length;
+  const inventory = Object.values(game.stock).reduce(
+    (sum, value) => sum + value,
+    0,
+  );
+  const selectedSeedCount = selectedLineage ? (game.lineages.find((lineage) => lineage.id === selectedLineage && lineage.crop === selected.id)?.seeds ?? game.seeds[selected.id] ?? 0) : game.seeds[selected.id] || 0;
+  const gardeHours = gardeOptions(game);
+  const garde = selectedLineage || !gardeHours.includes(gardeChoice) ? 0 : gardeChoice;
+  useEffect(() => {
+    gardeRef.current = garde;
+  }, [garde]);
+  // 0.18 : récolter, semer et arroser se cumulent ; chaque bouton allume ou éteint sa tâche.
+  const chores = bulkChores(game.bulkJob);
+  const bulkActions = [
+    game.upgrades.includes('tools') && (ready > 0 || chores.includes('harvest')) &&
+      { action: 'harvest', icon: 'tools', label: 'Récolter', full: 'Parcourir les récoltes', count: ready },
+    game.upgrades.includes('watering-can') &&
+      { action: 'water', icon: 'water', label: 'Arroser', full: 'Arroser les parcelles' },
+    game.upgrades.includes('auto') &&
+      { action: 'sow', icon: 'seeds', label: 'Semer', full: 'Semer les parcelles libres' },
+  ].filter(Boolean) as {
+    action: 'harvest' | 'water' | 'sow'; icon: string; label: string;
+    full: string; count?: number;
+  }[];
+  const pages = useMemo(() => revealedPages(game), [game]);
+  const activeNotebookChapter = NOTEBOOK_CHAPTERS.find((chapter) =>
+    chapter.pages.some((page) => page.value === notebookTab),
+  ) || NOTEBOOK_CHAPTERS[0];
+  const unseenPages = newPages(game);
+  // Seules les pages visibles comptent dans les pastilles du carnet.
+  const badges = useMemo(() => {
+    const all = notebookBadges(game, now).badges;
+    const visible: typeof all = {};
+    for (const page of pages) visible[page.value] = all[page.value];
+    const total = Object.values(visible).reduce((sum, n) => sum + (n || 0), 0);
+    return { badges: visible, total };
+  }, [game, now, pages]);
+  const [dismissedAnnounce, setDismissedAnnounce] = useState<string[]>([]);
+  const announce = unseenPages.find(
+    (page) => !dismissedAnnounce.includes(page.value),
+  );
+  const dialogOpen =
+    modal !== '' || !!levelUp || !!projectDone || !!absence || resetOpen || recoveryOpen;
+  // 0.10 : le tutoriel avance avec la partie et avec ce que l’interface montre.
+  useEffect(() => {
+    if (!loaded) return;
+    // Différé d’un tick : l’étape suit l’action sans rendu en cascade.
+    const timer = setTimeout(() => {
+      const current = gameRef.current;
+      const next = tutorialAdvance(current, { modal, tab: notebookTab });
+      if (next !== current) save(next);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [loaded, game, modal, notebookTab, save]);
+  const coachHidden = !loaded || !!recovery || !!levelUp || !!projectDone || !!absence || resetOpen || modal === 'settings' || modal === 'home';
+  // 0.21 : carte couverte par une fenêtre (fond flouté) : ses décors animés se mettent en pause.
+  useEffect(() => { document.documentElement.toggleAttribute('data-map-covered', dialogOpen); }, [dialogOpen]);
+  const [wasDialogOpen, setWasDialogOpen] = useState(dialogOpen);
+  if (wasDialogOpen !== dialogOpen) {
+    // Les messages déjà lus dans une fenêtre ne réapparaissent pas à sa fermeture.
+    setWasDialogOpen(dialogOpen);
+    if (!dialogOpen) setNotices([]);
+  }
+
+  const systemReduced = useReducedMotion();
+  const reduceMotion = reduceMotionFor(systemReduced, game.settings);
+  useEffect(() => {
+    // Sur <html> : couvre aussi les fenêtres, rendues hors de <main>.
+    document.documentElement.toggleAttribute('data-reduce-motion', reduceMotion);
+    document.documentElement.toggleAttribute('data-motion-full', game.settings.forceAnimations && !game.settings.reduceMotion);
+  }, [reduceMotion, game.settings.forceAnimations, game.settings.reduceMotion]);
+
   return (
-    <main className="game-shell">
-      <header className="topbar">
-        <a className="brand" href="#jardin">
-          <span className="brand-mark">
-            <Sprout size={27} />
+    <main className={`farm-game ${reduceMotion ? 'reduce-motion' : ''}`} data-game-ready={loaded || undefined}>
+      <header className="pixel-hud">
+        <div className="hud-brand" title={BUILD}>
+          <span className="hud-sprout">
+            <Sprout size={22} />
           </span>
-          <span>
+          <div>
+            <h1>Les Jardins de Rosalie</h1>
             <small>{BUILD}</small>
-            <h1>
-              Les Jardins de Rosalie<span>✿</span>
-            </h1>
-          </span>
-        </a>
-        <div className="resources">
-          <div className="level-badge">
-            <span className="level-number">{lv}</span>
-            <div>
-              <b>
-                Jardinier{' '}
-                {lv < 4
-                  ? 'en herbe'
-                  : lv < 8
-                    ? 'passionné'
-                    : lv < 12
-                      ? 'accompli'
-                      : 'maître'}
-              </b>
-              <div className="xp-track">
-                <i style={{ width: xpProgress + '%' }} />
-              </div>
-              <small>
-                {lv === 12
-                  ? 'Niveau maximum'
-                  : `${g.xp - previousXP} / ${nextXP - previousXP} XP`}
-              </small>
-            </div>
           </div>
-          <span className="coin-pill">
-            <Coins size={21} />
-            <b>{g.coins}</b>
-            <small>pièces</small>
-          </span>
-          <button
-            className="icon-button"
-            aria-label={sound ? 'Couper le son' : 'Activer le son'}
-            onClick={() => setSound(!sound)}
-          >
-            {sound ? <Volume2 size={20} /> : <VolumeX size={20} />}
-          </button>
-          <button
-            className="icon-button"
-            aria-label="Paramètres"
-            onClick={() => setModal('settings')}
-          >
-            <Settings size={20} />
-          </button>
+        </div>
+        {announce && !dialogOpen && (
+          <aside className="page-announce" aria-label="Nouvelle page du carnet">
+            <PixelIcon id={announce.icon} />
+            <div>
+              <small>Nouvelle page du carnet · {announce.label}</small>
+              <b>{announce.announce}</b>
+            </div>
+            <button
+              onClick={() => {
+                showPage(announce.value);
+                setModal('notebook');
+              }}
+            >
+              Ouvrir
+            </button>
+            <button
+              className="page-announce-close"
+              aria-label="Masquer l’annonce"
+              onClick={() =>
+                setDismissedAnnounce((list) => [...list, announce.value])
+              }
+            >
+              ×
+            </button>
+          </aside>
+        )}
+        {/* 0.17 : la plaque du coin haut gauche (niveau et bourse). */}
+        <div className="hud-plaque">
+        <XpBar
+          live={loaded}
+          level={currentLevel}
+          progress={xpProgress}
+          label={
+            currentLevel === MAX_LEVEL
+              ? 'Maître'
+              : `${(game.xp - previousXP).toLocaleString('fr-FR')}/${(nextXP - previousXP).toLocaleString('fr-FR')} XP`
+          }
+        />
+        <CoinCounter coins={game.coins} reduced={reduceMotion} live={loaded} paused={dialogOpen} />
+        </div>
+        {/* 0.17 : les outils du coin haut droit (ciel, saison, bonus, son, réglages). */}
+        <div className="hud-tools">
+        <div
+          className="hud-weather"
+          data-tip={weather.label}
+          aria-label={weather.label}
+        >
+          <PixelIcon id={weather.pixel} />
+          <small>{weather.label}</small>
+        </div>
+        <div className="hud-weather hud-season" data-season={season.id}
+          data-tip={season.title} aria-label={season.title}>
+          <PixelIcon id={season.icon} />
+          <small>{season.short}</small>
+        </div>
+        <BuffChips g={game} now={now} />
+        <button
+          className="hud-button"
+          onClick={toggleSound}
+          aria-label={sound ? 'Couper le son' : 'Activer le son'}
+          data-tip={sound ? 'Couper le son' : 'Activer le son'}
+        >
+          {sound ? <Volume2 size={20} /> : <VolumeX size={20} />}
+        </button>
+        <button
+          className="hud-button"
+          onClick={() => setModal('settings')}
+          aria-label="Paramètres"
+          data-tip="Réglages"
+        >
+          <Settings size={20} />
+        </button>
         </div>
       </header>
-      <section className="workspace">
-        <div className="garden-column" id="jardin">
-          <div className="garden-heading">
-            <div>
-              <p className="eyebrow">VOTRE PETIT COIN DE NATURE</p>
-              <h2>
-                Le jardin <span>de tous les possibles.</span>
-              </h2>
-            </div>
-            <div className="weather">
-              <Sun size={23} />
-              <span>
-                Douce journée<small>Tout pousse à son rythme</small>
-              </span>
-            </div>
-          </div>
-          <div className="farm-scene">
-            <div className="scene-top">
-              <span className="scene-label">
-                <Leaf size={15} /> Le potager de Rosalie
-              </span>
-              <span className="scene-label">
-                {g.plots.length} parcelles ·{' '}
-                {ready ? `${ready} à récolter` : 'la vie prend racine'}
-              </span>
-            </div>
-            <div className={'plots plots-' + g.plots.length}>
-              {g.plots.map((p, index) => {
-                const progress = p
-                  ? Math.min(
-                      1,
-                      Math.max(0, (now - p.start) / (p.end - p.start)),
-                    )
-                  : 0;
-                const ripe = !!p && progress >= 1;
-                return (
-                  <button
-                    key={index}
-                    className={`plot ${p ? 'occupied' : ''} ${ripe ? 'ripe' : ''} ${pop === index ? 'popped' : ''}`}
-                    aria-label={
-                      p
-                        ? `${ripe ? 'Récolter' : p.watered ? 'Croissance de' : 'Arroser'} ${crop(p.crop).name}, parcelle ${index + 1}`
-                        : `Planter ${selectedCrop.name}, parcelle ${index + 1}`
-                    }
-                    onClick={() => plotClick(index)}
-                    disabled={!loaded}
-                  >
-                    <span className="soil-lines" />
-                    {p ? (
-                      <>
-                        <span
-                          className={
-                            'plant stage-' +
-                            (ripe ? 3 : progress > 0.55 ? 2 : 1)
-                          }
-                        >
-                          {ripe
-                            ? crop(p.crop).fruit
-                            : progress > 0.55
-                              ? crop(p.crop).icon
-                              : '🌱'}
-                        </span>
-                        {ripe ? (
-                          <span className="plot-caption harvest">
-                            Récolter <Check size={12} />
-                          </span>
-                        ) : (
-                          <span className="plot-caption">
-                            {p.watered ? '💧 ' : ''}
-                            {duration((p.end - now) / 1000)}
-                          </span>
-                        )}
-                        {!ripe && (
-                          <span className="grow-track">
-                            <i style={{ width: progress * 100 + '%' }} />
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <span className="empty-plus">+</span>
-                        <span className="empty-text">Planter</span>
-                      </>
-                    )}
-                    {pop === index && (
-                      <span className="harvest-pop">+1 ✨</span>
-                    )}
-                  </button>
-                );
-              })}
-              {g.plots.length < maxPlots(g) && (
-                <button
-                  className="expand-plot"
-                  onClick={() => {
-                    setTab('upgrades');
-                    document.getElementById('carnet')?.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'nearest',
-                    });
-                  }}
-                >
-                  <span>+</span>
-                  <small>Agrandir</small>
-                  <b>{upgradeCost(g, 'expand')} ◉</b>
-                </button>
-              )}
-            </div>
-            <div className="farm-footer">
-              <span>🌼 Ici, rien ne se fane en votre absence.</span>
-              <div>
-                {g.upgrades.includes('water') && (
-                  <span title="Irrigation active">💧</span>
-                )}
-                {g.upgrades.includes('coop') && (
-                  <button onClick={() => setModal('workshop')}>🐔</button>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="seed-tray">
-            <div className="tray-heading">
-              <div>
-                <Sprout size={19} />
-                <b>À vos semis</b>
-                <span>Choisissez, puis plantez.</span>
-              </div>
-              <button className="text-button" onClick={() => setModal('seeds')}>
-                La graineterie <ChevronRight size={16} />
-              </button>
-            </div>
-            <div className="seed-list">
-              {CROPS.filter((c) => c.level <= lv).map((c) => (
-                <button
-                  key={c.id}
-                  className={`seed ${selected === c.id ? 'selected' : ''}`}
-                  onClick={() => {
-                    setSelected(c.id);
-                  }}
-                  aria-pressed={selected === c.id}
-                >
-                  <span className="seed-icon">{c.icon}</span>
-                  <span>
-                    <b>{c.name}</b>
-                    <small>{duration(c.time)}</small>
-                  </span>
-                  <span className="seed-count">{g.seeds[c.id] || 0}</span>
-                </button>
-              ))}
-              {nextCrop && (
-                <button
-                  className="seed locked"
-                  onClick={() => setModal('seeds')}
-                >
-                  <Lock size={16} />
-                  <span>
-                    <b>À découvrir</b>
-                    <small>Niveau {nextCrop.level}</small>
-                  </span>
-                </button>
-              )}
-            </div>
-            <div className="tray-bottom">
-              <span>
-                {selectedCrop.tag} · vente {selectedCrop.price} ◉
-              </span>
-              <div>
-                {g.upgrades.includes('tools') && (
-                  <button
-                    className="text-button"
-                    disabled={!ready}
-                    onClick={() =>
-                      g.plots.forEach((p, i) => {
-                        if (p && p.end <= Date.now()) dispatch('harvest', i);
-                      })
-                    }
-                  >
-                    Tout récolter
-                  </button>
-                )}
-                {g.upgrades.includes('watering-can') && (
-                  <button
-                    className="text-button"
-                    onClick={() => dispatch('waterAll')}
-                  >
-                    Tout arroser
-                  </button>
-                )}
-                {g.upgrades.includes('auto') && (
-                  <button
-                    className="text-button"
-                    onClick={() =>
-                      g.plots.forEach((p, i) => {
-                        if (!p && (state.current.seeds[selected] || 0) > 0)
-                          dispatch('plant', { index: i, crop: selected });
-                      })
-                    }
-                  >
-                    Tout planter
-                  </button>
-                )}
-                <button
-                  className="text-button"
-                  disabled={g.coins < selectedCrop.cost}
-                  onClick={() => dispatch('buy', selected)}
-                >
-                  + 1 graine · {selectedCrop.cost} ◉
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="rosalie-tip">
-            <span className="avatar">👩🏻‍🌾</span>
-            <div>
-              <b>Le petit conseil de Rosalie</b>
-              <p>{tutorial}</p>
-            </div>
-          </div>
-          <div className="next-unlock">
-            <span>
-              {nextContent?.crop ? crop(nextContent.crop).icon : '🏅'}
-            </span>
-            <div>
-              <b>
-                {nextContent
-                  ? `Prochain cap · niveau ${nextContent.level}`
-                  : 'Maître jardinier'}
-              </b>
-              <p>
-                {nextContent
-                  ? `${nextContent.crop ? crop(nextContent.crop).name + ' · ' : ''}${nextContent.system}`
-                  : 'Le jardin est prêt pour les futures serre et verger.'}
-              </p>
-            </div>
-          </div>
-        </div>
-        <aside className="notebook" id="carnet">
-          <div className="notebook-title">
-            <span>LE CARNET DU JARDIN</span>
-            <BookOpen size={19} />
-          </div>
-          <Tabs value={tab} onValueChange={(v) => setTab(String(v))}>
-            <TabsList className="notebook-tabs">
-              <TabsTrigger value="village">Village</TabsTrigger>
-              <TabsTrigger value="upgrades">Améliorer</TabsTrigger>
-              <TabsTrigger value="goals">Objectifs</TabsTrigger>
-            </TabsList>
-            <TabsContent value="village">
-              <div className="section-label">UN PANIER, UN SOURIRE</div>
-              <div className="order-person">
-                <span className="portrait">
-                  {['👩🏻‍🍳', '👨🏻‍🌾', '👩🏽'][g.orders % 3]}
-                </span>
-                <div>
-                  <h3>{o.person}</h3>
-                  <p>« Votre jardin a du talent ! »</p>
-                </div>
-              </div>
-              <div className="order-card">
-                <div className="order-item">
-                  <span>{itemIcon(o.crop)}</span>
-                  <div>
-                    <b>
-                      {o.amount} × {itemName(o.crop)}
-                    </b>
-                    <small>Pour la prochaine visite</small>
-                  </div>
-                  <b className={orderDelivery.possible ? 'enough' : ''}>
-                    {orderDelivery.possible ? o.amount : '…'}/{o.amount}
-                  </b>
-                </div>
-                <div className="order-reward">
-                  <span>◉ {o.reward} pièces</span>
-                  <span>✧ {o.xp} XP</span>
-                </div>
-                <button
-                  className="primary"
-                  disabled={!orderDelivery.possible}
-                  onClick={() => {
-                    if (
-                      orderDelivery.usesSuperior &&
-                      !window.confirm(
-                        'Cette commande utilisera un produit de qualité supérieure. Continuer ?',
-                      )
-                    )
-                      return;
-                    dispatch('order', {
-                      confirmSuperior: orderDelivery.usesSuperior,
-                    });
-                  }}
-                >
-                  Livrer la commande <ChevronRight size={17} />
-                </button>
-                <p className="fine-print">
-                  Aucune limite de temps. On vous attend.
-                </p>
-              </div>
-              <button
-                className="destination market"
-                onClick={() => setModal('basket')}
-              >
-                <span className="destination-icon">🧺</span>
-                <span>
-                  <b>Le panier du marché</b>
-                  <small>
-                    {inventory
-                      ? `${inventory} produits à vendre`
-                      : 'Vos récoltes trouveront preneur'}
-                  </small>
-                </span>
-                <ChevronRight size={19} />
-              </button>
-              <button
-                className="destination"
-                onClick={() => setModal('workshop')}
-              >
-                <span className="destination-icon">🍯</span>
-                <span>
-                  <b>L’atelier gourmand</b>
-                  <small>
-                    {g.job
-                      ? g.job.end <= now
-                        ? 'Votre recette est prête !'
-                        : 'Une recette mijote…'
-                      : g.upgrades.includes('workshop')
-                        ? 'De la terre à la tartine'
-                        : 'À installer au niveau 4'}
-                  </small>
-                </span>
-                <ChevronRight size={19} />
-              </button>
-              <button
-                className="destination"
-                onClick={() => setModal('friends')}
-              >
-                <span className="destination-icon">💌</span>
-                <span>
-                  <b>Les amis du village</b>
-                  <small>Cadeaux, quêtes et talents d’amitié</small>
-                </span>
-                <ChevronRight size={19} />
-              </button>
-              <button
-                className="destination"
-                onClick={() => setModal('collection')}
-              >
-                <span className="destination-icon">🌿</span>
-                <span>
-                  <b>Maîtriser mes cultures</b>
-                  <small>
-                    Progression et spécialisations de chaque variété
-                  </small>
-                </span>
-                <ChevronRight size={19} />
-              </button>
-              <div className="market-note">
-                <Sun size={20} />
-                <div>
-                  <b>Le coup de cœur du marché</b>
-                  <p>
-                    {event.label} :{' '}
-                    <strong>+{Math.round(event.bonus * 100)} %</strong> à la
-                    vente
-                  </p>
-                  <small>
-                    Change dans {duration((event.end - now) / 1000)}
-                  </small>
-                </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="upgrades">
-              <div className="section-label">FAITES GRANDIR VOS IDÉES</div>
-              <div className="upgrade-list">
-                {UPGRADES.map((u) => {
-                  const owned =
-                    u.id === 'expand'
-                      ? g.plots.length >= maxPlots(g)
-                      : g.upgrades.includes(u.id);
-                  const cost = upgradeCost(g, u.id);
-                  return (
-                    <div className="upgrade" key={u.id}>
-                      <span>{u.icon}</span>
-                      <div>
-                        <h3>{u.name}</h3>
-                        <p>{u.desc}</p>
-                        <button
-                          className="small-button"
-                          disabled={owned || lv < u.level || g.coins < cost}
-                          onClick={() => dispatch('upgrade', u.id)}
-                        >
-                          {owned
-                            ? '✓ Installé'
-                            : lv < u.level
-                              ? `Niveau ${u.level}`
-                              : `Installer · ${cost} ◉`}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </TabsContent>
-            <TabsContent value="goals">
-              <div className="section-label">LES PETITES VICTOIRES</div>
-              {MISSIONS.map((m) => (
-                <div className="mission" key={m.id}>
-                  <div>
-                    <h3>{m.title}</h3>
-                    <span>
-                      {Math.min(g[m.field], m.target)}/{m.target}
-                    </span>
-                  </div>
-                  <p>{m.desc}</p>
-                  <div className="mission-track">
-                    <i
-                      style={{
-                        width:
-                          Math.min(100, (g[m.field] / m.target) * 100) + '%',
-                      }}
-                    />
-                  </div>
-                  <button
-                    className="text-button"
-                    disabled={g.claimed.includes(m.id) || g[m.field] < m.target}
-                    onClick={() => dispatch('mission', m.id)}
-                  >
-                    {g.claimed.includes(m.id)
-                      ? '✓ Récompense reçue'
-                      : `Recevoir ${m.reward} pièces + 15 XP`}
-                  </button>
-                </div>
-              ))}
-              <button
-                className="destination"
-                onClick={() => setModal('collection')}
-              >
-                <span>🌿</span>
-                <span>
-                  <b>L’herbier des récoltes</b>
-                  <small>
-                    {Object.keys(g.collection).length} / 12 découvertes
-                  </small>
-                </span>
-                <ChevronRight size={18} />
-              </button>
-            </TabsContent>
-          </Tabs>
-          <div className="notebook-footer">
-            <span className={'save-dot ' + (saveError ? 'error' : '')} />
-            {saveError
-              ? 'Sauvegarde indisponible : exportez dans Paramètres.'
-              : loaded
-                ? 'Votre jardin est sauvegardé ici'
-                : 'Ouverture du jardin…'}
-          </div>
-        </aside>
-      </section>
-      <footer className="page-footer">
-        <span>Un petit jardin. De grandes joies.</span>
-        <span>Sans urgence, sans publicité, juste vous et la nature.</span>
-      </footer>
-      {notice && <output className="notification">{notice}</output>}
-      <Dialog
-        open={!!modal}
-        onOpenChange={(open) => {
-          if (!open) setModal('');
-        }}
+
+      <FarmMap
+        game={game}
+        key={epoch}
+        feedback={feedback}
+        selectedCrop={selectedCrop}
+        selectedLineage={game.lineages.some((lineage) => lineage.id === selectedLineage && lineage.crop === selectedCrop) ? selectedLineage : 0}
+        disabled={!loaded}
+        onAct={performPlotAction}
+        onOpen={openPanel}
+        onBulkStep={bulkStep}
+        onErrand={runErrand}
+        errandRef={errandRef}
+      />
+      {game.trackedGoals.length > 0 && <div className="farm-goal-ribbon" aria-label="Objectifs suivis">
+        {game.trackedGoals.map((id) => {
+          const goal = GOALS.find((entry) => entry.id === id);
+          if (!goal || game.claimed.includes(id)) return null;
+          const value = goalProgress(game, goal);
+          return <button key={id} onClick={() => openPanel('goals')}
+            aria-label={goal.title + ' : ' + Math.min(value, goal.target) + ' sur ' + goal.target}>
+            <span>{goal.title}</span><b>{value >= goal.target ? 'À réclamer' : Math.min(value, goal.target) + '/' + goal.target}</b>
+          </button>;
+        })}
+      </div>}
+      <nav
+        className={`action-dock ${drawer ? `drawer-${drawer}` : ''}`}
+        aria-label="Actions de ferme"
       >
-        <DialogContent className="game-dialog" showCloseButton={false}>
-          <div className="dialog-heading">
-            <DialogTitle>
-              {
-                (
-                  {
-                    friends: 'Le carnet des amitiés',
-                    seeds: 'La graineterie',
-                    basket: 'Le panier du marché',
-                    workshop: 'L’atelier gourmand',
-                    settings: 'Votre jardin, vos envies',
-                    collection: 'Racines · maîtrise des cultures',
-                  } as Record<string, string>
-                )[modal]
-              }
-            </DialogTitle>
+        <div
+          className="seed-strip"
+          id="seed-drawer"
+          aria-label="Graines disponibles"
+        >
+          {[
+            ...favorites.map((id) => crop(id)),
+            ...CROPS.filter(
+              (item) => item.level <= currentLevel && !favorites.includes(item.id),
+            ),
+          ].map((item) => {
+            const slot = favorites.indexOf(item.id);
+            return (
+              <button
+                key={item.id}
+                className={selectedCrop === item.id ? 'selected' : ''}
+                data-extra={slot < 0 || undefined}
+                onClick={() => {
+                  setSelectedCrop(item.id);
+                  setSelectedLineage(0);
+                  setDrawer('');
+                }}
+                aria-pressed={selectedCrop === item.id}
+                aria-keyshortcuts={slot >= 0 ? String(slot + 1) : undefined}
+                aria-label={`${item.name}, ${game.seeds[item.id] || 0} graines${inSeason(game, item.id) ? ', de saison' : ''}`}
+                title={(slot >= 0 ? `${item.name} · touche ${slot + 1}` : item.name) + (inSeason(game, item.id) ? ' · de saison (+8 % à la vente)' : '')}
+                data-season={inSeason(game, item.id) || undefined}
+              >
+                {slot >= 0 && (
+                  <kbd className="seed-key" aria-hidden="true">
+                    {slot + 1}
+                  </kbd>
+                )}
+                <PixelIcon id={item.id} />
+                <b>{game.seeds[item.id] || 0}</b>
+                <small>{item.name}</small>
+              </button>
+            );
+          })}
+          {unlockedCount > favorites.length && (
             <button
-              className="icon-button"
-              aria-label="Fermer"
-              onClick={() => setModal('')}
+              className="seed-all-toggle"
+              aria-expanded={drawer === 'all'}
+              aria-controls="seed-all"
+              aria-label={`Toutes les graines, ${unlockedCount} cultures`}
+              title="Toutes les graines et le choix du dock"
+              onClick={() => setDrawer(drawer === 'all' ? '' : 'all')}
             >
-              ✕
+              <span aria-hidden="true">{drawer === 'all' ? '▾' : '▴'}</span>
+              <small>Toutes</small>
+              <b>{unlockedCount}</b>
             </button>
-          </div>
-          <DialogDescription>
-            {modal === 'friends'
-              ? 'De petits cadeaux, une histoire à partager. Les quêtes personnelles ouvrent les talents du troisième cœur.'
-              : modal === 'seeds'
-                ? 'Une graine, mille possibilités. Achetez à l’unité et choisissez votre prochain semis.'
-                : modal === 'basket'
-                  ? 'Vendez vos produits ou gardez-en quelques-uns pour les commandes et les recettes.'
-                  : modal === 'workshop'
-                    ? 'Les bonnes choses prennent un peu de temps. Vos créations restent disponibles jusqu’à votre retour.'
-                    : modal === 'collection'
-                      ? 'Cultivez vos préférences : chaque variété progresse à son propre rythme.'
-                      : 'La progression est enregistrée automatiquement dans ce navigateur.'}
-          </DialogDescription>
-          {modal === 'seeds' && (
-            <>
-              <div className="catalog">
-                {CROPS.map((c) => (
-                  <div
-                    key={c.id}
-                    className={
-                      'crop-card ' + (c.level > lv ? 'unavailable' : '')
-                    }
-                  >
-                    <span className="catalog-icon">{c.icon}</span>
-                    <h3>{c.name}</h3>
-                    <p>{c.tag}</p>
-                    <small>
-                      {duration(growTime(g, c.id))} · vente {c.price} ◉ · {c.xp}{' '}
-                      XP
-                    </small>
+          )}
+          {gardeHours.length > 0 && !selectedLineage && (
+            <GardeSelect className="garde-mobile" game={game} cropId={selectedCrop}
+              hours={gardeHours} value={garde} onChange={setGardeChoice} now={now} />
+          )}
+          <button
+            className={`buy-seeds ${selectedSeedCount === 0 ? 'needs-seeds' : ''}`}
+            onClick={() => {
+              setDrawer('');
+              setModal('seeds');
+            }}
+            aria-label="Ouvrir la graineterie"
+          >
+            <PixelIcon id="seeds" />
+            <b>+</b>
+            <small>Graines</small>
+          </button>
+        </div>
+        {drawer === 'all' && (
+          <section
+            className="seed-all"
+            id="seed-all"
+            aria-label="Toutes les graines"
+          >
+            <header>
+              <b>Toutes les graines</b>
+              <small>
+                ★ épingle une graine dans le dock · {favorites.length}/
+                {DOCK_FAVORITES} · touches 1 à {favorites.length}
+              </small>
+            </header>
+            <ul>
+              {CROPS.filter((item) => item.level <= currentLevel).map((item) => {
+                const pinned = favorites.includes(item.id);
+                return (
+                  <li key={item.id} data-pinned={pinned || undefined}>
                     <button
-                      className="small-button"
-                      disabled={c.level > lv || g.coins < c.cost}
+                      className={selectedCrop === item.id ? 'selected' : ''}
+                      aria-pressed={selectedCrop === item.id}
+                      data-season={inSeason(game, item.id) || undefined}
+                      title={inSeason(game, item.id) ? `${item.name} · de saison (+8 % à la vente)` : undefined}
                       onClick={() => {
-                        dispatch('buy', c.id);
-                        setSelected(c.id);
+                        setSelectedCrop(item.id);
+                        setSelectedLineage(0);
+                        setDrawer('');
                       }}
                     >
-                      {c.level > lv
-                        ? `🔒 Niveau ${c.level}`
-                        : `Acheter · ${c.cost} ◉`}{' '}
+                      <PixelIcon id={item.id} />
+                      <span>
+                        <b>{item.name}</b>
+                        <small>
+                          {game.seeds[item.id] || 0} graine
+                          {(game.seeds[item.id] || 0) > 1 ? 's' : ''}
+                          {inSeason(game, item.id) && <span className="sr-only">, de saison</span>}
+                        </small>
+                      </span>
                     </button>
-                    <small>{g.seeds[c.id] || 0} graines en réserve</small>
-                  </div>
-                ))}
-              </div>
+                    <button
+                      className="seed-pin"
+                      aria-pressed={pinned}
+                      disabled={
+                        pinned
+                          ? favorites.length <= 1
+                          : favorites.length >= DOCK_FAVORITES
+                      }
+                      aria-label={
+                        pinned
+                          ? `Retirer ${item.name} du dock`
+                          : `Épingler ${item.name} dans le dock`
+                      }
+                      title={
+                        !pinned && favorites.length >= DOCK_FAVORITES
+                          ? `${DOCK_FAVORITES} graines au plus : retirez-en une d’abord`
+                          : undefined
+                      }
+                      onClick={() => save(toggleFavorite(gameRef.current, item.id))}
+                    >
+                      {pinned ? '★' : '☆'}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+        <div
+          className={`selected-action ${selectedSeedCount === 0 ? 'empty-stock' : ''}`}
+        >
+          <PixelIcon id={selected.id} />
+          <div>
+            <small className="selected-kicker">Culture choisie</small>
+            <b>{selected.name}</b>
+            <small className="selected-meta">
+              <GrowTimeTip game={game} cropId={selected.id} now={now}>
+                {duration(growTime(game, selected.id, now))}
+              </GrowTimeTip>{' '}
+              <span className="selected-price" aria-label={`récolte ${selected.price} pièces`}>
+                <span className="selected-price-text">· récolte </span>{selected.price} ◉
+              </span>
+            </small>
+          </div>
+          {game.lineages.some((lineage) => lineage.crop === selectedCrop) && <label className="dock-lineage-select"><span className="dock-label">Variété</span>
+            <select value={selectedLineage} onChange={(event) => setSelectedLineage(Number(event.target.value))}>
+              <option value={0}>Graine classique · {game.seeds[selectedCrop] || 0}</option>
+              {game.lineages.filter((lineage) => lineage.crop === selectedCrop).map((lineage) => <option key={lineage.id} value={lineage.id}>{lineage.name} · {lineage.seeds}</option>)}
+            </select>
+          </label>}
+          {gardeHours.length > 0 && !selectedLineage && (
+            <GardeSelect game={game} cropId={selectedCrop} hours={gardeHours}
+              value={garde} onChange={setGardeChoice} now={now} />
+          )}
+          <span className="seed-stock">
+            {selectedSeedCount > 0 ? `× ${selectedSeedCount}` : 'Stock épuisé'}
+          </span>
+        </div>
+        <div className="dock-actions">
+          <button
+            className={`dock-seed-toggle ${selectedSeedCount === 0 ? 'needs-seeds' : ''}`}
+            aria-expanded={drawer === 'seeds'}
+            aria-controls="seed-drawer"
+            aria-label={`Culture choisie : ${selected.name}, ${selectedSeedCount} graines. Changer de graine`}
+            onClick={() => setDrawer(drawer === 'seeds' ? '' : 'seeds')}
+          >
+            <PixelIcon id={selected.id} />
+            <b>{selectedSeedCount}</b>
+            <span>{selected.name}</span>
+          </button>
+          <button
+            className="dock-shop"
+            onClick={() => {
+              setDrawer('');
+              setModal('seeds');
+            }}
+            aria-label="Ouvrir la graineterie"
+          >
+            <PixelIcon id="seeds" />
+            <span>Graines</span>
+          </button>
+          {bulkActions.length > 0 && (
+            <button
+              className="dock-bulk-toggle"
+              aria-expanded={drawer === 'actions'}
+              aria-controls="bulk-drawer"
+              onClick={() => setDrawer(drawer === 'actions' ? '' : 'actions')}
+            >
+              <PixelIcon id="tools" />
+              <span>Actions</span>
+              {ready > 0 && game.upgrades.includes('tools') && <b>{ready}</b>}
+            </button>
+          )}
+          {game.bulkJob && (
+            <output className="bulk-job-status" aria-live="polite"
+              title={`Palier ${upgradeTier(game, game.bulkJob.kind === 'water' ? 'watering-can'
+                : game.bulkJob.kind === 'harvest' ? 'tools' : 'auto')}/5 · geste ${(gestureMs(game, game.bulkJob.kind) / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 2 })} s`}>
+              <span>{chores.map((kind) => ({ water: 'Arrosage', harvest: 'Récolte', sow: 'Semis' })[kind]).join(' + ')}
+                {' · '}{game.bulkJob.completed}/{game.bulkJob.total}
+              </span>
+              <progress value={game.bulkJob.completed} max={game.bulkJob.total} />
+              <button onClick={() => dispatch('bulkCancel')} aria-label="Arrêter le geste en cours">Arrêter</button>
+            </output>
+          )}
+          <div className="bulk-actions" id="bulk-drawer">
+            {bulkActions.map((bulk) => (
               <button
-                className="text-button"
-                onClick={() => dispatch('rescue')}
-              >
-                À court de tout ? Demander 3 graines de secours à Rosalie
-              </button>
-            </>
-          )}
-          {modal === 'basket' && (
-            <>
-              {inventory === 0 ? (
-                <div className="empty-state">
-                  <span>🧺</span>
-                  <h3>Le panier attend ses premières couleurs.</h3>
-                  <p>Récoltez une plante mûre dans votre jardin.</p>
-                </div>
-              ) : (
-                <div className="basket-list">
-                  {Object.entries(g.stock)
-                    .filter(([, n]) => n > 0)
-                    .map(([id, n]) => {
-                      const item = { name: itemName(id), icon: itemIcon(id) };
-                      return (
-                        <div className="basket-item" key={id}>
-                          <span>{item.icon}</span>
-                          <div>
-                            <b>
-                              {item.name} × {n}
-                            </b>
-                            <small>
-                              {price(g, id, now)} pièces l’unité{' '}
-                              {marketBonus(g, id, now)
-                                ? `· coup de cœur +${Math.round(marketBonus(g, id, now) * 100)} %`
-                                : ''}
-                            </small>
-                          </div>
-                          <button
-                            className="small-button"
-                            onClick={() => dispatch('sell', id)}
-                          >
-                            Vendre · {n * price(g, id, now)} ◉
-                          </button>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
-            </>
-          )}
-          {modal === 'workshop' && (
-            <>
-              {!g.upgrades.includes('workshop') ? (
-                <div className="empty-state">
-                  <span>🍯</span>
-                  <h3>Un atelier pour vos recettes maison</h3>
-                  <p>
-                    Au niveau 4, installez l’atelier pour 180 pièces dans
-                    Améliorer.
-                  </p>
-                  <button
-                    className="primary"
-                    onClick={() => {
-                      setTab('upgrades');
-                      setModal('');
-                    }}
-                  >
-                    Voir les améliorations
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="cooking-stats">
-                    <div className="cooking-stats-head">
-                      <b>Vos talents de cuisinier</b>
-                      <span>
-                        {g.talentPoints} point{g.talentPoints > 1 ? 's' : ''} à
-                        distribuer · +1 tous les 3 plats
-                      </span>
-                    </div>
-                    <div className="stat-grid">
-                      <span>
-                        🧠 Maîtrise <b>{g.stats.mastery}</b>
-                      </span>
-                      <span>
-                        🎯 Précision <b>{g.stats.precision}</b>
-                      </span>
-                      <span>
-                        🎨 Créativité <b>{g.stats.creativity}</b>
-                      </span>
-                      <span>
-                        🧺 Régularité <b>{g.stats.regularity}</b>
-                      </span>
-                      <span>
-                        🍀 Chance <b>{g.stats.luck}</b>
-                      </span>
-                    </div>
-                    <div className="talent-actions">
-                      {(
-                        [
-                          ['mastery', 'Maîtrise'],
-                          ['precision', 'Précision'],
-                          ['creativity', 'Créativité'],
-                          ['regularity', 'Régularité'],
-                          ['luck', 'Chance'],
-                        ] as const
-                      ).map(([stat, label]) => (
-                        <button
-                          key={stat}
-                          className="small-button"
-                          disabled={g.talentPoints < 1 || g.stats[stat] >= 20}
-                          onClick={() => dispatch('talent', { stat })}
-                        >
-                          + {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="job-status">
-                    {g.job ? (
-                      <>
-                        <span>
-                          🥣 {RECIPES.find((r) => r.id === g.job?.id)?.name}
-                        </span>
-                        <button
-                          className="small-button"
-                          disabled={g.job.end > now}
-                          onClick={() => dispatch('collect')}
-                        >
-                          {g.job.end <= now
-                            ? 'Récupérer'
-                            : duration((g.job.end - now) / 1000)}
-                        </button>
-                      </>
-                    ) : (
-                      <span>
-                        🍴 L’atelier est prêt pour une nouvelle recette.
-                      </span>
-                    )}
-                  </div>
-                  <RecipeBook g={g} dispatch={dispatch} />
-                </>
-              )}
-              {g.upgrades.includes('coop') && (
-                <div className="job-status">
-                  <span>
-                    🐔{' '}
-                    {g.hens
-                      ? 'Les poules préparent 4 œufs'
-                      : '3 blés → 4 œufs · 2 min'}
-                  </span>
-                  <button
-                    className="small-button"
-                    disabled={
-                      g.hens !== null ? g.hens > now : (g.stock.ble || 0) < 3
-                    }
-                    onClick={() => dispatch('hens')}
-                  >
-                    {g.hens
-                      ? g.hens <= now
-                        ? 'Ramasser les œufs'
-                        : duration((g.hens - now) / 1000)
-                      : 'Nourrir'}
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-          {modal === 'collection' && (
-            <CultureJournal g={g} dispatch={dispatch} />
-          )}
-          {modal === 'friends' && <FriendBook g={g} dispatch={dispatch} />}
-          {modal === 'settings' && (
-            <div className="settings-content">
-              <p>
-                Les récoltes et les recettes continuent pendant votre absence.
-                Rien ne pourrit. Le marché change de préférence toutes les 20
-                minutes, sans pénalité.
-              </p>
-              <button className="small-button" onClick={() => setSound(!sound)}>
-                {sound ? 'Couper les sons' : 'Activer les sons'}{' '}
-              </button>
-              <button
-                className="small-button"
+                key={bulk.action}
+                aria-label={bulk.full}
+                title={bulk.full}
+                aria-pressed={chores.includes(bulk.action)}
                 onClick={() => {
-                  const blob = new Blob([JSON.stringify(state.current)], {
-                    type: 'application/json',
+                  // 0.18 : le tiroir reste ouvert pour cumuler les tâches ; un second clic arrête celle-ci.
+                  if (chores.includes(bulk.action)) return dispatch('bulkCancel', { id: bulk.action });
+                  dispatch('bulkStart', {
+                    id: bulk.action,
+                    crop: bulk.action === 'sow' ? selectedCrop : undefined,
+                    lineageId: bulk.action === 'sow' ? selectedLineage || undefined : undefined,
+                    garde: bulk.action === 'sow' && garde ? garde : undefined,
                   });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'mon-jardin-rosalie.json';
-                  a.click();
-                  setTimeout(() => URL.revokeObjectURL(url), 1000);
                 }}
               >
-                Exporter ma sauvegarde
+                <PixelIcon id={bulk.icon} />
+                <span>{bulk.label}</span>
+                {!!bulk.count && <b key={bulk.count}>{bulk.count}</b>}
               </button>
-              <label className="import-label">
+            ))}
+          </div>
+          <button
+            id="basket-button"
+            onClick={() => {
+              setDrawer('');
+              setModal('basket');
+            }}
+            aria-label={`Panier, ${inventory} produits`}
+          >
+            <PixelIcon id="basket" />
+            <span>Panier</span>
+            {inventory > 0 && <b key={inventory}>{inventory}</b>}
+          </button>
+          <button
+            className="dock-notebook"
+            data-new={unseenPages.length > 0 || undefined}
+            onClick={() => {
+              setDrawer('');
+              openNotebook();
+            }}
+            aria-label={`Ouvrir le carnet${badges.total ? `, ${badges.total} chose${badges.total > 1 ? 's' : ''} à faire` : ''}${unseenPages.length ? `, ${unseenPages.length} nouvelle${unseenPages.length > 1 ? 's' : ''} page${unseenPages.length > 1 ? 's' : ''}` : ''}`}
+          >
+            <BookOpen size={21} />
+            <span>Carnet</span>
+            {badges.total > 0 && <b key={badges.total} className="todo-badge">{badges.total}</b>}
+          </button>
+        </div>
+      </nav>
+
+      <div className="notification-slot" hidden={dialogOpen}>
+        {notice && !dialogOpen && (
+          <output key={`notice-${notice.id}`} className="toast-notice">
+            {notice.text}
+          </output>
+        )}
+        {feedback?.changed && !dialogOpen && (
+          <div
+            key={`feedback-${feedback.id}`}
+            className="resource-feedback"
+            aria-hidden="true"
+          >
+            {feedback.coins !== 0 && (
+              <span
+                className={`coin-gain ${feedback.coins < 0 ? 'coin-spent' : ''}`}
+              >
+                <PixelIcon id="coin" />
+                {feedback.coins > 0 ? '+' : '−'}
+                {Math.abs(feedback.coins)}
+              </span>
+            )}
+            {feedback.xp > 0 && (
+              <span className="xp-gain">
+                <i aria-hidden="true">★</i>+{feedback.xp} XP
+              </span>
+            )}
+            {feedback.items.slice(0, 3).map((item) => (
+              <span
+                key={item.id}
+                className={`stock-gain quality-${item.quality}`}
+              >
+                <PixelIcon id={item.id} />
+                <b>+{item.amount}</b> {item.name.replace(' · Ordinaire', '')}
+              </span>
+            ))}
+            {feedback.items.length > 3 && (
+              <span className="more-gain">
+                +{feedback.items.length - 3} autre
+                {feedback.items.length - 3 > 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+      {recovery && <output className="save-warning"><button onClick={() => setRecoveryOpen(true)}>Récupérer la sauvegarde protégée</button></output>}
+      <SaveRecoveryDialog issue={recovery} open={recoveryOpen} onOpenChange={setRecoveryOpen} onRetry={retryRecovery} onNew={() => finishRecovery(fresh(Date.now()))} />
+      {saveError && (
+        <div className="save-warning" role="alert">
+          La sauvegarde locale est indisponible. Exportez votre partie avant de
+          quitter.
+        </div>
+      )}
+
+      <Dialog
+        open={modal === 'notebook'}
+        onOpenChange={(open) => !open && setModal('')}
+      >
+        <DialogContent className="notebook-dialog book-dialog">
+          <Tabs
+            className="notebook-tabs"
+            orientation="vertical"
+            value={notebookTab}
+            onValueChange={(value) => showPage(String(value))}
+          >
+            <nav
+              className="book-spine"
+              aria-label="Pages du carnet"
+              data-pages={pages.length}
+            >
+              <header className="book-cover">
+                <PixelIcon id="seeds" />
+                <div>
+                  <DialogTitle>Le carnet</DialogTitle>
+                  <DialogDescription>de la ferme de Rosalie</DialogDescription>
+                </div>
+              </header>
+              <fieldset className="book-chapter-picker">
+                <legend className="sr-only">Chapitres du carnet</legend>
+                {NOTEBOOK_CHAPTERS.map((chapter) => {
+                  const visible = chapter.pages.filter((page) =>
+                    pages.some((open) => open.value === page.value),
+                  );
+                  if (!visible.length) return null;
+                  const todo = visible.reduce(
+                    (sum, page) => sum + (badges.badges[page.value] || 0),
+                    0,
+                  );
+                  const isActive = activeNotebookChapter.id === chapter.id;
+                  const chapterIcon = {
+                    village: 'basket', farm: 'seeds', kitchen: 'pain', memories: 'album',
+                  }[chapter.id] || 'seeds';
+                  return (
+                    <button
+                      key={chapter.id}
+                      type="button"
+                      className="book-chapter-choice"
+                      aria-pressed={isActive}
+                      onClick={() => showPage(visible[0].value)}
+                    >
+                      <PixelIcon id={chapterIcon} />
+                      <span>{chapter.label}</span>
+                      {todo > 0 && <b aria-label={`${todo} à faire`}>{todo}</b>}
+                    </button>
+                  );
+                })}
+              </fieldset>
+              <div className="book-section-label">
+                <span>Pages du chapitre</span>
+                <small>{activeNotebookChapter.pages.filter((page) => pages.some((open) => open.value === page.value)).length}</small>
+              </div>
+              <TabsList className="notebook-tab-list">
+                {NOTEBOOK_CHAPTERS.filter((chapter) => chapter.id === activeNotebookChapter.id).map((chapter) => {
+                  const visible = chapter.pages.filter((page) =>
+                    pages.some((open) => open.value === page.value),
+                  );
+                  return (
+                    <Fragment key={chapter.id}>
+                      {visible.map(({ value, label, icon }) => {
+                        const count = badges.badges[value];
+                        const isNew = unseenPages.some(
+                          (page) => page.value === value,
+                        );
+                        const key =
+                          PAGE_KEYS[pages.findIndex((p) => p.value === value)];
+                        return (
+                          <TabsTrigger
+                            key={value}
+                            value={value}
+                            data-new={isNew || undefined}
+                            aria-label={[
+                              label,
+                              isNew && 'nouvelle page',
+                              count && `${count} à faire`,
+                            ]
+                              .filter(Boolean)
+                              .join(', ')}
+                            aria-keyshortcuts={key?.toUpperCase()}
+                            title={key ? `${label} · touche ${key.toUpperCase()}` : label}
+                          >
+                            <PixelIcon id={icon} />
+                            <span className="book-tab-label">{label}</span>
+                            {isNew && (
+                              <em className="book-tab-new" aria-hidden="true">
+                                Nouveau
+                              </em>
+                            )}
+                            {!!count && (
+                              <b className="todo-badge" aria-hidden="true">
+                                {count}
+                              </b>
+                            )}
+                          </TabsTrigger>
+                        );
+                      })}
+                    </Fragment>
+                  );
+                })}
+              </TabsList>
+              <footer
+                className="book-hints"
+                aria-hidden="true"
+                title="Touches des pages, flèches pour feuilleter, Échap pour fermer"
+              >
+                {pageKeysHint(pages.length).map((hint, index) => (
+                  <Fragment key={hint}>
+                    {index > 0 && ' '}
+                    <kbd>{hint}</kbd>
+                  </Fragment>
+                ))}{' '}
+                · <kbd>↑</kbd>
+                <kbd>↓</kbd> · <kbd>Échap</kbd>
+              </footer>
+            </nav>
+            <section className="book-page">
+              {(() => {
+                const page =
+                  pages.find((p) => p.value === notebookTab) || pages[0];
+                return (
+                  <header className="book-page-head" key={page.value}>
+                    <small>{page.chapter}</small>
+                    <h3>{page.label}</h3>
+                    <p>{page.tagline}</p>
+                  </header>
+                );
+              })()}
+              <DialogNotice notice={notice?.text} />
+              <TabsContent value="projects">
+                <ProjectsPanel g={game} now={now} dispatch={errandDispatch} askConfirm={askConfirm} />
+              </TabsContent>
+              <TabsContent value="festival">
+                <FestivalTab game={game} dispatch={dispatch} />
+              </TabsContent>
+              <TabsContent value="valley">
+                <ValleyPanel game={game} now={now} dispatch={dispatch} />
+              </TabsContent>
+              <TabsContent value="orders">
+                <OrdersPanel game={game} now={now} dispatch={dispatch} askConfirm={askConfirm} />
+              </TabsContent>
+              <TabsContent value="upgrades">
+                <UpgradesPanel key={Math.abs(upgradeFocus)} game={game} dispatch={dispatch} focusRestore={upgradeFocus > 0} />
+              </TabsContent>
+              <TabsContent value="goals">
+                <GoalsPanel game={game} dispatch={dispatch} />
+              </TabsContent>
+              <TabsContent value="lineages">
+                <LineagesPanel game={game} dispatch={dispatch} />
+              </TabsContent>
+              <TabsContent value="mastery">
+                <CultureJournal g={game} dispatch={dispatch} now={now} />
+              </TabsContent>
+              <TabsContent value="skills">
+                <SkillsPanel g={game} dispatch={dispatch} />
+              </TabsContent>
+              <TabsContent value="recipes">
+                <WorkshopPanel game={game} now={now} errands={errands} onEnter={() => setModal('kitchen')} />
+              </TabsContent>
+              <TabsContent value="friends">
+                <FriendBook g={game} dispatch={dispatch} askConfirm={askConfirm} />
+              </TabsContent>
+              <TabsContent value="collection">
+                <CollectionPanel game={game} />
+              </TabsContent>
+              <TabsContent value="guide">
+                <GuidePanel
+                  game={game}
+                  onReplay={(id) => {
+                    save(tutorialReplay(gameRef.current, id));
+                    setModal('');
+                  }}
+                  onToggle={(off) => save(tutorialSetOff(gameRef.current, off))}
+                />
+              </TabsContent>
+            </section>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={modal === 'seeds'}
+        onOpenChange={(open) => !open && setModal('')}
+      >
+        <DialogContent className="paper-dialog shop-dialog" initialFocus={seedDialogTitle}>
+          <header className="shop-sign">
+            <span className="shop-awning" aria-hidden="true" />
+            <div className="shop-title">
+              <DialogTitle ref={seedDialogTitle} tabIndex={-1}>
+                La graineterie
+              </DialogTitle>
+              <DialogDescription>
+                Un sachet, une quantité : c’est acheté.
+              </DialogDescription>
+            </div>
+            <ShopPurse coins={game.coins} reduced={reduceMotion} />
+          </header>
+          <DialogNotice notice={notice?.text} />
+          <div className="dialog-scroll">
+            {canRescue(game) && (
+              <section className="seed-rescue available">
+                <div>
+                  <b>Le coup de pouce de Rosalie</b>
+                  <p>Votre ferme est à l’arrêt : Rosalie vous offre 3 graines de radis.</p>
+                </div>
+                <button onClick={() => dispatch('rescue')}>
+                  Recevoir 3 graines de radis
+                </button>
+              </section>
+            )}
+            <SeedShop
+              key={String(modal === 'seeds')}
+              game={game}
+              now={now}
+              initialCrop={selectedCrop}
+              reduced={reduceMotion}
+              dispatch={dispatch}
+              onBought={(id) => { setSelectedCrop(id); setSelectedLineage(0); }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <KitchenDialog open={modal === 'kitchen'} onClose={() => setModal('')} game={game} now={now}
+        dispatch={errandDispatch} askConfirm={askConfirm} errands={errands} notice={notice?.text} />
+
+      <Dialog
+        open={modal === 'basket'}
+        onOpenChange={(open) => !open && setModal('')}
+      >
+        <DialogContent className="paper-dialog shop-dialog basket-dialog">
+          <header className="shop-sign">
+            <span className="shop-awning" aria-hidden="true" />
+            <div className="shop-title">
+              <DialogTitle>Le panier de Rosalie</DialogTitle>
+              <DialogDescription>
+                Vendez, ou gardez pour un projet, une commande, une recette ou un cadeau.
+              </DialogDescription>
+            </div>
+            <ShopPurse coins={game.coins} reduced={reduceMotion} />
+          </header>
+          <DialogNotice notice={notice?.text} />
+          <div className="dialog-scroll">
+            {inventory === 0 ? (
+              <div className="empty-state">
+                <PixelIcon id="basket" />
+                <p>Le panier attend sa première récolte.</p>
+              </div>
+            ) : (
+              <BasketList game={game} now={now} dispatch={dispatch} askConfirm={askConfirm} />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={modal === 'settings'}
+        onOpenChange={(open) => !open && setModal('')}
+      >
+        <DialogContent className="paper-dialog">
+          <DialogTitle>Réglages de la ferme</DialogTitle>
+          <DialogDescription>
+            Adaptez le rythme sans perdre les retours utiles.
+          </DialogDescription>
+          <p className="settings-version">Version {BUILD}</p>
+          <DialogNotice notice={notice?.text} />
+          <div className="dialog-scroll">
+            <div className="settings-list">
+              {systemReduced && <output className="settings-motion-status">
+                {game.settings.forceAnimations && !game.settings.reduceMotion
+                  ? 'Ce navigateur demande moins de mouvement, mais les animations du jeu sont rétablies ici.'
+                  : 'Ce navigateur demande moins de mouvement. Activez « Forcer les animations sur cet appareil » pour retrouver les effets.'}
+              </output>}
+              <SettingToggle
+                label="Racheter la graine au semis"
+                description="Si le stock est vide, la graine est achetée au moment de planter, quand la bourse le permet."
+                active={game.settings.autoBuySeeds}
+                onClick={() =>
+                  dispatch('setting', {
+                    setting: 'autoBuySeeds',
+                    value: !game.settings.autoBuySeeds,
+                  })
+                }
+              />
+              <SettingToggle
+                label="Réduire les animations"
+                description="Supprime les effets décoratifs et l’animation des pas. Rosalie se déplace toujours au même rythme."
+                active={game.settings.reduceMotion}
+                onClick={() =>
+                  dispatch('setting', {
+                    setting: 'reduceMotion',
+                    value: !game.settings.reduceMotion,
+                  })
+                }
+              />
+              <SettingToggle
+                label="Forcer les animations sur cet appareil"
+                description="Si Windows ou le navigateur réduit les mouvements, ce choix rétablit les animations du jeu. Le réglage « Réduire les animations » garde la priorité."
+                active={game.settings.forceAnimations}
+                onClick={() => dispatch('setting', {
+                  setting: 'forceAnimations',
+                  value: !game.settings.forceAnimations,
+                })}
+              />
+              <SettingToggle
+                label="Sons doux"
+                description="Petits sons pour les actions importantes."
+                active={sound}
+                onClick={toggleSound}
+              />
+            </div>
+            <div className="save-actions">
+              <button onClick={() => exportGame(gameRef.current)}>
+                Exporter la sauvegarde
+              </button>
+              <label>
                 Importer une sauvegarde
                 <input
                   type="file"
                   accept=".json"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
+                  onChange={async (event) => {
+                    const input = event.currentTarget;
+                    const file = input.files?.[0];
                     if (!file) return;
+                    let raw = '';
                     try {
-                      const raw = await file.text();
-                      const parsed = JSON.parse(raw);
-                      if (
-                        ![1, 2, 3].includes(parsed.version) ||
-                        !Array.isArray(parsed.plots)
-                      )
-                        throw Error();
-                      const restored = restore(raw);
-                      save(restored);
-                      notify('Votre jardin a été restauré.');
+                      raw = await file.text();
+                      const imported = parseImportedGame(raw);
+                      if (saveIsBlocked()) {
+                        if (!finishRecovery(imported)) return;
+                      } else save(imported);
+                      setEpoch((v) => v + 1);
+                      setFeedback(undefined);
+                      notify('Votre ferme a été restaurée et migrée.');
                       setModal('');
                     } catch {
-                      notify('Cette sauvegarde n’est pas reconnue.');
-                    }
+                      setRecovery(protectUnreadableSave(raw, 'import'));
+                      setRecoveryOpen(true);
+                      setModal('');
+                    } finally { input.value = ''; }
                   }}
                 />
               </label>
-              <button className="danger-button" onClick={() => setReset(true)}>
-                Recommencer une nouvelle partie
+              <button
+                className="danger-button"
+                onClick={() => setResetOpen(true)}
+              >
+                Recommencer la partie
               </button>
             </div>
-          )}
+          </div>
         </DialogContent>
       </Dialog>
+
       <Dialog
-        open={!!levelUp}
-        onOpenChange={(open) => !open && setLevelUp(undefined)}
+        open={modal === 'home'}
+        onOpenChange={(open) => !open && setModal('')}
       >
-        <DialogContent className="level-up-dialog" showCloseButton={false}>
-          <span className="level-up-spark">✦</span>
-          <DialogTitle>Niveau {levelUp?.level}</DialogTitle>
+        <DialogContent className="paper-dialog home-dialog">
+          <DialogTitle>La maison de Rosalie</DialogTitle>
           <DialogDescription>
-            {levelUp?.level === 12
-              ? 'Vous êtes désormais maître jardinier.'
-              : 'Votre jardin prend un nouveau rythme.'}
+            Un refuge paisible. Aucun coucher n’est obligatoire.
           </DialogDescription>
-          {levelUp?.crop && (
-            <div className="level-reward">
-              <span>{crop(levelUp.crop).icon}</span>
+          <DialogNotice notice={notice?.text} />
+          <div className="dialog-scroll">
+            <div className="home-scene">
+              <VillagerPortrait index={0} />
               <div>
-                <b>{crop(levelUp.crop).name} débloqué</b>
-                <p>Une graine offerte pour commencer.</p>
+                <b>Votre ferme vous attend toujours.</b>
+                <p>
+                  Les cultures et préparations continuent pendant votre absence.
+                  Rien ne fane et aucune journée de connexion n’est imposée.
+                </p>
               </div>
             </div>
-          )}
-          <div className="level-reward">
-            <span>🌿</span>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <LevelUpScene info={cheerFor ? undefined : levelUp} onClose={() => setLevelUps(previous => previous.slice(1))} />
+      {!coachHidden && (
+        <TutorialCoach
+          game={game}
+          dialogOpen={modal !== ''}
+          onRead={() => save(tutorialRead(gameRef.current))}
+          onLater={() => save(tutorialSkipChapter(gameRef.current))}
+          onOff={() => {
+            save(tutorialSetOff(gameRef.current, true));
+            notify('Conseils coupés. Ils se rallument dans le Guide du carnet.');
+          }}
+        />
+      )}
+
+      <Dialog
+        open={!!absence}
+        onOpenChange={(open) => !open && setAbsence(undefined)}
+      >
+        <DialogContent className="paper-dialog absence-dialog">
+          <DialogTitle>Pendant votre absence</DialogTitle>
+          <DialogDescription>
+            {absence
+              ? `Absence : ${awayLabel(absence.away)}. La ferme a continué de pousser sans vous.`
+              : ''}
+          </DialogDescription>
+          <div className="dialog-scroll">
+            <ul className="absence-list">
+              {absence &&
+                Object.entries(absence.crops).map(([id, count]) => (
+                  <li key={id}>
+                    <PixelIcon id={id} />
+                    <span>
+                      {crop(id).name} · {count} parcelle{count > 1 ? 's' : ''} à
+                      récolter
+                    </span>
+                  </li>
+                ))}
+              {absence?.eggs && (
+                <li>
+                  <PixelIcon id="oeuf" />
+                  <span>4 œufs frais au poulailler</span>
+                </li>
+              )}
+              {absence?.orchard && (
+                <li>
+                  <PixelIcon id="fruitTree" />
+                  <span>Le verger a donné ses fruits</span>
+                </li>
+              )}
+              {absence?.dish && (
+                <li>
+                  <PixelIcon id={absence.dish} />
+                  <span>
+                    {RECIPES.find((r) => r.id === absence.dish)?.name} est prêt
+                    à l’atelier
+                  </span>
+                </li>
+              )}
+            </ul>
+            {absence && absence.ripe > 0 && !absence.canHarvest && (
+              <p className="absence-hint">
+                Les cultures se cueillent sur la carte : glissez sur les
+                parcelles, ou installez les outils de jardinier pour lancer
+                une cueillette progressive.
+              </p>
+            )}
+          </div>
+          <div className="absence-actions">
+            {absence?.collectable && (
+              <button
+                className="primary-button"
+                onClick={() => {
+                  setAbsence(undefined);
+                  collectOnFoot();
+                }}
+              >
+                {absence.ripe > 0 && absence.canHarvest ? 'Envoyer Rosalie tout récupérer et cueillir' : 'Envoyer Rosalie tout récupérer'}
+              </button>
+            )}
+            <button
+              className="secondary-button"
+              onClick={() => setAbsence(undefined)}
+            >
+              Retour à la ferme
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!projectDone}
+        onOpenChange={(open) => !open && setProjectDone(undefined)}
+      >
+        <DialogContent className="level-dialog" showCloseButton={false}>
+          <span className="level-spark">★</span>
+          <DialogTitle>{projectDone?.title}</DialogTitle>
+          <DialogDescription>{projectDone?.outro}</DialogDescription>
+          <div className="reward-card">
+            <PixelIcon id="quality" />
             <div>
-              <b>Nouveau chapitre</b>
-              <p>{levelUp?.system}</p>
+              <b>{projectDone?.rewardName}</b>
+              <p>{projectDone?.rewardDesc}</p>
             </div>
           </div>
-          <button className="primary" onClick={() => setLevelUp(undefined)}>
-            Continuer à cultiver
+          <div className="reward-card">
+            <PixelIcon id="coin" />
+            <div>
+              <b>
+                +{projectDone?.coins} pièces · +{projectDone?.xp} XP
+              </b>
+              <p>Un nouveau grand projet vous attend dans le carnet.</p>
+            </div>
+          </div>
+          <button
+            className="primary-button"
+            onClick={() => {
+              setProjectDone(undefined);
+              openPanel('projects');
+            }}
+          >
+            Choisir le prochain projet
           </button>
         </DialogContent>
       </Dialog>
-      <AlertDialog open={reset} onOpenChange={setReset}>
+
+      <GameConfirmDialog pending={pendingConfirm} onClose={() => setPendingConfirm(null)} />
+      <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
         <AlertDialogContent>
-          <AlertDialogTitle>Recommencer votre jardin ?</AlertDialogTitle>
+          <AlertDialogTitle>Recommencer votre ferme ?</AlertDialogTitle>
           <AlertDialogDescription>
-            Les pièces, récoltes et améliorations de cette partie seront
-            effacées. Vous pouvez d’abord exporter votre sauvegarde dans les
-            paramètres.
+            Les pièces, cultures, relations et améliorations de cette partie
+            seront effacées. Vous pouvez d’abord exporter votre sauvegarde.
           </AlertDialogDescription>
-          <AlertDialogCancel>Garder mon jardin</AlertDialogCancel>
+          <AlertDialogCancel>Garder ma ferme</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              save(fresh());
-              setSelected('radis');
-              setReset(false);
+              const next = fresh();
+              if (saveIsBlocked()) {
+                if (!finishRecovery(next)) return;
+              } else save(next);
+              setSelectedCrop('radis');
+              setSelectedLineage(0);
+              setEpoch((v) => v + 1);
+              setFeedback(undefined);
+              setResetOpen(false);
               setModal('');
-              setTab('village');
-              notify('Une nouvelle aventure commence !');
+              notify('Une nouvelle ferme commence.');
             }}
           >
             Oui, recommencer
