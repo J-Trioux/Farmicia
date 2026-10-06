@@ -88,6 +88,11 @@ export function ambienceBurst(
   );
 }
 
+/** 0.21.2 — Mode allégé automatique : seuil, durée et délai après le départ. */
+const LITE_FPS = 28;
+const LITE_SECONDS = 5;
+const LITE_GRACE_MS = 10_000;
+
 export class AmbienceEngine {
   private ctx2d: CanvasRenderingContext2D | null;
   private pool = new ParticlePool();
@@ -116,6 +121,12 @@ export class AmbienceEngine {
   private costSum = 0;
   private fpsFrames = 0;
   private fpsSince = 0;
+  /**
+   * 0.21.2 — Filet de sécurité : secondes consécutives sous LITE_FPS, la carte
+   * visible et animée depuis au moins LITE_GRACE_MS (le chargement ne compte pas).
+   */
+  private slowSeconds = 0;
+  private runningSince = 0;
   /**
    * 0.21 : zone dessinée à l’image précédente (px du canevas). On n’efface que
    * celle-ci, et rien du tout quand il n’y a rien à dessiner : Firefox ne
@@ -242,6 +253,8 @@ export class AmbienceEngine {
     if (shouldRun && !this.running) {
       this.running = true;
       this.last = performance.now();
+      this.runningSince = this.last;
+      this.slowSeconds = 0;
       this.fpsSince = this.last;
       this.fpsFrames = 0;
       this.costSum = 0;
@@ -290,6 +303,7 @@ export class AmbienceEngine {
     this.fpsFrames++;
     if (time - this.fpsSince >= 1000) {
       this.fps = Math.round((this.fpsFrames * 1000) / (time - this.fpsSince));
+      this.watchSpeed(time);
       this.cost = Math.round((this.costSum / this.fpsFrames) * 100) / 100;
       this.fpsFrames = 0;
       this.costSum = 0;
@@ -301,6 +315,23 @@ export class AmbienceEngine {
     this.costSum += performance.now() - started;
     this.frame = requestAnimationFrame(this.tick);
   };
+
+  /**
+   * 0.21.2 — Si le navigateur ne tient pas LITE_FPS images par seconde pendant
+   * LITE_SECONDS secondes (Firefox sans accélération graphique, par exemple),
+   * les décors animés de la carte se figent (app/ambience.css, [data-map-lite]) :
+   * Rosalie, les animaux et les particules continuent. Jamais avec le réglage
+   * « Forcer les animations sur cet appareil ». Une fois pour la session.
+   */
+  private watchSpeed(time: number) {
+    const root = document.documentElement;
+    if (root.hasAttribute('data-map-lite') || root.hasAttribute('data-motion-full')) return;
+    if (time - this.runningSince < LITE_GRACE_MS) return;
+    this.slowSeconds = this.fps < LITE_FPS ? this.slowSeconds + 1 : 0;
+    if (this.slowSeconds < LITE_SECONDS) return;
+    root.setAttribute('data-map-lite', '');
+    console.info(`Les jardins de Rosalie : ${this.fps} images par seconde, décors animés de la carte mis en pause.`);
+  }
 
   /** Partie visible de la carte, en pixels natifs. */
   private visibleNative(): Rect {

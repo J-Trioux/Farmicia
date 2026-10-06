@@ -39,6 +39,10 @@ import { KitchenDialog } from '@/components/kitchen';
 import { useLevelCheer } from '@/hooks/use-level-cheer';
 import { CollectionPanel } from '@/components/notebook/collection-panel';
 import { SettingToggle } from '@/components/notebook/setting-toggle';
+import { AudioSettings } from '@/components/audio-settings';
+import { GameAudio, useAudioPrefs } from '@/components/game-audio';
+import { gameAudio } from '@/lib/audio/engine';
+import { cueFor } from '@/lib/audio/cues';
 
 const ERRAND_PLACE: Record<Errand['action'], [Errand['place'], Errand['activity']]> = {
   craft: ['atelier', 'cook'],
@@ -74,12 +78,10 @@ export default function Home() {
   const noticeId = useRef(0);
   const [drawer, setDrawer] = useState<'' | 'seeds' | 'actions' | 'all'>('');
   const [absence, setAbsence] = useState<ReturnType<typeof absenceSummary>>();
-  const [sound, setSound] = useState(false);
-  const toggleSound = () => {
-    const enabled = !sound;
-    setSound(enabled);
-    try { window.localStorage.setItem('rosalie-sound', String(enabled)); } catch { /* La préférence reste active pour cette session. */ }
-  };
+  // 0.22 : son et musique (lib/audio/engine.ts), réglés dans les paramètres.
+  const audioPrefs = useAudioPrefs();
+  const toggleSound = () => gameAudio.setPrefs({ on: !audioPrefs.on });
+  const sound = audioPrefs.on;
   const [resetOpen, setResetOpen] = useState(false);
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm>(null);
   const askConfirm: AskConfirm = useCallback((choice, onConfirm) => setPendingConfirm({ choice, onConfirm }), []);
@@ -95,7 +97,6 @@ export default function Home() {
   const [projectDone, setProjectDone] = useState<VillageProject>();
   // 0.20 : Rosalie fête le niveau sur la carte avant sa fenêtre.
   const [cheerFor, announceLevel] = useLevelCheer(modal === '' && !projectDone && !absence);
-  const audio = useRef<AudioContext | null>(null);
   const seedDialogTitle = useRef<HTMLHeadingElement>(null);
 
   // File de messages : un message à la fois, au plus deux en attente.
@@ -178,7 +179,6 @@ export default function Home() {
   useEffect(() => {
     const kickoff = setTimeout(() => {
       const time = Date.now();
-      try { setSound(window.localStorage.getItem('rosalie-sound') === 'true'); } catch { /* Son facultatif. */ }
       try {
         const restored = settleNotebook(loadGame());
         gameRef.current = restored;
@@ -214,36 +214,6 @@ export default function Home() {
     const timer = setTimeout(() => setNow(Date.now()), Math.min(2147483647, Math.min(...deadlines) - time + 20));
     return () => clearTimeout(timer);
   }, [game, loaded, now]);
-  const play = useCallback(
-    (kind = 'action') => {
-      if (!sound) return;
-      try {
-        audio.current ??= new AudioContext();
-        void audio.current.resume();
-        const oscillator = audio.current.createOscillator(),
-          gain = audio.current.createGain();
-        oscillator.connect(gain);
-        gain.connect(audio.current.destination);
-        oscillator.type = kind === 'exceptional' ? 'triangle' : 'sine';
-        oscillator.frequency.setValueAtTime(
-          kind === 'exceptional' ? 880 : 620,
-          audio.current.currentTime,
-        );
-        oscillator.frequency.exponentialRampToValueAtTime(
-          kind === 'exceptional' ? 1320 : 840,
-          audio.current.currentTime + 0.14,
-        );
-        gain.gain.setValueAtTime(0.045, audio.current.currentTime);
-        gain.gain.exponentialRampToValueAtTime(
-          0.001,
-          audio.current.currentTime + 0.28,
-        );
-        oscillator.start();
-        oscillator.stop(audio.current.currentTime + 0.3);
-      } catch {}
-    },
-    [sound],
-  );
   const dispatch = useCallback(
     (action: string, argument?: ActionArgument) => {
       if (saveIsBlocked()) return { g: gameRef.current, message: 'La sauvegarde attend votre choix.', feedback: actionFeedback(gameRef.current, gameRef.current, action, ++feedbackId.current) };
@@ -263,8 +233,8 @@ export default function Home() {
       if (feedback.changed) setFeedback(feedback);
       if (result.g !== gameRef.current) {
         save(result.g);
-        if (action !== 'bulkTick' || !result.g.bulkJob)
-          play(result.message.includes('Exceptionnelle') || result.message.includes('Chef-d’œuvre') ? 'exceptional' : 'action');
+        const cue = cueFor(action, before, result.g, result.message);
+        if (cue) gameAudio.play(cue.name, { duck: cue.duck });
       }
       if (result.levelUps?.length) {
         // 0.20 : Rosalie fête le niveau, sauf si une fenêtre de niveau est déjà ouverte.
@@ -284,7 +254,7 @@ export default function Home() {
       if (action !== 'bulkTick' || !result.g.bulkJob) notify(result.message);
       return { ...result, feedback };
     },
-    [save, play, notify, announceLevel],
+    [save, notify, announceLevel],
   );
   // 0.9.9 : les gestes groupés et les courses avancent au pas de Rosalie, sur la carte.
   const errandRef = useRef<((errand: Errand) => void) | null>(null);
@@ -897,6 +867,7 @@ export default function Home() {
         </div>
       </nav>
 
+      {loaded && <GameAudio game={game} dialogOpen={dialogOpen} />}
       <div className="notification-slot" hidden={dialogOpen}>
         {notice && !dialogOpen && (
           <output key={`notice-${notice.id}`} className="toast-notice">
@@ -1258,12 +1229,7 @@ export default function Home() {
                   value: !game.settings.forceAnimations,
                 })}
               />
-              <SettingToggle
-                label="Sons doux"
-                description="Petits sons pour les actions importantes."
-                active={sound}
-                onClick={toggleSound}
-              />
+              <AudioSettings />
             </div>
             <div className="save-actions">
               <button onClick={() => exportGame(gameRef.current)}>

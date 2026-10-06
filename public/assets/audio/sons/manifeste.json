@@ -1,0 +1,157 @@
+{
+  "ui-clic": {
+    "volume": 0.35,
+    "seconds": 0.26,
+    "loop": false
+  },
+  "ui-ouvrir": {
+    "volume": 0.55,
+    "seconds": 0.7,
+    "loop": false
+  },
+  "ui-fermer": {
+    "volume": 0.5,
+    "seconds": 0.6,
+    "loop": false
+  },
+  "ui-page": {
+    "volume": 0.45,
+    "seconds": 0.37,
+    "loop": false
+  },
+  "ui-erreur": {
+    "volume": 0.5,
+    "seconds": 1.81,
+    "loop": false
+  },
+  "ui-notif": {
+    "volume": 0.45,
+    "seconds": 1.447,
+    "loop": false
+  },
+  "pas-1": {
+    "volume": 0.22,
+    "seconds": 0.14,
+    "loop": false
+  },
+  "pas-2": {
+    "volume": 0.22,
+    "seconds": 0.14,
+    "loop": false
+  },
+  "pas-3": {
+    "volume": 0.22,
+    "seconds": 0.14,
+    "loop": false
+  },
+  "pas-4": {
+    "volume": 0.22,
+    "seconds": 0.14,
+    "loop": false
+  },
+  "arroser": {
+    "volume": 0.6,
+    "seconds": 1.4,
+    "loop": false
+  },
+  "semer": {
+    "volume": 0.6,
+    "seconds": 1.1,
+    "loop": false
+  },
+  "recolter": {
+    "volume": 0.65,
+    "seconds": 0.85,
+    "loop": false
+  },
+  "recolte-belle": {
+    "volume": 0.5,
+    "seconds": 1.699,
+    "loop": false
+  },
+  "recolte-exceptionnelle": {
+    "volume": 0.7,
+    "seconds": 2.244,
+    "loop": false
+  },
+  "becher": {
+    "volume": 0.7,
+    "seconds": 0.8,
+    "loop": false
+  },
+  "panier": {
+    "volume": 0.5,
+    "seconds": 0.55,
+    "loop": false
+  },
+  "pieces": {
+    "volume": 0.55,
+    "seconds": 1.2,
+    "loop": false
+  },
+  "achat": {
+    "volume": 0.5,
+    "seconds": 0.9,
+    "loop": false
+  },
+  "commande": {
+    "volume": 0.7,
+    "seconds": 2.259,
+    "loop": false
+  },
+  "cuisine-feu": {
+    "volume": 0.55,
+    "seconds": 1.2,
+    "loop": false
+  },
+  "cuisine-pret": {
+    "volume": 0.7,
+    "seconds": 2.238,
+    "loop": false
+  },
+  "oeufs": {
+    "volume": 0.6,
+    "seconds": 0.765,
+    "loop": false
+  },
+  "poule": {
+    "volume": 0.35,
+    "seconds": 0.95,
+    "loop": false
+  },
+  "chantier": {
+    "volume": 0.7,
+    "seconds": 1.976,
+    "loop": false
+  },
+  "niveau": {
+    "volume": 0.85,
+    "seconds": 3.506,
+    "loop": false
+  },
+  "projet": {
+    "volume": 0.85,
+    "seconds": 4.149,
+    "loop": false
+  },
+  "fete": {
+    "volume": 0.75,
+    "seconds": 3.189,
+    "loop": false
+  },
+  "ambiance-oiseaux": {
+    "volume": 0.5,
+    "seconds": 24.0,
+    "loop": true
+  },
+  "ambiance-grillons": {
+    "volume": 0.45,
+    "seconds": 16.0,
+    "loop": true
+  },
+  "ambiance-pluie": {
+    "volume": 0.55,
+    "seconds": 16.0,
+    "loop": true
+  }
+}

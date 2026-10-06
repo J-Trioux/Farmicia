@@ -23,8 +23,22 @@
 }
 .embellish-anim {
   position: absolute;
-  background-repeat: no-repeat;
+  overflow: hidden;
   image-rendering: pixelated;
+}
+/* 0.21.2 : la planche de 4 images glisse par un transform (et non plus par
+   background-position, qui redessinait l’élément à chaque image) : le
+   compositeur la déplace seul, Firefox compris. Mêmes 4 positions. */
+.embellish-anim::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400%;
+  height: 100%;
+  background: var(--sheet) no-repeat 0 0 / 100% 100%;
+  image-rendering: inherit;
+  animation: embellish-frames var(--frames-time) steps(4) infinite;
 }
 /* Ailes : case de 128 × 128 posée à (0, 60) dans la case du moulin (128 × 192). */
 .moulin-wings {
@@ -33,24 +47,21 @@
   top: 31.25%;
   width: 100%;
   height: 66.6667%;
-  background-image: url('/assets/pixel/embellissements-hd/moulin-ailes.png');
-  background-size: 400% 100%;
-  animation: embellish-frames 0.72s steps(4) infinite;
+  --sheet: url('/assets/pixel/embellissements-hd/moulin-ailes.png');
+  --frames-time: 0.72s;
 }
 .fontaine-water {
   inset: 0;
-  background-image: url('/assets/pixel/embellissements-hd/fontaine-eau.png');
-  background-size: 400% 100%;
-  animation: embellish-frames 0.48s steps(4) infinite;
+  --sheet: url('/assets/pixel/embellissements-hd/fontaine-eau.png');
+  --frames-time: 0.48s;
 }
 .ruches-bees {
   left: 30%;
   top: 22%;
   width: 50%;
   height: 50%;
-  background-image: url('/assets/pixel/embellissements-hd/abeilles.png');
-  background-size: 400% 100%;
-  animation: embellish-frames 0.4s steps(4) infinite;
+  --sheet: url('/assets/pixel/embellissements-hd/abeilles.png');
+  --frames-time: 0.4s;
 }
 .embellish-ruches.stage-1 .ruches-bees { left: 24%; top: 40%; }
 .embellish-ruches.stage-2 .ruches-bees { left: 25%; top: 36%; }
@@ -71,13 +82,12 @@
   filter: drop-shadow(0 0 3px #ffd98a) drop-shadow(1px 3px 0 #2a2a1a44);
 }
 @keyframes embellish-frames {
-  from { background-position: 0 0; }
-  to { background-position: 133.3333% 0; }
+  to { transform: translateX(-100%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  :root:not([data-motion-full]) .embellish-anim { animation: none; }
+  :root:not([data-motion-full]) .embellish-anim::before { animation: none; }
 }
-[data-reduce-motion] .embellish-anim { animation: none; }
+[data-reduce-motion] .embellish-anim::before { animation: none; }
 
 /* ---------- Carnet : volets de la page Améliorer ---------- */
 .upgrade-switch {
@@ -176,7 +186,7 @@
   border-radius: var(--r-md);
 }
 .embellish-sprite { position: relative; }
-.embellish-sprite .moulin-wings.still { animation: none; }
+.embellish-sprite .moulin-wings.still::before { animation: none; }
 .embellish-sprite.ghost { opacity: 0.45; filter: grayscale(0.6); }
 .embellish-text small {
   color: var(--c-ink-soft);

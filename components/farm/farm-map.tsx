@@ -1,6 +1,7 @@
 'use client';
 import { memo, useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { MapBackdrop, type SeasonId } from '@/components/farm/map-backdrop';
+import { gameAudio } from '@/lib/audio/engine';
 import { createPortal } from 'react-dom';
 import { LocateFixed, Maximize2, ZoomIn, ZoomOut } from 'lucide-react';
 import { ANCHORS, BUILD_FOCUS, FOCUS, RING, WORLD_H, WORLD_W, ZONES, pct, px, rectPct, type AnchorId, type RectPx } from '@/lib/world';
@@ -269,6 +270,11 @@ export const FarmMap = memo(function FarmMap({
     }
     // Mobile : la caméra (ordinateur) centre elle-même la vue sur le cœur de la ferme.
     recenter(FOCUS.potager);
+    /** 0.22 : le son vient du côté de l’écran où se trouve Rosalie. */
+    function pan() {
+      const r = rosalieRef.current?.getBoundingClientRect();
+      return r ? Math.max(-0.7, Math.min(0.7, ((r.left + r.width / 2) / window.innerWidth - 0.5) * 1.4)) : 0;
+    }
     /**
      * Marche continue (0.5.5) : position interpolée à vitesse constante et
      * écrite directement sur le nœud à chaque image, sans rendu React. Le
@@ -336,6 +342,8 @@ export const FarmMap = memo(function FarmMap({
           if (stepIndex !== lastStep) {
             lastStep = stepIndex;
             if (!latest.current.reduced) ambienceBurst('dust', p.x, p.y, 2);
+            // 0.22 : un pas, un bruit de pas (quatre variantes, jamais deux fois le même).
+            gameAudio.play(`pas-${(stepIndex % 4) + 1}`, { volume: 0.75 + Math.random() * 0.25, rate: 0.92 + Math.random() * 0.16, pan: pan() });
           }
           if (t < timeline.duration) requestAnimationFrame(frame);
           else {
@@ -356,8 +364,15 @@ export const FarmMap = memo(function FarmMap({
     /** 0.9.9 : geste joué à la vitesse de l’outil ; l’effet tombe au milieu du geste. */
     function startGesture(kind: 'plant' | 'water' | 'harvest') {
       const ms = gestureMs(latest.current.game, BULK_OF[kind]);
-      setGestureSpeed(clipDuration(rosalieClip(kind)) / ms);
+      const speed = clipDuration(rosalieClip(kind)) / ms;
+      setGestureSpeed(speed);
       setAction(kind);
+      // 0.22 : le bruitage tombe sur le moment fort du geste (milieu), à la vitesse de l’outil.
+      const rate = Math.max(0.85, Math.min(1.35, speed));
+      const peak = ms * 0.45 / 1000;
+      if (kind === 'water') gameAudio.play('arroser', { rate, pan: pan(), delay: Math.max(0, peak - 0.25) });
+      else if (kind === 'plant') gameAudio.play('semer', { rate, pan: pan(), delay: Math.max(0, peak - 0.45 / rate) });
+      else gameAudio.play('recolter', { rate, pan: pan(), delay: Math.max(0, peak - 0.2 / rate) });
       return ms;
     }
     /** Retour visuel d’une action appliquée sur une parcelle (vol vers le panier, éclat). */
@@ -391,6 +406,10 @@ export const FarmMap = memo(function FarmMap({
         ...prev.slice(-8),
         { key, index, kind, item, flight },
       ]);
+      // 0.22 : la récolte tombe dans le panier ; une belle ou une exceptionnelle a sa petite musique.
+      if (item?.quality === 'exceptionnelle') gameAudio.play('recolte-exceptionnelle', { duck: 1.5 });
+      else if (item?.quality === 'belle') gameAudio.play('recolte-belle', { pan: pan() * 0.5 });
+      else if (item) gameAudio.play('panier', { delay: flight ? 0.55 : 0.1, volume: 0.8 });
       setTimeout(() => {
         if (generation.current === token)
           setEffects((prev) => prev.filter((e) => e.key !== key));
@@ -445,6 +464,9 @@ export const FarmMap = memo(function FarmMap({
       if (generation.current !== token) return;
       setGestureSpeed(1);
       setAction(errand.activity);
+      // 0.22 : feu sous la marmite, plats sortis dans le panier, poules et œufs, fruits cueillis.
+      gameAudio.play(errand.action === 'craft' ? 'cuisine-feu' : errand.action === 'collect' ? 'panier'
+        : errand.activity === 'eggs' ? 'oeufs' : 'recolter', { pan: pan() });
       // 1.0 : cuisiner et ramasser les œufs ont leur animation (8 images de 100 ms).
       await sleep(latest.current.reduced ? 650 : Math.max(650, clipDuration(rosalieClip(errand.activity))));
       if (generation.current !== token) return;
@@ -464,10 +486,12 @@ export const FarmMap = memo(function FarmMap({
       if (generation.current !== token) return;
       setGestureSpeed(1);
       setAction('hoe');
+      gameAudio.play('becher', { pan: pan(), delay: 0.12 });
       const spot = plotPosition(index);
       await sleep(latest.current.reduced ? 250 : 520);
       if (generation.current !== token) return;
       if (!latest.current.reduced) ambienceBurst('dust', spot.x, spot.y + 1.1, 6);
+      gameAudio.play('becher', { pan: pan(), rate: 0.94 });
       const key = Date.now();
       setUntilled((list) => list.filter((i) => i !== index));
       setDug((map) => ({ ...map, [index]: key }));
@@ -500,6 +524,8 @@ export const FarmMap = memo(function FarmMap({
       setGestureSpeed(1);
       setAction('celebrate');
       setAura(levelReached);
+      // 0.22 : la fanfare du niveau, la musique s’efface le temps du halo.
+      gameAudio.play('niveau', { duck: 3 });
       await sleep(reducedNow ? 700 : CELEBRATE_MS);
       setAura(0);
       if (generation.current === token) setAction('idle');

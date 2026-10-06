@@ -28,24 +28,25 @@
   transition: none;
 }
 
-/* ---------- Teinte de la phase (multiply) ---------- */
+/* ---------- Teinte de la phase ----------
+   0.21.2 : plus de mix-blend-mode. .ambience-layers forme un contexte
+   d’empilement (z-index) : le mélange ne voyait que ce calque, transparent,
+   et rendait donc exactement un voile normal, dans tous les navigateurs
+   (vérifié au pixel près dans Chromium et Firefox). Le même voile, sans mélange : rendu identique, et
+   Firefox ne recompose plus toute la carte à chaque image. */
 .sky-tint {
   background-color: var(--tint);
   opacity: var(--tint-alpha);
-  mix-blend-mode: multiply;
   transition:
     background-color var(--d-scene) linear,
     opacity var(--d-scene) linear;
-  will-change: opacity;
 }
 
 /* ---------- Ombres de nuages ----------
    0.21 : mélange normal au lieu de multiply (Firefox recomposait toute la carte
-   à chaque image sous les nuages qui glissent). Couleur et opacité choisies pour
-   donner le même assombrissement bleuté : écart de moins de 1 % sur les tons de la carte. */
+   à chaque image sous les nuages qui glissent). */
 .cloud-shadows {
-  opacity: 0.55;
-  transition: opacity var(--d-scene) linear;
+  --clouds: 0.55;
 }
 .cloud-shadows i {
   position: absolute;
@@ -54,12 +55,18 @@
   width: 42%;
   height: 46%;
   border-radius: 50%;
+  /* 0.21.2 : couleurs d’origine (0.20). Dans ce contexte d’empilement, l’ancien
+     multiply rendait déjà un voile normal : la conversion de 0.21 avait assombri
+     les nuages. L’opacité est portée par chaque nuage (plus de calque de toute
+     la carte à demi transparent). */
   background: radial-gradient(
     closest-side,
-    rgb(0 21 37 / 26%),
-    rgb(0 21 37 / 12.1%) 55%,
+    rgb(34 52 66 / 30%),
+    rgb(34 52 66 / 14%) 55%,
     transparent
   );
+  opacity: var(--clouds);
+  transition: opacity var(--d-scene) linear;
   animation: cloud-drift 140s linear infinite;
   will-change: transform;
 }
@@ -72,11 +79,11 @@
 }
 [data-phase='evening'] .cloud-shadows,
 [data-phase='night'] .cloud-shadows {
-  opacity: 0.2;
+  --clouds: 0.2;
 }
 [data-weather='pluie'] .cloud-shadows,
 [data-weather='brume'] .cloud-shadows {
-  opacity: 0.32;
+  --clouds: 0.32;
 }
 @keyframes cloud-drift {
   to {
@@ -94,15 +101,19 @@
   transition: opacity var(--d-scene) linear;
   pointer-events: none;
 }
-.ambience-layers[data-weather='brume']::before {
-  /* La brume reste au bord de l’étang et des haies : le potager ne reçoit
-     plus de voile pâle, quelle que soit l’heure réelle de la visite. */
-  inset: 0;
-  opacity: 0.65;
-  background:
-    radial-gradient(ellipse 24% 12% at 47% 82%, rgb(224 237 226 / 16%), transparent 72%),
-    radial-gradient(ellipse 22% 10% at 10% 53%, rgb(225 236 226 / 11%), transparent 75%),
-    radial-gradient(ellipse 22% 10% at 88% 34%, rgb(226 238 228 / 10%), transparent 75%);
+/* 0.21.2 : la brume est faite de trois nappes, chacune dans sa boîte
+   (components/farm/ambience.tsx) : seule leur surface est redessinée quand
+   elles dérivent, et non plus toute la carte. */
+.mist {
+  transition: opacity var(--d-scene) linear;
+}
+@starting-style {
+  .ambience-layers[data-settled] .mist {
+    opacity: 0;
+  }
+}
+.mist i {
+  position: absolute;
   animation: mist-drift 34s var(--ease-soft) infinite alternate;
 }
 .ambience-layers[data-weather='doree']::after {
@@ -116,7 +127,6 @@
     rgb(255 227 154 / 12%) 66%,
     transparent 78%
   );
-  mix-blend-mode: screen;
 }
 .ambience-layers[data-weather='pluie']::after {
   opacity: 1;
@@ -124,17 +134,26 @@
 }
 @keyframes mist-drift {
   to {
-    transform: translateX(8%);
+    transform: translateX(var(--drift));
   }
 }
 
-/* ---------- Lampadaires et fenêtres (screen) ---------- */
-.lights {
-  opacity: var(--lamps);
+/* ---------- Lampadaires et fenêtres ---------- */
+/* 0.21.2 : l’intensité est portée par chaque lampe et chaque fenêtre, et non
+   plus par un calque de toute la carte à demi transparent (Firefox le
+   recomposait en entier à chaque battement de flamme). */
+.lamp,
+.window-glow {
   transition: opacity var(--d-scene) linear;
+}
+.lamp {
+  position: absolute;
+  opacity: var(--lamps);
+  transform: translate(-50%, -50%);
 }
 .lamp-halo {
   position: absolute;
+  inset: 0;
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
@@ -143,7 +162,6 @@
     rgb(255 150 60 / 12%) 62%,
     transparent
   );
-  transform: translate(-50%, -50%);
   animation: lamp-flicker 3.4s var(--ease-soft) infinite;
   animation-delay: var(--flicker-delay);
 }
@@ -164,7 +182,7 @@
     rgb(255 150 60 / 30%)
   );
   box-shadow: 0 0 8px 3px rgb(255 170 70 / 45%);
-  opacity: 0.85;
+  opacity: calc(0.85 * var(--lamps));
 }
 @keyframes lamp-flicker {
   0%,
@@ -256,7 +274,7 @@
 /* ---------- Mouvement réduit : états fixes ---------- */
 [data-reduce-motion] .cloud-shadows i,
 [data-reduce-motion] .lamp-halo,
-[data-reduce-motion] .ambience-layers::before {
+[data-reduce-motion] .mist i {
   animation: none;
 }
 [data-reduce-motion] .cloud-shadows i {

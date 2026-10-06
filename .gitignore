@@ -44,3 +44,6 @@ __pycache__/
 # Documentation : seule l'image du README est versionnée.
 /docs/*
 !/docs/apercu.webp
+
+# Atelier de Claude : captures, essais et instantanés (jamais publiés).
+/Claude outputs/

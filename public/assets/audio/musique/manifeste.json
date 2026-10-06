@@ -1,0 +1,66 @@
+{
+  "printemps": {
+    "jour": {
+      "file": "printemps-jour.mp3",
+      "bytes": 2297335,
+      "rms": -20.0
+    },
+    "soir": {
+      "file": "printemps-soir.mp3",
+      "bytes": 2254170,
+      "rms": -22.5
+    },
+    "title": "Les premiers semis",
+    "bpm": 104,
+    "beatsPerBar": 4,
+    "loop": 92.307692
+  },
+  "ete": {
+    "jour": {
+      "file": "ete-jour.mp3",
+      "bytes": 2009551,
+      "rms": -20.0
+    },
+    "soir": {
+      "file": "ete-soir.mp3",
+      "bytes": 1772449,
+      "rms": -22.5
+    },
+    "title": "Soleil sur la place",
+    "bpm": 116,
+    "beatsPerBar": 4,
+    "loop": 82.758621
+  },
+  "automne": {
+    "jour": {
+      "file": "automne-jour.mp3",
+      "bytes": 1760264,
+      "rms": -20.0
+    },
+    "soir": {
+      "file": "automne-soir.mp3",
+      "bytes": 1733737,
+      "rms": -22.5
+    },
+    "title": "Récolte au crépuscule",
+    "bpm": 120,
+    "beatsPerBar": 3,
+    "loop": 72.0
+  },
+  "hiver": {
+    "jour": {
+      "file": "hiver-jour.mp3",
+      "bytes": 2952104,
+      "rms": -20.0
+    },
+    "soir": {
+      "file": "hiver-soir.mp3",
+      "bytes": 3059977,
+      "rms": -22.5
+    },
+    "title": "Flocons sur le mas",
+    "bpm": 80,
+    "beatsPerBar": 4,
+    "loop": 120.0
+  }
+}

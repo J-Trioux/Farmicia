@@ -27,3 +27,12 @@
 [data-map-covered] .pixel-farm :not(.rosalie-player, .rosalie-player *)::after {
   animation-play-state: paused !important;
 }
+
+/* 0.21.2 — Mode allégé automatique (lib/ambience/engine.ts) : le navigateur ne
+   tient pas 28 images par seconde (Firefox sans accélération graphique…). Les
+   décors qui bougent seuls se figent ; Rosalie, les animaux, les particules et
+   tout ce qui répond au joueur continuent. Jamais avec « Forcer les animations ». */
+[data-map-lite]:not([data-motion-full]) .pixel-farm :is(.bunting, .cloud-shadows i, .mist i, .lamp-halo, .map-pin, .pond-ripple),
+[data-map-lite]:not([data-motion-full]) .pixel-farm .embellish-anim::before {
+  animation-play-state: paused;
+}

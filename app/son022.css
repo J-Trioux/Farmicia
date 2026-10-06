@@ -1,0 +1,45 @@
+/* ==========================================================================
+   0.22 — Le son : réglages de la musique et des effets (components/audio-settings.tsx).
+   ========================================================================== */
+.audio-sliders {
+  display: grid;
+  gap: 8px;
+  padding: 10px 13px;
+  color: #352c20;
+  background: #fff9df;
+  border: 2px solid #b28a51;
+}
+.audio-slider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(140px, 220px) 48px;
+  align-items: center;
+  gap: 12px;
+}
+.audio-slider label b {
+  display: block;
+}
+.audio-slider label small {
+  display: block;
+  margin-top: 2px;
+  color: #75654d;
+  font-size: 12px;
+}
+.audio-slider input[type='range'] {
+  width: 100%;
+  accent-color: #5d873d;
+  cursor: pointer;
+}
+.audio-slider input[type='range']:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.audio-slider input[type='range']:focus-visible {
+  outline: 2px solid #3d6a2a;
+  outline-offset: 3px;
+}
+.audio-slider output {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: #4c3d27;
+}

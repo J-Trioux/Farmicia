@@ -60,8 +60,22 @@ export function useSky(game: Game) {
 const pct = (value: number, total: number) => `${(value / total) * 100}%`;
 
 /**
- * Calques de lumière, sous les parcelles : teinte de la phase (multiply),
- * ombres de nuages, halos des lampadaires et fenêtres chaudes (screen).
+ * 0.21.2 — Brume : trois nappes, chacune dans sa propre boîte (avant : un
+ * calque de toute la carte qui glissait, que Firefox redessinait en entier à
+ * chaque image). Mêmes ellipses, mêmes couleurs, même dérive de 8 % de la
+ * largeur de la carte (en % de la boîte : 8 / largeur). L’opacité 0,65 de
+ * l’ancien calque est portée par chaque couleur (les nappes ne se recouvrent pas).
+ */
+const MIST = [
+  { x: 50, y: 66, rx: 12, ry: 6, rgb: [224, 237, 226], a: 0.16, fade: 72 },
+  { x: 17, y: 50, rx: 11, ry: 5, rgb: [225, 236, 226], a: 0.11, fade: 75 },
+  { x: 81, y: 33, rx: 11, ry: 5, rgb: [226, 238, 228], a: 0.1, fade: 75 },
+] as const;
+const MIST_OPACITY = 0.65;
+
+/**
+ * Calques de lumière, sous les parcelles : voile de la phase,
+ * ombres de nuages, halos des lampadaires et fenêtres chaudes.
  * Aucun ne capte les clics.
  */
 export const AmbienceLayers = memo(function AmbienceLayers({
@@ -94,44 +108,68 @@ export const AmbienceLayers = memo(function AmbienceLayers({
         } as CSSProperties
       }
     >
+      {sky.weather === 'brume' && (
+        <div className="mist">
+          {MIST.map((m, i) => {
+            return (
+              <i
+                key={i}
+                style={
+                  {
+                    left: `${m.x - m.rx}%`,
+                    top: `${m.y - m.ry}%`,
+                    width: `${m.rx * 2}%`,
+                    height: `${m.ry * 2}%`,
+                    background: `radial-gradient(closest-side, rgb(${m.rgb.join(' ')} / ${+(m.a * MIST_OPACITY).toFixed(4)}), transparent ${m.fade}%)`,
+                    '--drift': `${+((8 / (m.rx * 2)) * 100).toFixed(4)}%`,
+                  } as CSSProperties
+                }
+              />
+            );
+          })}
+        </div>
+      )}
       {/* Fanions de la fête : deux portions de la carte qui flottent au vent. */}
       <span className="bunting bunting-left" />
       <span className="bunting bunting-right" />
-      {/* 0.21 : de jour, la teinte est nulle : pas de calque multiply (Firefox le recompose à chaque image). */}
+      {/* 0.21 : de jour, la teinte est nulle : pas de calque du tout. */}
       {sky.tintAlpha > 0.004 && <div className="sky-tint" />}
       <div className="cloud-shadows">
         <i />
         <i />
       </div>
-      <div className="lights">
-        {WINDOWS.map((w, i) => (
-          <span
-            key={`w${i}`}
-            className="window-glow"
-            style={{
-              left: pct(w.x, MAP_W),
-              top: pct(w.y, MAP_H),
-              width: pct(w.w, MAP_W),
-              height: pct(w.h, MAP_H),
-            }}
-          />
-        ))}
-        {LAMPS.map((lamp, i) => (
-          <span
-            key={lamp.id}
-            className={`lamp-halo lamp-${lamp.id}`}
-            style={
-              {
+      {/* 0.21.2 : de jour, aucune lampe ; l’intensité est portée par chaque halo
+          (plus de calque de toute la carte à demi transparent). */}
+      {sky.lamps > 0 && (
+        <div className="lights">
+          {WINDOWS.map((w, i) => (
+            <span
+              key={`w${i}`}
+              className="window-glow"
+              style={{
+                left: pct(w.x, MAP_W),
+                top: pct(w.y, MAP_H),
+                width: pct(w.w, MAP_W),
+                height: pct(w.h, MAP_H),
+              }}
+            />
+          ))}
+          {LAMPS.map((lamp, i) => (
+            <span
+              key={lamp.id}
+              className="lamp"
+              style={{
                 left: pct(lamp.x, MAP_W),
                 top: pct(lamp.y, MAP_H),
                 width: pct(lamp.r * 2, MAP_W),
                 height: pct(lamp.r * 2, MAP_H),
-                '--flicker-delay': `${-i * 0.7}s`,
-              } as CSSProperties
-            }
-          />
-        ))}
-      </div>
+              }}
+            >
+              <span className={`lamp-halo lamp-${lamp.id}`} style={{ '--flicker-delay': `${-i * 0.7}s` } as CSSProperties} />
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 });

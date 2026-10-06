@@ -201,7 +201,7 @@ RECIPES.push(
   { id: 'fougasse', name: 'Fougasse des Moulins', icon: '🥖', needs: { ble: 2, tomate: 1 }, price: 145, time: 72, level: 8, valley: 'moulins', reputation: 2 },
   { id: 'pickles', name: 'Pickles du Port', icon: '🫙', needs: { carotte: 2, radis: 1 }, price: 64, time: 55, level: 8, valley: 'vergers', reputation: 2 },
 );
-export const BUILD = '0.21.1 — Grand ménage';
+export const BUILD = '0.22.0 — La ferme en musique';
 export const QUALITIES = [
   { id: 'ordinaire', name: 'Ordinaire', multiplier: 1 },
   { id: 'belle', name: 'Belle', multiplier: 1.4 },
