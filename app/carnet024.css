@@ -1,0 +1,3320 @@
+/* ==========================================================================
+   0.24 — Le carnet de Rosalie (maquettes de ChatGPT, uniformisées).
+   Une seule feuille pour la reliure et les éléments communs des pages :
+   mêmes mesures, mêmes bordures, mêmes tailles d’icônes partout.
+   Papier ivoire neutre, reliure vert forêt, actions vert jardin ; aucun
+   filtre jaune. Les jaunes restent locaux (feu, pièces, ferrures).
+   ========================================================================== */
+
+.carnet-dialog {
+  --c-paper: #f6f7f0;
+  --c-card: #fcfcf6;
+  --c-white: #ffffff;
+  --c-select: #e3ebd8;
+  --c-spine: #284b3b;
+  --c-spine-light: #31594a;
+  --c-spine-dark: #17301f;
+  --c-action: #537b39;
+  --c-action-dark: #2f5a22;
+  --c-ink: #303729;
+  --c-ink-soft: #545c4a;
+  --c-line: #dfe3d4;
+  --c-line-strong: #c8d0b8;
+  --c-olive: #7d9a5f;
+  --c-brass: #d8b54a;
+  --c-brass-dark: #7a5a12;
+  --c-alert: #b8432f;
+  --gap: 14px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(1440px, calc(100vw - 72px));
+  height: min(940px, calc(100dvh - 56px));
+  max-width: none;
+  padding: 0;
+  color: var(--c-ink);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  overflow: visible;
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+}
+.carnet {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(250px, 22%, 318px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  background: var(--c-spine);
+  border: 4px solid var(--c-spine-dark);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 2px #3f6b55,
+    0 8px 0 #0f1f15aa,
+    0 28px 70px #0b160f80;
+}
+/* Coins de laiton (comme sur les maquettes). */
+.carnet::before,
+.carnet::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  pointer-events: none;
+  background: linear-gradient(135deg, #f3d77a 0 45%, var(--c-brass) 45% 60%, transparent 60%);
+  filter: drop-shadow(0 2px 0 var(--c-brass-dark));
+}
+.carnet::before {
+  top: -4px;
+  left: -4px;
+}
+.carnet::after {
+  right: -4px;
+  bottom: -4px;
+  transform: rotate(180deg);
+}
+.carnet .pixel-icon {
+  width: var(--icon, 32px);
+  height: var(--icon, 32px);
+  min-width: var(--icon, 32px);
+}
+:where(.carnet) button {
+  cursor: pointer;
+}
+:where(.carnet) button:disabled {
+  cursor: not-allowed;
+}
+.carnet :focus-visible {
+  outline: 3px solid #2f6fbf;
+  outline-offset: 2px;
+}
+
+/* ---------- La reliure ---------- */
+.carnet-spine {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  padding: 18px 16px 18px;
+  background:
+    repeating-linear-gradient(0deg, #ffffff06 0 2px, transparent 2px 6px),
+    var(--c-spine);
+  border-radius: 6px 0 0 6px;
+}
+.carnet-cover {
+  --icon: 64px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 6px 10px 14px;
+  color: var(--c-card);
+  text-align: left;
+  background: none;
+  border: 0;
+  border-bottom: 2px dashed #5f8b70;
+  border-radius: 6px 6px 0 0;
+}
+.carnet-cover:hover,
+.carnet-cover[aria-current='page'] {
+  background: #ffffff12;
+}
+.carnet-cover-title {
+  display: grid;
+  line-height: 1;
+}
+.carnet-cover-title b {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 36px;
+  font-weight: 700;
+  text-shadow: 0 3px 0 var(--c-spine-dark);
+}
+.carnet-cover-title span {
+  margin-top: 6px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  text-shadow: 0 2px 0 var(--c-spine-dark);
+}
+.carnet-chapters {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  margin: 0;
+  padding: 2px 2px 4px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  list-style: none;
+}
+.carnet-chapter-head {
+  --icon: 32px;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--icon) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 14px;
+  color: var(--c-card);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: left;
+  background: var(--c-spine-light);
+  border: 2px solid var(--c-spine-dark);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 2px #4c7a5c,
+    0 3px 0 var(--c-spine-dark);
+  transition: background 0.14s, color 0.14s;
+}
+.carnet-chapter-head:hover {
+  background: #3a6a52;
+}
+.carnet-chapter[data-open] .carnet-chapter-head {
+  color: var(--c-ink);
+  background: var(--c-card);
+  border-color: #6b5413;
+  box-shadow:
+    inset 0 0 0 2px var(--c-brass),
+    0 3px 0 var(--c-spine-dark);
+}
+.carnet-chapter-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.carnet-chevron {
+  transform: rotate(-90deg);
+  transition: transform 0.16s;
+}
+.carnet-chapter[data-open] .carnet-chevron {
+  transform: none;
+}
+.carnet-pages-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.16s ease-out;
+}
+.carnet-chapter[data-open] .carnet-pages-wrap {
+  grid-template-rows: 1fr;
+}
+.carnet-pages {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  margin: 0 8px;
+  padding: 0 6px;
+  overflow: hidden;
+  list-style: none;
+  background: var(--c-paper);
+  border: 0 solid #6b5413;
+  border-radius: 0 0 6px 6px;
+}
+.carnet-chapter[data-open] .carnet-pages {
+  padding: 8px 6px 6px;
+  border-width: 0 2px 2px;
+}
+.carnet-link {
+  --icon: 32px;
+  display: grid;
+  grid-template-columns: var(--icon) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  text-align: left;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 5px;
+}
+.carnet-link:hover {
+  background: #eef2e6;
+}
+.carnet-link[aria-current='page'] {
+  font-weight: 700;
+  background: var(--c-select);
+  border-color: var(--c-olive);
+}
+.carnet-link-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.carnet-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  color: var(--c-white);
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  background: var(--c-alert);
+  border-radius: 12px;
+}
+.carnet-new {
+  padding: 2px 7px;
+  color: var(--c-white);
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  background: var(--c-action);
+  border-radius: 4px;
+}
+.carnet-new-dot {
+  width: 12px;
+  height: 12px;
+  background: #f3c34f;
+  border: 2px solid var(--c-spine-dark);
+  border-radius: 50%;
+}
+.carnet-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 16px;
+  border-top: 2px dashed #5f8b70;
+}
+.carnet-shortcut {
+  --icon: 32px;
+  display: grid;
+  grid-template-columns: var(--icon) minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 54px;
+  padding: 0 16px;
+  color: var(--c-card);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  text-align: left;
+  background: #2f5844;
+  border: 2px solid #4f7d60;
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--c-spine-dark);
+}
+.carnet-shortcut:hover {
+  background: #376650;
+}
+.carnet-shortcut[data-ready] {
+  border-color: var(--c-brass);
+}
+.carnet-shortcut span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- La page ---------- */
+.carnet-page {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  padding: 20px 28px 18px 40px;
+  background:
+    radial-gradient(circle at 100% 0%, #ffffff 0, transparent 40%),
+    var(--c-paper);
+  border-left: 3px solid var(--c-spine-dark);
+  border-radius: 0 6px 6px 0;
+  box-shadow: inset 0 0 0 2px #e7eadf;
+}
+/* Anneaux de laiton de la reliure. */
+.carnet-page::before {
+  content: '';
+  position: absolute;
+  top: 40px;
+  bottom: 40px;
+  left: -17px;
+  width: 30px;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 14px 9px at 50% 50%, transparent 0 55%, #f3d77a 56% 70%, var(--c-brass-dark) 71% 100%, transparent 101%)
+    center top / 30px calc((100% - 22px) / 5) repeat-y;
+}
+.carnet-head {
+  --icon: 32px;
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding-right: 48px;
+}
+.carnet-medal {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  background: var(--c-card);
+  border: 3px solid var(--c-spine);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--c-white), 0 3px 0 var(--c-line-strong);
+}
+.carnet-head-text {
+  min-width: 0;
+}
+.carnet-head h3 {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.05;
+}
+.carnet-head p {
+  margin: 4px 0 0;
+  color: var(--c-ink-soft);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.3;
+}
+.carnet-head-aside {
+  align-self: start;
+}
+.carnet-season {
+  --icon: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  background: var(--c-card);
+  border: 2px solid var(--c-line-strong);
+  border-radius: 6px;
+}
+.carnet-close {
+  position: absolute;
+  z-index: 4;
+  top: -16px;
+  right: -16px;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  color: #2a1f08;
+  background: radial-gradient(circle at 35% 30%, #f8e29a, var(--c-brass) 60%, #b48b24);
+  border: 3px solid var(--c-brass-dark);
+  border-radius: 50%;
+  box-shadow: 0 3px 0 #3d2c06;
+}
+.carnet-close:hover {
+  filter: brightness(1.08);
+}
+/* Retours d’action : en haut à droite de la page, sans couvrir les contrôles. */
+.carnet-page > .dialog-notice {
+  position: absolute;
+  z-index: 5;
+  top: 22px;
+  right: 76px;
+  left: auto;
+  max-width: min(520px, 48%);
+  margin: 0;
+  padding: 10px 18px;
+  color: var(--c-ink);
+  font-size: 16px;
+  text-align: center;
+  background: var(--c-card);
+  border: 2px solid var(--c-olive);
+  border-radius: 8px;
+  box-shadow: 0 4px 0 #0002;
+}
+.carnet-page > .dialog-notice[data-empty] {
+  display: none;
+}
+.carnet-body {
+  min-width: 0;
+  min-height: 0;
+  margin-right: -12px;
+  padding: 0 12px 2px 0;
+  overflow-y: auto;
+  scrollbar-color: var(--c-line-strong) transparent;
+  scrollbar-width: thin;
+  animation: carnet-page-in 0.16s ease-out;
+}
+@keyframes carnet-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* ---------- Éléments communs des pages ---------- */
+.carnet-banner {
+  position: relative;
+  flex: none;
+  height: clamp(96px, 15vh, 150px);
+  margin: 14px 0 0;
+  overflow: hidden;
+  background: var(--c-select);
+  border: 3px solid var(--c-spine);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--c-line-strong);
+}
+/* L’image remplit le cadre comme « cover » ; --fy garde une ligne au centre.
+   Les écriteaux et boutons posés dessus restent alignés sur l’image. */
+.carnet-banner {
+  container-type: size;
+}
+.carnet-banner-art {
+  position: absolute;
+  top: var(--fy, 50%);
+  left: 50%;
+  width: max(100cqw, calc(100cqh * var(--ratio, 5.7)));
+  aspect-ratio: var(--ratio, 5.7);
+  transform: translate(-50%, calc(var(--fy, 50%) * -1));
+}
+.carnet-banner-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  user-select: none;
+}
+/* Écriteau du jeu, sur la gauche du bandeau, sur toute sa hauteur. */
+.carnet-banner-panel {
+  --icon: clamp(40px, 9cqh, 64px);
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: var(--panel, 40%);
+  padding: 0 20px;
+  background: linear-gradient(90deg, var(--c-card) 0 92%, #fcfcf6e6);
+  border-right: 3px solid var(--c-spine);
+}
+.carnet-panel-portrait {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: clamp(56px, 62cqh, 104px);
+  height: clamp(56px, 62cqh, 104px);
+  overflow: hidden;
+  background: var(--c-paper);
+  border: 3px solid var(--c-spine);
+  border-radius: 8px;
+}
+.carnet-panel-portrait .pixel-portrait {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+}
+.carnet-panel-portrait .pixel-icon {
+  --icon: 70%;
+}
+.carnet-panel-text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.carnet-panel-text b {
+  overflow: hidden;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(18px, 2.6cqw, 28px);
+  font-weight: 700;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.carnet-panel-text small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--c-ink-soft);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(14px, 1.7cqw, 17px);
+  font-style: italic;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+/* Choix posés au bas du bandeau (destinations de la vallée). */
+.carnet-banner-choices {
+  --icon: 32px;
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 10px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.carnet-banner-choices button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 18px;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  background: #fcfcf6f2;
+  border: 2px solid var(--c-line-strong);
+  border-radius: 8px;
+  box-shadow: 0 3px 0 #0003;
+}
+.carnet-banner-choices button[aria-pressed='true'] {
+  color: var(--c-white);
+  font-weight: 700;
+  background: var(--c-action);
+  border-color: var(--c-action-dark);
+}
+.carnet-banner-choices button:disabled:not([aria-pressed='true']) {
+  opacity: 0.75;
+}
+.carnet-tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: var(--gap);
+}
+.carnet-tab {
+  --icon: 32px;
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0 12px;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  white-space: nowrap;
+  background: var(--c-card);
+  border: 2px solid var(--c-line-strong);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--c-line-strong);
+}
+.carnet-tab:hover {
+  background: #f1f4ea;
+}
+.carnet-tab[aria-pressed='true'] {
+  color: var(--c-white);
+  font-weight: 700;
+  background: var(--c-action);
+  border-color: var(--c-action-dark);
+  box-shadow: 0 3px 0 var(--c-action-dark);
+}
+.carnet-tab span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.carnet-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: 18px;
+  margin-top: var(--gap);
+}
+.carnet-list-column {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 10px;
+  min-width: 0;
+}
+.carnet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carnet-row {
+  --icon: 32px;
+  display: grid;
+  grid-template-columns: var(--icon) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 56px;
+  padding: 6px 12px;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  text-align: left;
+  background: var(--c-card);
+  border: 2px solid var(--c-line);
+  border-radius: 6px;
+  box-shadow: 0 2px 0 var(--c-line);
+}
+button.carnet-row:hover {
+  background: #f3f6ec;
+}
+.carnet-row[aria-pressed='true'] {
+  background: var(--c-select);
+  border-color: var(--c-olive);
+  box-shadow: inset 0 0 0 2px #ffffffaa, 0 2px 0 var(--c-olive);
+}
+.carnet-row[data-state='mystery'] .pixel-icon {
+  filter: brightness(0) opacity(0.3);
+}
+.carnet-row[data-state='mystery'] {
+  color: var(--c-ink-soft);
+  background: #f1f2ec;
+  border-style: dashed;
+}
+.carnet-row-art {
+  display: grid;
+  place-items: center;
+}
+.carnet-row-label {
+  display: grid;
+  min-width: 0;
+}
+.carnet-row-label b {
+  display: -webkit-box;
+  overflow: hidden;
+  font-weight: 600;
+  line-height: 1.15;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.carnet-row-label small {
+  color: var(--c-ink-soft);
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  font-size: 13px;
+}
+.carnet-list-empty {
+  padding: 18px;
+  color: var(--c-ink-soft);
+  font-size: 16px;
+  text-align: center;
+}
+.carnet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  border-radius: 4px;
+}
+.carnet-chip[data-tone='ok'] {
+  color: var(--c-white);
+  background: var(--c-action);
+  box-shadow: inset 0 -2px 0 var(--c-action-dark);
+}
+.carnet-chip[data-tone='warn'] {
+  color: #7e2a1e;
+  background: #f8dcd7;
+}
+.carnet-chip[data-tone='muted'] {
+  color: var(--c-ink-soft);
+  background: #e8eae1;
+}
+.carnet-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 44px;
+}
+.carnet-pager button {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 40px;
+  color: var(--c-ink);
+  background: var(--c-card);
+  border: 2px solid var(--c-line-strong);
+  border-radius: 6px;
+  box-shadow: 0 2px 0 var(--c-line-strong);
+}
+.carnet-pager button:disabled {
+  opacity: 0.4;
+}
+.carnet-pager output {
+  min-width: 56px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 19px;
+  text-align: center;
+}
+.carnet-card,
+.carnet-detail {
+  min-width: 0;
+  padding: 16px 18px;
+  background: var(--c-card);
+  border: 2px solid var(--c-line);
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--c-line);
+}
+.carnet-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.carnet-detail-head {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+.carnet-detail-art {
+  --icon: 64px;
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  background: var(--c-paper);
+  border: 2px solid var(--c-line);
+  border-radius: 8px;
+}
+.carnet-detail-head h4 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.carnet-detail-sub {
+  margin: 4px 0 8px;
+  color: var(--c-ink-soft);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+}
+.carnet-steps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  max-width: 260px;
+}
+.carnet-steps i {
+  height: 12px;
+  background: #e8eae1;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 2px;
+}
+.carnet-steps i[data-on] {
+  background: var(--c-action);
+  border-color: var(--c-action-dark);
+}
+.carnet-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.carnet-fact {
+  --icon: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 14px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  background: var(--c-white);
+  border: 2px solid var(--c-line);
+  border-radius: 6px;
+}
+.carnet-band {
+  --icon: 32px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding: 6px 14px;
+  font-size: 15px;
+  line-height: 1.35;
+  background: #fbf3df;
+  border: 1px solid #ecdcae;
+  border-radius: 6px;
+}
+.carnet-rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 0 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+.carnet-rule::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: var(--c-line);
+}
+.carnet-rule small {
+  order: 2;
+  color: var(--c-ink-soft);
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+}
+.carnet-ingredients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carnet-ingredients li {
+  --icon: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  color: var(--c-action-dark);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  font-weight: 700;
+  background: var(--c-white);
+  border: 2px solid var(--c-line);
+  border-radius: 6px;
+}
+.carnet-ingredients li[data-missing] {
+  color: #8c2f22;
+  background: #fdf3f1;
+  border-color: #f0c9c3;
+}
+.carnet-note {
+  margin: 0;
+  color: var(--c-ink-soft);
+  font-size: 15px;
+}
+.carnet-detail-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+.carnet-primary {
+  --icon: 32px;
+  position: relative;
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 0 20px;
+  color: var(--c-white);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  font-weight: 700;
+  text-shadow: 0 2px 0 var(--c-action-dark);
+  background: var(--c-action);
+  border: 3px solid var(--c-action-dark);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 2px #7aa356,
+    0 4px 0 #23431a;
+}
+.carnet-primary:not(:disabled):hover {
+  filter: brightness(1.06);
+}
+.carnet-primary:not(:disabled):active {
+  box-shadow: inset 0 0 0 2px #7aa356, 0 1px 0 #23431a;
+  transform: translateY(3px);
+}
+.carnet-primary:disabled {
+  color: var(--c-ink-soft);
+  text-shadow: none;
+  background: #dfe2d6;
+  border-color: #b9bfac;
+  box-shadow: none;
+}
+.carnet-secondary {
+  min-width: 68px;
+  min-height: 54px;
+  padding: 0 14px;
+  color: var(--c-action-dark);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 700;
+  background: var(--c-card);
+  border: 3px solid var(--c-action);
+  border-radius: 8px;
+  box-shadow: 0 4px 0 var(--c-action-dark);
+}
+.carnet-secondary:disabled {
+  opacity: 0.5;
+}
+.carnet-link-button {
+  align-self: center;
+  min-height: 36px;
+  padding: 0 8px;
+  color: #1f5fa8;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background: none;
+  border: 0;
+}
+.carnet-action {
+  --icon: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  color: var(--c-white);
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--c-action);
+  border: 2px solid var(--c-action-dark);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--c-action-dark);
+}
+.carnet-action:disabled {
+  color: var(--c-ink-soft);
+  background: #dfe2d6;
+  border-color: #b9bfac;
+  box-shadow: none;
+}
+.carnet-mini {
+  min-width: 40px;
+  min-height: 36px;
+  color: var(--c-white);
+  font-weight: 700;
+  background: var(--c-action);
+  border: 2px solid var(--c-action-dark);
+  border-radius: 6px;
+}
+.carnet-mini:disabled {
+  opacity: 0.45;
+}
+.carnet-gauge {
+  height: 12px;
+  overflow: hidden;
+  background: #e8eae1;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 2px;
+}
+.carnet-gauge i {
+  display: block;
+  height: 100%;
+  background: var(--c-action);
+}
+.carnet-empty {
+  --icon: 64px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 32px 18px;
+  color: var(--c-ink-soft);
+  font-size: 16px;
+  text-align: center;
+}
+.carnet-empty h4 {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+}
+
+/* Pages pas encore refaites : leur contenu actuel, dans le nouveau cadre. */
+.carnet-legacy {
+  padding-top: var(--gap);
+  font-size: 15px;
+}
+.carnet-legacy h3,
+.carnet-legacy h4 {
+  color: var(--c-ink);
+}
+.carnet-legacy p {
+  line-height: 1.5;
+}
+.carnet-legacy button:not(:disabled):hover {
+  filter: brightness(1.06);
+}
+
+/* ---------- Sommaire ---------- */
+.carnet-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100%;
+  padding-top: var(--gap);
+}
+.carnet-summary > .summary-row {
+  flex: 1 1 auto;
+  max-height: 136px;
+}
+.summary-row {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 16px;
+  min-height: 98px;
+  padding: 8px 14px;
+  background: var(--c-card);
+  border: 2px solid var(--c-line);
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--c-line);
+}
+.summary-chapter {
+  --icon: 64px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding-right: 12px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 26px;
+  font-weight: 700;
+  border-right: 2px solid var(--c-line);
+}
+.summary-links {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.summary-link {
+  --icon: 64px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  min-height: 80px;
+  padding: 4px;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 6px;
+}
+.summary-link:hover {
+  background: #f1f4ea;
+  border-color: var(--c-line);
+}
+.summary-link .carnet-count {
+  position: absolute;
+  top: 4px;
+  right: 10px;
+}
+.summary-status {
+  --icon: 32px;
+  display: flex;
+  grid-column: 2 / -1;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 18px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  background: #faf5e8;
+  border: 2px solid #ece3c9;
+  border-radius: 6px;
+}
+.summary-status[data-ready] {
+  background: #fdf0cf;
+  border-color: var(--c-brass);
+}
+.summary-project {
+  --icon: 64px;
+  display: grid;
+  grid-template-columns: var(--icon) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 18px;
+  background: var(--c-select);
+  border: 2px solid #b9cba3;
+  border-radius: 8px;
+}
+.summary-project h4 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+}
+.summary-project p {
+  margin: 4px 0 0;
+  color: var(--c-ink-soft);
+  font-size: 16px;
+}
+.summary-project .carnet-primary {
+  flex: none;
+  min-width: 220px;
+  font-size: 20px;
+}
+
+/* ---------- Atelier ---------- */
+.atelier-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.atelier-page .carnet-split {
+  flex: 1;
+}
+.atelier-stoves {
+  position: absolute;
+  z-index: 1;
+  bottom: 10px;
+  left: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  max-width: calc(100% - 200px);
+  padding: 8px 10px;
+  background: #fcfcf6f2;
+  border: 2px solid #8b6a3e;
+  border-radius: 6px;
+  box-shadow: 0 3px 0 #5d4425;
+}
+.atelier-stoves h4 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+.atelier-stoves ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.atelier-stove {
+  --icon: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  white-space: nowrap;
+  background: var(--c-white);
+  border: 2px solid var(--c-line-strong);
+  border-radius: 5px;
+}
+.atelier-stove b::after {
+  content: ' ·';
+}
+.atelier-stove[data-state='free'] {
+  color: var(--c-white);
+  font-weight: 700;
+  background: var(--c-action);
+  border-color: var(--c-action-dark);
+}
+.atelier-stove[data-state='arriving'] {
+  background: var(--c-select);
+  border-color: var(--c-olive);
+}
+.atelier-stove[data-state='busy'] {
+  background: linear-gradient(90deg, #f6e2b5 var(--cook, 0%), var(--c-white) var(--cook, 0%));
+  border-color: #c99f4a;
+}
+.atelier-stove[data-state='ready'] {
+  font-weight: 700;
+  background: #f6d877;
+  border-color: #a37a12;
+}
+.atelier-stove[data-state='locked'] {
+  color: var(--c-ink-soft);
+  background: #eef0e8;
+}
+.atelier-stoves .atelier-collect {
+  min-height: 34px;
+}
+.atelier-rosalie {
+  position: absolute;
+  right: 3%;
+  bottom: -14%;
+  height: 118%;
+  aspect-ratio: 80 / 96;
+  background: url('/assets/pixel/rosalie-v100/rosalie-atlas-hd.png') 0% 47.3684% / 800% 2000% no-repeat;
+  animation: kitchen-rosalie-cook 1.12s steps(1) infinite;
+  pointer-events: none;
+}
+.atelier-rosalie[data-still] {
+  background-position-x: 57.1429%;
+  animation: none;
+}
+/* Rosalie aux fourneaux : les 8 images de la rangée « cuisiner » de l’atlas. */
+@keyframes kitchen-rosalie-cook {
+  0% { background-position-x: 0%; }
+  12.5% { background-position-x: 14.2857%; }
+  25% { background-position-x: 28.5714%; }
+  37.5% { background-position-x: 42.8571%; }
+  50% { background-position-x: 57.1429%; }
+  62.5% { background-position-x: 71.4286%; }
+  75% { background-position-x: 85.7143%; }
+  87.5% { background-position-x: 100%; }
+}
+[data-reduce-motion] .atelier-rosalie {
+  background-position-x: 57.1429%;
+  animation: none;
+}
+.atelier-detail .carnet-band[data-effect='atelier'] {
+  --icon: 32px;
+}
+.atelier-solo {
+  margin-top: var(--gap);
+}
+.atelier-coop {
+  --icon: 64px;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+}
+.atelier-coop h4,
+.atelier-talents h4 {
+  margin: 0 0 4px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+.atelier-talents h4 small {
+  color: var(--c-action-dark);
+  font-size: 16px;
+}
+.atelier-coop p {
+  margin: 0;
+  font-size: 16px;
+}
+.atelier-talents ul {
+  display: grid;
+  gap: 0;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.atelier-talents li {
+  display: grid;
+  grid-template-columns: 130px minmax(100px, 1fr) 34px minmax(0, 1.3fr) 44px;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  border-bottom: 1px dashed var(--c-line);
+}
+.talent-name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+}
+.atelier-talents .talent-value {
+  font-size: 17px;
+  text-align: center;
+}
+.atelier-talents small {
+  color: var(--c-ink-soft);
+  font-size: 14px;
+}
+.atelier-advanced {
+  overflow-y: auto;
+}
+.carnet-back {
+  align-self: flex-start;
+  padding: 0;
+}
+/* La fiche détaillée (components/progression.tsx) aux couleurs du carnet. */
+.atelier-advanced .recipe-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  color: var(--c-ink);
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+.atelier-advanced .recipe-head h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+}
+.atelier-advanced .recipe-facts div,
+.atelier-advanced .recipe-counter,
+.atelier-advanced .marmite-toggle,
+.atelier-advanced .recipe-options {
+  background: var(--c-white);
+  border: 2px solid var(--c-line);
+  border-radius: 6px;
+}
+.atelier-advanced .recipe-effect {
+  background: #fbf3df;
+  border: 1px solid #ecdcae;
+  border-radius: 6px;
+}
+.atelier-advanced .recipe-options {
+  padding: 8px 12px;
+}
+.atelier-advanced .recipe-options summary {
+  font-size: 15px;
+}
+.atelier-advanced .atelier-cook {
+  min-height: 48px;
+  color: var(--c-white);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 19px;
+  background: var(--c-action);
+  border: 3px solid var(--c-action-dark);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 2px #7aa356, 0 4px 0 #23431a;
+}
+.atelier-advanced .atelier-cook:disabled {
+  color: var(--c-ink-soft);
+  background: #dfe2d6;
+  border-color: #b9bfac;
+  box-shadow: none;
+}
+
+/* Pastille du « Four chaud » dans l’en-tête du jeu : les braises. */
+.buff-chips li .pixel-icon {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  align-self: center;
+}
+
+/* ---------- Écrans plus bas ---------- */
+@media (max-height: 820px) {
+  .carnet-cover {
+    --icon: 64px;
+    padding-bottom: 10px;
+  }
+  .carnet-cover-title b {
+    font-size: 30px;
+  }
+  .carnet-cover-title span {
+    font-size: 17px;
+  }
+  .carnet-chapter-head {
+    min-height: 48px;
+    font-size: 20px;
+  }
+  .carnet-shortcuts {
+    gap: 12px;
+  }
+  .carnet-shortcut {
+    min-height: 46px;
+  }
+  .carnet-head {
+    --icon: 32px;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+  }
+  .carnet-medal {
+    width: 58px;
+    height: 58px;
+  }
+  .carnet-head h3 {
+    font-size: 32px;
+  }
+  .carnet-head p {
+    font-size: 16px;
+  }
+  .carnet-row {
+    min-height: 50px;
+  }
+  .carnet-list {
+    gap: 6px;
+  }
+  .carnet-detail-head {
+    grid-template-columns: 84px minmax(0, 1fr);
+  }
+  .carnet-detail-art {
+    --icon: 64px;
+    width: 84px;
+    height: 84px;
+  }
+  .summary-row {
+    min-height: 84px;
+  }
+  .summary-link {
+    --icon: 32px;
+    min-height: 68px;
+  }
+  .summary-chapter {
+    --icon: 64px;
+    font-size: 22px;
+  }
+}
+
+/* ---------- Écrans très bas (720 px) : tout tient sans défiler ---------- */
+@media (max-height: 800px) {
+  .carnet-banner {
+    height: clamp(72px, 11vh, 96px);
+    margin-top: 10px;
+  }
+  .carnet-head {
+    --icon: 32px;
+    grid-template-columns: 50px minmax(0, 1fr) auto;
+    gap: 14px;
+  }
+  .carnet-head .carnet-medal {
+    width: 50px;
+    height: 50px;
+  }
+  .carnet-head h3 {
+    font-size: 28px;
+  }
+  .carnet-head p {
+    margin-top: 2px;
+    font-size: 15px;
+  }
+  .carnet-dialog {
+    --gap: 10px;
+  }
+  .carnet-tab {
+    min-height: 42px;
+  }
+  .carnet-detail {
+    gap: 8px;
+    padding: 12px 16px;
+  }
+  .carnet-detail-head {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 14px;
+  }
+  .carnet-detail-art {
+    --icon: 64px;
+    width: 72px;
+    height: 72px;
+  }
+  .carnet-detail-head h4 {
+    font-size: 24px;
+  }
+  .carnet-detail-sub {
+    margin: 2px 0 6px;
+  }
+  .carnet-fact {
+    min-height: 38px;
+  }
+  .carnet-primary,
+  .carnet-secondary {
+    min-height: 48px;
+  }
+  .carnet-link-button {
+    min-height: 30px;
+  }
+  .carnet-row {
+    min-height: 46px;
+    padding: 4px 12px;
+  }
+  .carnet-pager {
+    min-height: 40px;
+  }
+}
+
+/* ---------- Écrans de 1 400 px et moins : reliure plus serrée ---------- */
+@media (max-width: 1400px) {
+  .carnet {
+    grid-template-columns: 272px minmax(0, 1fr);
+  }
+  .carnet-spine {
+    padding: 16px 12px;
+  }
+  .carnet-cover-title b {
+    font-size: 32px;
+  }
+  .carnet-chapter-head {
+    gap: 12px;
+    padding: 0 12px;
+    font-size: 20px;
+  }
+  .carnet-link {
+    gap: 12px;
+    padding: 0 8px;
+    font-size: 17px;
+  }
+  .carnet-pages {
+    margin: 0 6px;
+  }
+  .carnet-shortcut {
+    --icon: 32px;
+    gap: 12px;
+    padding: 0 12px;
+    font-size: 16px;
+  }
+  .carnet-page {
+    padding: 18px 22px 16px 34px;
+  }
+  .carnet-tab {
+    gap: 8px;
+    padding: 0 8px;
+    font-size: 17px;
+  }
+  .summary-row {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+  .summary-chapter {
+    --icon: 64px;
+    font-size: 23px;
+  }
+}
+
+/* ---------- Écran étroit : la reliure passe au-dessus ---------- */
+@media (max-width: 900px) {
+  .carnet-dialog {
+    width: calc(100vw - 16px);
+    height: calc(100dvh - 16px);
+  }
+  .carnet {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .carnet-spine {
+    max-height: 42dvh;
+    overflow-y: auto;
+    border-radius: 6px 6px 0 0;
+  }
+  .carnet-page {
+    padding: 16px;
+    border-top: 3px solid var(--c-spine-dark);
+    border-left: 0;
+  }
+  .carnet-page::before {
+    display: none;
+  }
+  .carnet-split,
+  .summary-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .summary-chapter {
+    border-right: 0;
+  }
+  .summary-links {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .carnet-summary > .summary-row {
+    flex: none;
+    max-height: none;
+  }
+  .carnet-cover {
+    width: calc(100% - 56px);
+  }
+  .carnet-close {
+    top: 6px;
+    right: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carnet-body,
+  .carnet-pages-wrap,
+  .carnet-chevron {
+    transition: none;
+    animation: none;
+  }
+}
+[data-reduce-motion] .carnet-body,
+[data-reduce-motion] .carnet-pages-wrap,
+[data-reduce-motion] .carnet-chevron {
+  transition: none;
+  animation: none;
+}
+
+/* ==========================================================================
+   0.25 — Pages du Village (Projets, Commandes, Foires, Vallée, Villageois) :
+   mêmes éléments que l’Atelier, plus quelques briques communes.
+   ========================================================================== */
+.carnet-stack {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.carnet-stack > .carnet-split {
+  flex: 1;
+}
+.carnet-stack > .carnet-band {
+  margin-top: var(--gap);
+}
+.carnet-chip[data-tone='info'] {
+  color: #24476e;
+  background: #dfeaf5;
+}
+.carnet-row-portrait .pixel-portrait,
+.carnet-detail-portrait .pixel-portrait {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 4px;
+}
+.carnet-row-portrait {
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border: 2px solid var(--c-line-strong);
+  border-radius: 6px;
+}
+.carnet-row[data-state='empty'] {
+  min-height: 48px;
+  color: var(--c-ink-soft);
+  background: #f1f2ec;
+  border-style: dashed;
+  box-shadow: none;
+}
+.carnet-detail-portrait {
+  overflow: hidden;
+  padding: 0;
+}
+.carnet-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.carnet-center {
+  text-align: center;
+}
+.carnet-note-ok {
+  color: var(--c-action-dark);
+  font-weight: 700;
+}
+.carnet-wide {
+  width: 100%;
+}
+.carnet-band-text {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+.carnet-band small,
+.carnet-band-text small {
+  display: block;
+  color: var(--c-ink-soft);
+  font-size: 14px;
+}
+.carnet-band-current {
+  background: #f4f1df;
+  border-color: #e6dcae;
+}
+.carnet-band-info {
+  background: #e8f0f7;
+  border-color: #c9d9e8;
+}
+.carnet-band .carnet-action {
+  flex: none;
+  margin-left: auto;
+}
+
+/* Récompenses en puces */
+.carnet-rewards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carnet-rewards li {
+  --icon: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  background: var(--c-white);
+  border: 2px solid var(--c-line);
+  border-radius: 6px;
+}
+.carnet-rewards b {
+  font-size: 18px;
+}
+
+/* Cœurs et segments */
+.carnet-hearts {
+  display: inline-flex;
+  gap: 3px;
+}
+.carnet-hearts i {
+  width: 16px;
+  height: 14px;
+  background: #e2e4da;
+  clip-path: polygon(50% 100%, 0 45%, 0 15%, 15% 0, 35% 0, 50% 15%, 65% 0, 85% 0, 100% 15%, 100% 45%);
+}
+.carnet-hearts i[data-on] {
+  background: #c8463a;
+}
+.carnet-segments {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 4px;
+  min-width: 80px;
+}
+.carnet-segments i {
+  height: 12px;
+  background: linear-gradient(90deg, var(--c-action) var(--fill, 0%), #e8eae1 var(--fill, 0%));
+  border: 1px solid var(--c-line-strong);
+  border-radius: 2px;
+}
+
+/* Projets : les étapes en ligne */
+.carnet-steps-row {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 26px;
+  margin: var(--gap) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.carnet-steps-row li {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  text-align: center;
+}
+.carnet-steps-row li + li::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: -19px;
+  border: 8px solid transparent;
+  border-left: 10px solid #b9bfac;
+  border-right: 0;
+}
+.carnet-step-art {
+  --icon: 64px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+}
+.carnet-steps-row li[data-state='future'] .carnet-step-art {
+  opacity: 0.55;
+}
+.carnet-check {
+  position: absolute;
+  right: -4px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--c-white);
+  background: var(--c-action);
+  border: 2px solid var(--c-white);
+  border-radius: 50%;
+}
+.carnet-step-text {
+  display: -webkit-box;
+  overflow: hidden;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  line-height: 1.25;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  min-height: 2.5em;
+}
+.carnet-steps-row li[data-state='current'] .carnet-step-text {
+  font-weight: 700;
+}
+.carnet-steps-row .carnet-segments {
+  width: 100%;
+  max-width: 150px;
+}
+.carnet-inline-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--c-ink-soft);
+  font-size: 14px;
+}
+.carnet-inline-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.carnet-inline-list li[data-ready] {
+  color: var(--c-action-dark);
+  font-weight: 700;
+}
+.carnet-reward {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  margin-top: var(--gap);
+  padding: 12px 16px;
+}
+.carnet-reward-art {
+  --icon: 64px;
+  display: grid;
+  place-items: center;
+}
+.carnet-reward h4 {
+  display: grid;
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+}
+.carnet-reward h4 small {
+  color: var(--c-action-dark);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.carnet-reward p {
+  margin: 2px 0 0;
+  color: var(--c-ink-soft);
+  font-size: 15px;
+}
+.carnet-next {
+  margin-top: var(--gap);
+}
+.carnet-next ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.carnet-mini-steps {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.carnet-mini-steps li {
+  --icon: 32px;
+  display: grid;
+  grid-template-columns: 22px var(--icon) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  font-size: 15px;
+}
+.carnet-mini-steps li::before {
+  color: var(--c-ink-soft);
+  font-weight: 700;
+  counter-increment: step;
+  content: counter(step);
+}
+.carnet-mini-steps li[data-done] {
+  color: var(--c-action-dark);
+}
+.carnet-mini-steps li[data-done]::before {
+  content: '✓';
+}
+.carnet-orchard {
+  margin-top: var(--gap);
+}
+
+/* Commandes */
+.carnet-needs {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carnet-needs li {
+  --icon: 32px;
+  display: grid;
+  grid-template-columns: var(--icon) minmax(0, 1fr) auto 20px;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 12px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  background: var(--c-white);
+  border: 2px solid var(--c-line);
+  border-radius: 6px;
+}
+.carnet-needs li small {
+  color: var(--c-ink-soft);
+  font-size: 13px;
+}
+.carnet-needs li b {
+  color: #8c2f22;
+}
+.carnet-needs li[data-ready] b,
+.carnet-needs li[data-ready] .glyph {
+  color: var(--c-action-dark);
+}
+.carnet-status {
+  margin: 0;
+  padding: 8px 14px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  text-align: center;
+  border-radius: 6px;
+}
+.carnet-status[data-tone='ok'] {
+  color: var(--c-action-dark);
+  background: var(--c-select);
+}
+.carnet-status[data-tone='warn'] {
+  color: #7e2a1e;
+  background: #fbeae6;
+}
+.carnet-status[data-tone='muted'] {
+  color: var(--c-ink-soft);
+  background: #eef0e8;
+}
+
+/* Grille de produits (Foires, Vallée) */
+.carnet-column-head {
+  display: grid;
+  gap: 4px;
+}
+.carnet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carnet-tile {
+  --icon: 64px;
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 118px;
+  padding: 10px 8px;
+  color: var(--c-ink);
+  text-align: center;
+  background: var(--c-card);
+  border: 2px solid var(--c-line);
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--c-line);
+}
+.carnet-tile b {
+  max-width: 100%;
+  overflow: hidden;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.carnet-tile small {
+  color: var(--c-ink-soft);
+  font-size: 13px;
+}
+.carnet-tile[aria-pressed='true'] {
+  background: var(--c-select);
+  border-color: var(--c-olive);
+}
+.carnet-tile-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--c-white);
+  background: var(--c-white);
+  border: 2px solid var(--c-line-strong);
+  border-radius: 6px;
+}
+.carnet-tile[aria-pressed='true'] .carnet-tile-check {
+  background: var(--c-action);
+  border-color: var(--c-action-dark);
+}
+.carnet-score {
+  margin: 4px 0 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+}
+.carnet-score small {
+  color: var(--c-ink-soft);
+  font-size: 15px;
+}
+.carnet-score b {
+  color: var(--c-action-dark);
+  font-size: 32px;
+}
+.carnet-score-parts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 18px;
+  margin: 0;
+}
+.carnet-score-parts div {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+.carnet-score-parts dt {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+}
+.carnet-score-parts dd {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.carnet-score-parts dd span {
+  color: var(--c-ink-soft);
+  font-size: 13px;
+  text-align: right;
+}
+.festival-jury-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.festival-jury-row li {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 6px 2px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+}
+.festival-jury-row li[data-lead] {
+  background: #fbf3df;
+  border-color: #ecdcae;
+}
+.festival-jury-row .pixel-portrait {
+  width: 48px;
+  height: 48px;
+}
+.festival-jury-row .carnet-hearts i {
+  width: 10px;
+  height: 9px;
+}
+.festival-jury-row small {
+  color: var(--c-action-dark);
+  font-size: 11px;
+  font-weight: 700;
+}
+.festival-last p {
+  margin: 4px 0 0;
+  font-size: 15px;
+}
+
+/* Vallée */
+.carnet-gauge-wide {
+  display: block;
+}
+.carnet-icon-button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--c-ink);
+  background: var(--c-white);
+  border: 2px solid var(--c-line-strong);
+  border-radius: 6px;
+}
+.valley-load {
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+}
+.valley-stock {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.carnet-stepper {
+  --icon: 32px;
+  display: grid;
+  grid-template-columns: var(--icon) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 6px 10px;
+  background: var(--c-card);
+  border: 2px solid var(--c-line);
+  border-radius: 6px;
+}
+.carnet-stepper[data-wanted] {
+  border-color: #b9cba3;
+}
+.carnet-stepper-label {
+  display: grid;
+  min-width: 0;
+}
+.carnet-stepper-label b {
+  overflow: hidden;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.carnet-stepper-label small {
+  color: var(--c-ink-soft);
+  font-size: 12px;
+}
+.carnet-stepper-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.carnet-stepper-controls button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: var(--c-white);
+  background: var(--c-action);
+  border: 2px solid var(--c-action-dark);
+  border-radius: 6px;
+}
+.carnet-stepper-controls button:first-child {
+  color: var(--c-ink);
+  background: var(--c-white);
+  border-color: var(--c-line-strong);
+}
+.carnet-stepper-controls button:disabled {
+  opacity: 0.4;
+}
+.carnet-stepper-controls output {
+  min-width: 26px;
+  font-weight: 700;
+  text-align: center;
+}
+.carnet-relay {
+  flex-wrap: wrap;
+}
+.carnet-relay-gauge {
+  display: grid;
+  gap: 4px;
+  min-width: 200px;
+  margin-left: auto;
+  text-align: right;
+}
+
+/* Villageois */
+.carnet-roster {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: var(--gap) 0 0;
+  padding: 0;
+  border: 0;
+}
+.carnet-roster button {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  background: var(--c-card);
+  border: 2px solid var(--c-line);
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--c-line);
+}
+.carnet-roster button[aria-pressed='true'] {
+  background: var(--c-select);
+  border-color: var(--c-olive);
+  box-shadow: inset 0 0 0 2px #ffffffaa, 0 2px 0 var(--c-olive);
+}
+.carnet-roster .pixel-portrait {
+  width: clamp(64px, 11vh, 104px);
+  height: clamp(64px, 11vh, 104px);
+  border: 0;
+}
+.friend-card {
+  align-items: center;
+  text-align: center;
+}
+.friend-portrait {
+  display: block;
+  width: clamp(120px, 24vh, 200px);
+  height: clamp(120px, 24vh, 200px);
+  overflow: hidden;
+  border: 3px solid var(--c-spine);
+  border-radius: 10px;
+}
+.friend-portrait .pixel-portrait {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+}
+.friend-card h4 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 28px;
+}
+.friend-card .carnet-detail-sub {
+  margin: 0;
+}
+.friend-hearts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.friend-hearts .carnet-hearts i {
+  width: 22px;
+  height: 19px;
+}
+.friend-hearts small {
+  color: var(--c-ink-soft);
+  font-size: 14px;
+}
+.friend-quote {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  font-style: italic;
+}
+.friend-card .carnet-band {
+  width: 100%;
+  text-align: left;
+}
+.carnet-boxes {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+}
+.carnet-box {
+  display: grid;
+  gap: 8px;
+  padding: 12px 16px;
+}
+.carnet-box-title {
+  --icon: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 19px;
+  font-weight: 700;
+}
+.carnet-box-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.carnet-box-row .carnet-action {
+  margin-left: auto;
+}
+.carnet-box-item {
+  --icon: 32px;
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+}
+.carnet-select {
+  --icon: 32px;
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 10px;
+  background: var(--c-white);
+  border: 2px solid var(--c-line-strong);
+  border-radius: 6px;
+}
+.carnet-select select {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  background: transparent;
+  border: 0;
+}
+.carnet-box-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carnet-box-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 10px;
+  font-size: 15px;
+  background: var(--c-white);
+  border: 2px solid var(--c-line);
+  border-radius: 6px;
+}
+.carnet-mini-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 12px;
+  color: var(--c-white);
+  font-size: 14px;
+  font-weight: 700;
+  background: var(--c-action);
+  border: 2px solid var(--c-action-dark);
+  border-radius: 5px;
+}
+.carnet-mini-action[data-done] {
+  color: var(--c-action-dark);
+  background: var(--c-select);
+  border-color: #b9cba3;
+  opacity: 1;
+}
+
+@media (max-height: 820px) {
+  .carnet-steps-row {
+    gap: 20px;
+  }
+  .carnet-step-art {
+    --icon: 32px;
+    width: 48px;
+    height: 48px;
+  }
+  .carnet-tile {
+    --icon: 32px;
+    min-height: 100px;
+  }
+  .carnet-reward {
+    padding: 8px 14px;
+  }
+}
+@media (max-width: 900px) {
+  .carnet-steps-row,
+  .carnet-next ul,
+  .carnet-score-parts {
+    grid-auto-flow: row;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .carnet-steps-row li + li::before {
+    display: none;
+  }
+  .carnet-roster {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .carnet-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Vallée : caisses en ligne, réserve en liste, tournées en boutons groupés */
+.valley-load {
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+}
+.valley-load .carnet-relay {
+  margin-top: 2px;
+}
+.valley-crates {
+  display: grid;
+  grid-template-columns: repeat(var(--crates, 2), minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.valley-crates li {
+  --icon: 32px;
+  display: grid;
+  grid-template-columns: var(--icon) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 4px 8px;
+  background: var(--c-card);
+  border: 2px solid var(--c-olive);
+  border-radius: 6px;
+}
+.valley-crates li[data-empty] {
+  display: grid;
+  grid-template-columns: 1fr;
+  place-items: center;
+  color: var(--c-ink-soft);
+  background: #f1f2ec;
+  border: 2px dashed var(--c-line-strong);
+}
+.valley-crates .carnet-icon-button {
+  width: 30px;
+  height: 30px;
+}
+.valley-stock {
+  gap: 6px;
+}
+.valley-stock .carnet-stepper {
+  min-height: 50px;
+}
+.carnet-segmented {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.carnet-segmented button {
+  flex: 1;
+  min-height: 40px;
+  padding: 0 8px;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  white-space: nowrap;
+  background: var(--c-white);
+  border: 2px solid var(--c-line-strong);
+  border-radius: 6px;
+}
+.carnet-segmented button[aria-pressed='true'] {
+  color: var(--c-white);
+  font-weight: 700;
+  background: var(--c-action);
+  border-color: var(--c-action-dark);
+}
+.carnet-segmented button:disabled {
+  color: var(--c-ink-soft);
+  background: #eef0e8;
+}
+.orders-market {
+  margin-top: 4px;
+}
+/* Projets : étapes de la fiche sur deux colonnes */
+.carnet-detail .carnet-mini-steps {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 14px;
+}
+.carnet-detail .carnet-mini-steps li {
+  font-size: 14px;
+  line-height: 1.2;
+}
+/* Villageois : portraits au format de l’atlas (256 × 341) */
+.carnet-roster .pixel-portrait {
+  width: clamp(54px, 8.4vh, 78px);
+  height: clamp(72px, 11.2vh, 104px);
+}
+.friend-portrait {
+  width: clamp(96px, 16.8vh, 150px);
+  height: clamp(128px, 22.4vh, 200px);
+}
+.friend-card h4 {
+  font-weight: 700;
+}
+.carnet-box-item {
+  flex-basis: 100%;
+}
+.carnet-box-row .carnet-chip {
+  margin-left: auto;
+}
+.carnet-box-row .carnet-chip + .carnet-action {
+  margin-left: 0;
+}
+/* Reliure des écrans bas : raccourcis côte à côte, chapitres plus serrés */
+.carnet-shortcut-short {
+  display: none;
+}
+@media (max-height: 800px) {
+  .carnet-spine {
+    gap: 8px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .carnet-cover {
+    --icon: 32px;
+    padding-top: 2px;
+    padding-bottom: 8px;
+  }
+  .carnet-cover-title b {
+    font-size: 26px;
+  }
+  .carnet-cover-title span {
+    margin-top: 2px;
+    font-size: 15px;
+  }
+  .carnet-chapters {
+    gap: 6px;
+  }
+  .carnet-chapter-head {
+    --icon: 32px;
+    min-height: 44px;
+    font-size: 19px;
+  }
+  .carnet-link {
+    --icon: 32px;
+    min-height: 40px;
+    font-size: 16px;
+  }
+  .carnet-chapter[data-open] .carnet-pages {
+    padding: 4px 4px 4px;
+  }
+  .carnet-shortcuts {
+    flex-direction: row;
+    gap: 8px;
+    padding-top: 10px;
+  }
+  .carnet-shortcut {
+    --icon: 32px;
+    grid-template-columns: var(--icon) minmax(0, 1fr);
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 8px;
+    font-size: 14px;
+  }
+  .carnet-shortcut .glyph,
+  .carnet-shortcut-long {
+    display: none;
+  }
+  .carnet-shortcut-short {
+    display: inline;
+  }
+  .carnet-roster button {
+    padding: 4px;
+    font-size: 15px;
+  }
+  .friend-card {
+    gap: 6px;
+  }
+}
+@media (max-height: 800px) {
+  .carnet-detail .carnet-text {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 14px;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .carnet-detail .carnet-mini-steps li {
+    min-height: 26px;
+    font-size: 13px;
+  }
+  .carnet-needs li {
+    min-height: 38px;
+    font-size: 16px;
+  }
+  .carnet-status {
+    padding: 5px 12px;
+    font-size: 15px;
+  }
+  .carnet-rewards li {
+    min-height: 36px;
+  }
+  .valley-crates li {
+    min-height: 44px;
+  }
+  .valley-stock .carnet-stepper {
+    min-height: 44px;
+    padding: 3px 10px;
+  }
+  .carnet-band {
+    padding: 4px 12px;
+  }
+  .carnet-band small {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  .carnet-roster button {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-items: center;
+    justify-items: start;
+    column-gap: 8px;
+    row-gap: 2px;
+    text-align: left;
+  }
+  .carnet-roster .pixel-portrait {
+    grid-row: span 2;
+    width: 42px;
+    height: 56px;
+  }
+  .carnet-roster .carnet-hearts i {
+    width: 11px;
+    height: 10px;
+  }
+  .friend-portrait {
+    width: 90px;
+    height: 120px;
+  }
+  .friend-card h4 {
+    font-size: 24px;
+  }
+  .carnet-box {
+    gap: 6px;
+    padding: 8px 14px;
+  }
+  .carnet-box-title {
+    font-size: 17px;
+  }
+  .carnet-box-list li {
+    min-height: 36px;
+  }
+}
+@media (max-height: 800px) {
+  .carnet-detail {
+    gap: 8px;
+  }
+  .carnet-row-portrait {
+    width: 38px;
+    height: 38px;
+  }
+  .carnet-relay .carnet-band-text small {
+    display: none;
+  }
+}
+@media (max-height: 800px) {
+  .carnet-dialog {
+    --gap: 8px;
+  }
+  .carnet-list-column {
+    gap: 8px;
+  }
+  .valley-stock {
+    gap: 4px;
+  }
+  .valley-stock .carnet-stepper {
+    min-height: 42px;
+  }
+}
+.project-active-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  margin-top: var(--gap);
+}
+.project-active-page > * {
+  margin-top: 0;
+}
+.carnet-reward h4 {
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   0.26 — Pages de la Ferme (Améliorer, Maîtrise, Lignées, Savoir-faire)
+   ========================================================================== */
+/* Choix en cartes (caractère, voie) : même dessin partout */
+.carnet-choices {
+  display: grid;
+  grid-template-columns: repeat(var(--choices, 3), minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.carnet-choice {
+  --icon: 32px;
+  position: relative;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 10px 12px;
+  color: var(--c-ink);
+  text-align: center;
+  background: var(--c-card);
+  border: 2px solid var(--c-line);
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--c-line);
+}
+.carnet-choice b {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+}
+.carnet-choice small {
+  color: var(--c-ink-soft);
+  font-size: 12px;
+  line-height: 1.3;
+}
+.carnet-choice .carnet-choice-cost {
+  font-style: italic;
+}
+.carnet-choice[aria-pressed='true'] {
+  background: var(--c-select);
+  border-color: var(--c-olive);
+  box-shadow: inset 0 0 0 2px #ffffffaa, 0 2px 0 var(--c-olive);
+}
+.carnet-choice[aria-pressed='true'] .carnet-tile-check {
+  background: var(--c-action);
+  border-color: var(--c-action-dark);
+}
+.carnet-choice:disabled {
+  opacity: 0.6;
+}
+/* Paliers et étapes */
+.carnet-tiers {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carnet-tiers li {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  padding: 6px 2px;
+  background: var(--c-white);
+  border: 2px solid var(--c-line);
+  border-radius: 6px;
+}
+.carnet-tiers b {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--c-ink-soft);
+  font-size: 13px;
+  background: #e8eae1;
+  border-radius: 50%;
+}
+.carnet-tiers span {
+  font-size: 13px;
+}
+.carnet-tiers small {
+  color: var(--c-ink-soft);
+  font-size: 12px;
+}
+.carnet-tiers li[data-done] {
+  background: var(--c-select);
+  border-color: #b9cba3;
+}
+.carnet-tiers li[data-done] b {
+  color: var(--c-white);
+  background: var(--c-action);
+}
+.carnet-tiers li[data-next] {
+  border-color: var(--c-olive);
+}
+.carnet-detail-sprite {
+  overflow: hidden;
+}
+.carnet-detail-sprite .embellish-sprite {
+  width: 92%;
+  height: auto;
+}
+.domain-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.domain-thumb[data-ghost] {
+  filter: grayscale(1) opacity(0.7);
+}
+.carnet-row-art .domain-thumb {
+  width: 44px;
+  height: 40px;
+}
+.carnet-progress-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+.carnet-progress-line small {
+  color: var(--c-ink-soft);
+  font-size: 13px;
+}
+.carnet-more summary {
+  min-height: 36px;
+  padding: 6px 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.carnet-more ol {
+  max-height: 140px;
+  margin: 0;
+  padding-left: 22px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+/* Lignées : compteurs en tête, champ de nom */
+.carnet-counters {
+  --icon: 32px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.carnet-counters > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 16px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  background: var(--c-select);
+  border: 2px solid #b9cba3;
+  border-radius: 8px;
+}
+.carnet-counters b {
+  font-size: 26px;
+}
+.carnet-field input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  background: var(--c-white);
+  border: 2px solid var(--c-line-strong);
+  border-radius: 6px;
+}
+.carnet-detail-head .carnet-field {
+  display: block;
+  margin-top: 6px;
+}
+.carnet-rename .carnet-field {
+  flex: 1;
+  min-width: 0;
+}
+.carnet-box-list li small {
+  color: var(--c-ink-soft);
+  font-size: 13px;
+}
+/* Savoir-faire : bandeau et rang côte à côte, deux grandes cartes */
+.skills-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 14px;
+  margin-top: var(--gap);
+}
+.skills-head .carnet-banner {
+  height: auto;
+  min-height: 140px;
+  margin: 0;
+}
+.skills-rank {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+.skills-rank h4 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+.skills-rank p {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+}
+.skills-rank small {
+  color: var(--c-ink-soft);
+  font-size: 14px;
+}
+.skills-choices {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: var(--gap);
+}
+.skills-choices .carnet-choice {
+  --icon: 64px;
+  gap: 6px;
+  padding: 14px 18px 18px;
+}
+.skills-choices .carnet-choice b {
+  font-size: 22px;
+}
+.skills-choices .carnet-choice small {
+  font-size: 15px;
+}
+.skills-action {
+  justify-content: center;
+  margin-top: var(--gap);
+}
+.skills-action .carnet-primary {
+  flex: 0 1 520px;
+}
+.skills-page > .carnet-note {
+  margin-top: 6px;
+}
+@media (max-height: 800px) {
+  .carnet-choice {
+    --icon: 32px;
+    padding: 6px 8px 8px;
+  }
+  .carnet-counters > span {
+    min-height: 44px;
+  }
+  .carnet-choice small {
+    font-size: 12px;
+  }
+  .carnet-tiers li {
+    padding: 3px 2px;
+  }
+  .carnet-counters b {
+    font-size: 21px;
+  }
+  .skills-head .carnet-banner {
+    min-height: 110px;
+  }
+  .skills-choices .carnet-choice {
+    --icon: 64px;
+    padding: 8px 14px 10px;
+  }
+}
+@media (max-width: 900px) {
+  .skills-head,
+  .carnet-counters,
+  .skills-choices {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.carnet-tab-short {
+  display: none;
+}
+@media (max-width: 1500px) {
+  .carnet-tab-long {
+    display: none;
+  }
+  .carnet-tab-short {
+    display: inline;
+  }
+}
+.carnet-choice:disabled {
+  opacity: 0.8;
+}
+
+/* ==========================================================================
+   0.27 — Pages des Souvenirs (Objectifs, Collection, Guide)
+   ========================================================================== */
+/* Objectifs : une ligne par objectif, sur toute la largeur */
+.goal-rows {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  margin: var(--gap) 0 0;
+  padding: 0;
+  list-style: none;
+  flex: 1;
+}
+.goal-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto 150px;
+  align-items: center;
+  gap: 16px;
+  min-height: 84px;
+  padding: 8px 16px;
+  background: var(--c-card);
+  border: 2px solid var(--c-line);
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--c-line);
+}
+.goal-row[data-state='ready'] {
+  background: #f6f9ef;
+  border-color: #b9cba3;
+}
+.goal-row-art {
+  --icon: 64px;
+  display: grid;
+  place-items: center;
+}
+.goal-row-main {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.goal-row-main h4 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+.goal-row-main p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--c-ink-soft);
+  font-size: 15px;
+}
+.goal-row-main p .glyph {
+  color: var(--c-action-dark);
+}
+.goal-row .carnet-rewards {
+  justify-content: flex-end;
+  max-width: 300px;
+}
+.goal-row .carnet-rewards li {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+.goal-row .carnet-action,
+.goal-row .carnet-secondary,
+.goal-row > .carnet-chip {
+  justify-self: stretch;
+  justify-content: center;
+}
+.goal-row .carnet-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 17px;
+}
+.goal-row .carnet-secondary[aria-pressed='true'] {
+  color: var(--c-white);
+  background: var(--c-action);
+  border-color: var(--c-action-dark);
+}
+.goals-page > .carnet-pager {
+  margin-top: 6px;
+}
+.goals-note {
+  justify-content: center;
+}
+/* Collection : six cartes par page */
+.carnet-counters-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.collection-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  flex: 1;
+  gap: 12px;
+  margin: var(--gap) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.collection-card {
+  --icon: clamp(56px, 10vh, 96px);
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  padding: 10px;
+  text-align: center;
+  background: var(--c-card);
+  border: 2px solid var(--c-line);
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--c-line);
+}
+.collection-card b {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+}
+.collection-card small {
+  color: var(--c-ink-soft);
+  font-size: 14px;
+}
+.collection-card[data-empty] .pixel-icon {
+  opacity: 0.55;
+}
+.collection-card[data-mystery] {
+  background: #f1f2ec;
+  border-style: dashed;
+}
+.collection-card[data-mystery] .pixel-icon {
+  filter: brightness(0) opacity(0.3);
+}
+.collection-card[data-mystery] b {
+  color: var(--c-ink-soft);
+}
+.carnet-chip[data-tone='gold'] {
+  color: #5b3a8a;
+  background: #ebe2f6;
+}
+/* Guide : interrupteur des conseils, étapes de la leçon */
+.guide-switch {
+  margin-top: 14px;
+  padding: 8px 16px;
+  background: var(--c-select);
+  border-color: #b9cba3;
+}
+.carnet-switch {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-left: auto;
+  padding: 0 14px 0 6px;
+  color: var(--c-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  font-weight: 700;
+  background: var(--c-white);
+  border: 2px solid var(--c-line-strong);
+  border-radius: 24px;
+}
+.carnet-switch i {
+  position: relative;
+  width: 50px;
+  height: 28px;
+  background: #cfd3c4;
+  border-radius: 14px;
+  transition: background 0.15s;
+}
+.carnet-switch i::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: var(--c-white);
+  border-radius: 50%;
+  box-shadow: 0 1px 2px #0004;
+  transition: transform 0.15s;
+}
+.carnet-switch[aria-checked='true'] i {
+  background: var(--c-action);
+}
+.carnet-switch[aria-checked='true'] i::after {
+  transform: translateX(22px);
+}
+.guide-steps {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.guide-steps li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 0 10px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  background: var(--c-white);
+  border: 2px solid var(--c-line);
+  border-radius: 6px;
+}
+.guide-steps b {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--c-white);
+  font-size: 13px;
+  background: var(--c-action);
+  border-radius: 50%;
+}
+@media (max-height: 800px) {
+  .goal-row {
+    grid-template-columns: 52px minmax(0, 1fr) auto 130px;
+    min-height: 68px;
+    padding: 6px 12px;
+  }
+  .goal-row-art {
+    --icon: 32px;
+  }
+  .goal-row-main h4 {
+    font-size: 18px;
+  }
+  .collection-card b {
+    font-size: 17px;
+  }
+  .guide-steps li {
+    min-height: 28px;
+    font-size: 14px;
+  }
+  .guide-switch {
+    padding: 4px 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carnet-switch i,
+  .carnet-switch i::after {
+    transition: none;
+  }
+}
+@media (max-height: 800px) {
+  .goal-row {
+    min-height: 60px;
+    padding: 4px 12px;
+  }
+  .goal-row-main {
+    gap: 2px;
+  }
+  .goal-row-main p {
+    font-size: 14px;
+  }
+  .goal-row .carnet-action,
+  .goal-row .carnet-secondary {
+    min-height: 38px;
+  }
+  .goal-rows {
+    gap: 6px;
+  }
+  .goals-note {
+    padding: 2px 12px;
+  }
+}
+/* Guide : les étapes d’une leçon sur deux colonnes ; plus serrées sur les écrans bas. */
+.guide-steps {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.guide-page .carnet-detail .carnet-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+@media (max-height: 800px) {
+  .guide-steps {
+    gap: 4px;
+  }
+  .guide-page .carnet-detail .carnet-text {
+    -webkit-line-clamp: 3;
+  }
+}

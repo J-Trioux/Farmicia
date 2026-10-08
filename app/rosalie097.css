@@ -20,7 +20,7 @@
 .pixel-farm .rosalie-player.walking .rosalie-sprite,
 .pixel-farm .rosalie-player.landing .rosalie-sprite {
   background-image: url('/assets/pixel/rosalie-v100/rosalie-atlas-hd.png');
-  background-size: 800% 1200%;
+  background-size: 800% 2000%;
   background-repeat: no-repeat;
   background-position: 0% 0%;
   image-rendering: auto;

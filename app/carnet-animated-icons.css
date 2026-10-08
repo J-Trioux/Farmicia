@@ -1,0 +1,47 @@
+/* Six objets du carnet, animés pose par pose. La pose de repos reste lisible
+   sans mouvement ; chaque réaction dure moins d'une seconde et joue une fois. */
+.carnet .pixel-icon.carnet-animated-icon {
+  background-position-x: 0%;
+  image-rendering: pixelated;
+  transition: none;
+  animation: none;
+}
+
+.carnet button:focus-visible:not(:disabled) .pixel-icon.carnet-animated-icon,
+.carnet-chapter[data-current] > .carnet-chapter-head > .carnet-animated-icon {
+  animation: carnet-icon-frames 960ms steps(1, end) 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .carnet button:hover:not(:disabled) .pixel-icon.carnet-animated-icon {
+    animation: carnet-icon-frames 960ms steps(1, end) 1;
+  }
+}
+/* Remplace le déplacement des icônes classiques par des poses de l'atlas. */
+.carnet button:is(:hover, :focus-visible):not(:disabled) .pixel-icon.carnet-animated-icon {
+  transform: none;
+  transition: none;
+}
+.carnet button:active:not(:disabled) .pixel-icon.carnet-animated-icon {
+  transform: translateY(2px);
+}
+
+@keyframes carnet-icon-frames {
+  0% { background-position-x: 0%; }
+  25% { background-position-x: 33.333333%; }
+  50% { background-position-x: 66.666667%; }
+  75% { background-position-x: 100%; }
+  100% { background-position-x: 0%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carnet .pixel-icon.carnet-animated-icon {
+    animation: none !important;
+    background-position-x: 0% !important;
+    transform: none !important;
+  }
+}
+[data-reduce-motion] .carnet .pixel-icon.carnet-animated-icon {
+  animation: none !important;
+  background-position-x: 0% !important;
+  transform: none !important;
+}

@@ -1,0 +1,149 @@
+/* ==========================================================================
+   0.33.0 — La gazette de Farmicia, les demandes du jour, le ciel du HUD,
+   les cultures « idéales pendant une absence » à la graineterie.
+   ========================================================================== */
+
+/* ---------- La gazette ---------- */
+.paper-dialog.gazette-dialog {
+  width: min(720px, calc(100vw - 32px)) !important;
+}
+.gazette-dialog [data-slot='dialog-title'] {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 26px;
+  letter-spacing: 0.01em;
+}
+.gazette-body {
+  display: grid;
+  gap: 14px;
+}
+.gazette-body h4 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 6px;
+  padding-bottom: 4px;
+  color: #4b3520;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  border-bottom: 2px dashed #c8ab72;
+}
+.gazette-body h4 b {
+  color: #44672b;
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  font-size: 14px;
+}
+.gazette-weather {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+.gazette-weather .pixel-icon {
+  width: 48px;
+  height: 48px;
+}
+.gazette-weather b {
+  display: block;
+  color: #3b2a1a;
+  font-size: 15px;
+}
+.gazette-sky small {
+  color: #6c5a41;
+}
+.gazette-daily ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gazette-daily li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  background: #fffbed;
+  border: 2px solid #c8ab72;
+  border-radius: 6px;
+}
+.gazette-daily li[data-done] {
+  background: #eef5df;
+  border-color: #7fa25a;
+}
+.gazette-request {
+  display: grid;
+  gap: 3px;
+  font-size: 14px;
+}
+.gazette-request b {
+  color: #3b2a1a;
+}
+.gazette-progress {
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  background: #ead9ad;
+  border-radius: 3px;
+}
+.gazette-progress i {
+  display: block;
+  height: 100%;
+  background: #6f9a3f;
+  border-radius: 3px;
+  transition: width 0.4s var(--ease-out, ease-out);
+}
+.gazette-request small {
+  color: #6c5a41;
+}
+.gazette-reward {
+  display: grid;
+  gap: 2px;
+  justify-items: end;
+  color: #7a4f10;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.gazette-reward span {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+.gazette-reward .pixel-icon {
+  width: 16px;
+  height: 16px;
+}
+.gazette-note {
+  margin: 8px 0 0;
+  color: #6c5a41;
+  font-size: 13px;
+}
+
+/* ---------- Le ciel dans le HUD ---------- */
+.farm-game .hud-tools .hud-sky .pixel-icon {
+  width: 32px;
+  height: 32px;
+}
+
+/* ---------- Demandes du jour (sous la plaque du niveau) ---------- */
+.farm-game .farm-goal-ribbon .daily-pill .pixel-icon {
+  width: 16px;
+  height: 16px;
+}
+.farm-game .farm-goal-ribbon .daily-pill[data-done] b {
+  color: #44672b;
+}
+
+/* ---------- Graineterie : cultures longues ---------- */
+.shop-dialog .seed-shop .shop-counter .absence-badge {
+  margin-left: 4px;
+  background: #3f5f7a;
+}
+.shop-dialog .seed-shop .shop-counter .care-note {
+  margin: 2px 0 0;
+  color: #44672b;
+  font-size: 12px;
+  font-weight: 800;
+}

@@ -47,3 +47,9 @@ __pycache__/
 
 # Atelier de Claude : captures, essais et instantanés (jamais publiés).
 /Claude outputs/
+
+# Fichiers mis de côté, en attente de suppression (jamais publiés).
+/_a_supprimer/
+
+# Captures de travail des sessions d’IA (jamais publiées).
+/output/

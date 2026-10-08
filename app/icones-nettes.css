@@ -1,0 +1,33 @@
+/* ==========================================================================
+   0.32.11 — Icônes nettes
+   Une icône n’est plus jamais écrasée ni « compressée » :
+   - plus de largeur minimale de 32 px imposée à toutes les icônes : une icône
+     réglée à 15, 24 ou 28 px ne s’élargit plus en rectangle (sablier de la
+     durée de pousse, compteur et ingrédients de l’atelier, panier, semis…) ;
+   - chaque icône des planches HD est redessinée à un multiple entier de sa
+     grille en pixels francs, ou lissée si aucun multiple n’est assez proche
+     (components/farm/sprites.tsx, lib/icon-snap.ts) ; toujours carrée et
+     centrée dans sa boîte.
+   ========================================================================== */
+
+.pixel-icon {
+  min-width: 0;
+}
+.pixel-icon[data-snap][data-art]:not([data-cell]) {
+  background-size: calc(var(--icon-cols, 1) * var(--icon-draw)) calc(var(--icon-rows, 1) * var(--icon-draw)) !important;
+  background-position: var(--icon-x) var(--icon-y) !important;
+  background-repeat: no-repeat !important;
+}
+.pixel-icon[data-snap='net'] {
+  image-rendering: pixelated !important;
+}
+.pixel-icon[data-snap='doux'] {
+  image-rendering: auto !important;
+}
+/* Cultures : la planche se dessine dans l’icône ; seul le rendu change. */
+.pixel-icon.crop-icon[data-snap='doux'] .crop-sprite {
+  image-rendering: auto !important;
+}
+.pixel-icon.crop-icon[data-snap='net'] .crop-sprite {
+  image-rendering: pixelated !important;
+}

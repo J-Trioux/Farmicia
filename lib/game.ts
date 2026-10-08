@@ -46,6 +46,8 @@ import { CELLAR_INGREDIENTS, restoration, restorationDouble, restorationStage, r
 export { RESTORATIONS, restorationStage, restorationValue, type RestorationId } from './restorations.ts';
 export { EMBELLISHMENTS, donationCost, donationSouvenir, donationTitle, embellishmentStage, embellishmentValue, type EmbellishmentId } from './embellishments.ts';
 import { SEASON_MIN_MS } from './terres.ts';
+import { GOLDEN_QUALITY, MIST_XP, SUN_GROWTH, weatherFor } from './weather.ts';
+import { DAILY_COIN_SHARE, DAILY_XP_SHARE, dailyGain, dayKey, makeDaily, normalizeDaily, type DailyEvent, type DailyState } from './daily.ts';
 import { CHORE_FEEDS, nearestChore, plotWalk, pointWalk } from './chores.ts';
 import { POTAGER_DOORS, WORLD_H, WORLD_W } from './world.ts';
 import { freshTutorial, normalizeTutorial, settledTutorial, type TutorialState } from './tutorial.ts';
@@ -201,7 +203,31 @@ RECIPES.push(
   { id: 'fougasse', name: 'Fougasse des Moulins', icon: '🥖', needs: { ble: 2, tomate: 1 }, price: 145, time: 72, level: 8, valley: 'moulins', reputation: 2 },
   { id: 'pickles', name: 'Pickles du Port', icon: '🫙', needs: { carotte: 2, radis: 1 }, price: 64, time: 55, level: 8, valley: 'vergers', reputation: 2 },
 );
-export const BUILD = '0.22.0 — La ferme en musique';
+/**
+ * 0.32.1 : cuisiner rapporte plus que vendre brut. Avant, les recettes
+ * tardives valaient à peine leurs ingrédients (jus 1,05 ×, melonade 1,11 ×,
+ * velouté 1,17 ×) et un plat donnait la même XP quelle que soit la recette
+ * (20 XP pour un potage comme pour une melonade). Désormais un plat réussi vaut
+ * au moins 1,4 fois ses ingrédients vendus tels quels, et son XP suit l’XP de
+ * récolte de ses ingrédients (30 % pour un plat réussi : un bonus, l’XP de récolte étant déjà gagnée).
+ */
+const EGG_VALUE = 22;
+export function recipeIngredientValue(r: { needs: Record<string, number> }) {
+  return Object.entries(r.needs).reduce((sum, [id, n]) =>
+    sum + (id === 'oeuf' ? EGG_VALUE : CROPS.find((c) => c.id === id)?.price || 0) * n, 0);
+}
+export function recipeIngredientXp(r: { needs: Record<string, number> }) {
+  return Object.entries(r.needs).reduce((sum, [id, n]) =>
+    sum + (CROPS.find((c) => c.id === id)?.xp || 0) * n, 0);
+}
+export const DISH_VALUE_FLOOR = 1.4;
+/** Part de l’XP de récolte des ingrédients rendue par un plat réussi. */
+export const DISH_XP_SHARE = 0.3;
+for (const r of RECIPES) {
+  const floor = Math.ceil((recipeIngredientValue(r) * DISH_VALUE_FLOOR) / 5) * 5;
+  if (r.price < floor) r.price = floor;
+}
+export const BUILD = '0.33.0 — La gazette du matin';
 export const QUALITIES = [
   { id: 'ordinaire', name: 'Ordinaire', multiplier: 1 },
   { id: 'belle', name: 'Belle', multiplier: 1.4 },
@@ -399,7 +425,7 @@ export const UPGRADES = [
     id: 'expand',
     name: 'Un jardin plus grand',
     icon: '🏡',
-    desc: '3 nouvelles parcelles (2 à la dernière). Les extensions suivantes arrivent aux niveaux 9, 14, 19 et 23.',
+    desc: '2 nouvelles parcelles. Le jardin s’agrandit ensuite par deux, jusqu’à 20 parcelles, à mesure des niveaux.',
     cost: 35,
     level: 1,
   },
@@ -624,7 +650,8 @@ export type ActionArgument =
         | 'quickActions'
         | 'reduceMotion'
         | 'forceAnimations'
-        | 'autoBuySeeds';
+        | 'autoBuySeeds'
+        | 'notifyReady';
       amount?: number | 'max';
       /** 0.18 : où se tient Rosalie (pieds, % de la carte), pour viser la parcelle la plus proche. */
       from?: { x: number; y: number };
@@ -682,6 +709,8 @@ export type Game = {
     reduceMotion: boolean;
     forceAnimations: boolean;
     autoBuySeeds: boolean;
+    /** 0.33.0 : prévenir (notification du navigateur) quand une récolte est prête, onglet en arrière-plan. */
+    notifyReady: boolean;
   };
   seenScenes: string[];
   weatherSeed: number;
@@ -730,6 +759,8 @@ export type Game = {
   donations?: number;
   /** 0.11 : heure à laquelle chaque emplacement de commande propose à nouveau une offre. */
   orderReady?: number[];
+  /** 0.33.0 : demandes du jour et gazette du matin (absent avant la 0.33). */
+  daily?: DailyState;
 };
 export const KEY = 'rosalie-farm-v1';
 export function fresh(now = Date.now()): Game {
@@ -744,7 +775,7 @@ export function fresh(now = Date.now()): Game {
     pendingCrop: null,
     coins: 20,
     xp: 0,
-    plots: Array(6).fill(null),
+    plots: Array(START_PLOTS).fill(null),
     seeds: { radis: 6, carotte: 3 },
     stock: {},
     upgrades: [],
@@ -768,6 +799,7 @@ export function fresh(now = Date.now()): Game {
       reduceMotion: false,
       forceAnimations: false,
       autoBuySeeds: false,
+      notifyReady: false,
     },
     seenScenes: [],
     weatherSeed: Math.floor(now / 86400000) % 4,
@@ -814,6 +846,29 @@ export const LEVEL_XP = [
   43700, 56000, 70400, 88000, 109600, 136200, 169000, 202500, 237500,
   275000, 314500, 356000,
 ];
+/** XP pour passer du niveau `value` au suivant (le dernier palier se répète). */
+export function levelStepXp(value: number) {
+  const index = Math.max(1, Math.min(LEVEL_XP.length - 1, value));
+  return LEVEL_XP[index] - LEVEL_XP[index - 1];
+}
+/**
+ * 0.32.1 : les projets paient à la hauteur de leur niveau. Avant, un projet
+ * du niveau 20 rapportait 380 XP pour 33 500 XP demandées au niveau suivant
+ * (1 %) et chaque étape 10 XP : jouer les projets faisait monter moins vite
+ * que planter. Désormais : projet accompli = 15 % du palier du niveau où il
+ * s’ouvre, chaque étape = 3 %, pièces = 25 % de ce palier. Arrondis lisibles.
+ */
+const roundNice = (n: number) => (n >= 1000 ? Math.round(n / 50) * 50 : Math.round(n / 10) * 10);
+export function projectReward(project: { level: number; coins: number; xp: number }) {
+  const stepXp = levelStepXp(project.level);
+  return {
+    xp: Math.max(project.xp, roundNice(stepXp * 0.15)),
+    coins: Math.max(project.coins, roundNice(stepXp * 0.25)),
+  };
+}
+export function projectStepXp(project: { level: number }) {
+  return Math.max(10, roundNice(levelStepXp(project.level) * 0.03));
+}
 /**
  * Courbe des versions 0.10.0 à 0.10.1 (sauvegardes v11 et v12). La 0.11 la
  * recale : les commandes plus grosses et les embellissements font gagner plus
@@ -895,10 +950,18 @@ const UNLOCK_LABELS: Record<keyof typeof UNLOCKS, string> = {
   qualityMarket: 'Marchés de qualité',
   bigOrders: 'Grandes commandes',
 };
-/** 0.13 : 4e extension au niveau 23 (2 parcelles, 20 au total, la capacité de la grande carte). */
-export const EXTENSION_LEVELS = [9, 14, 19, 23];
-/** Nombre de parcelles au plus : 9 au départ, puis 12, 15, 18 et 20. */
-export const PLOT_STEPS = [9, 12, 15, 18, 20] as const;
+/**
+ * 0.32.2 : on commence avec 2 parcelles et chaque agrandissement en ajoute 2.
+ * PLOT_STEPS[k] = parcelles au plus après k niveaux d’EXTENSION_LEVELS :
+ * 4 au niveau 1, 6 au 2, 8 au 3, 10 au 9, 12 au 14, 14 au 19, 16 au 21,
+ * 18 au 22 et 20 au 23 (la capacité de la grande carte). Les extensions
+ * tombent sur les niveaux qui n’avaient que deux nouveautés.
+ */
+export const START_PLOTS = 2;
+export const EXTENSION_LEVELS = [2, 3, 9, 14, 19, 21, 22, 23];
+export const PLOT_STEPS = [4, 6, 8, 10, 12, 14, 16, 18, 20] as const;
+/** Prix des agrandissements successifs (2 → 4, 4 → 6, … 18 → 20). */
+export const EXPAND_COSTS = [25, 45, 80, 140, 250, 450, 800, 1400, 2500];
 /** Niveau des premières graines prometteuses (lignées). */
 export const SEED_FIND_LEVEL = 7;
 /**
@@ -1025,6 +1088,20 @@ export function dishIcon(id: string) {
 export function mastery(xp: number) {
   return MASTERY_STEPS.filter((n) => xp >= n).length;
 }
+/**
+ * 0.32.1 : les dons (puits de fin de partie) s’ouvrent après le grand banquet
+ * OU au niveau maximum : avant, aucun joueur simulé n’y arrivait.
+ */
+export function donationsOpen(g: Game) {
+  return g.projects.done.includes(DONATION_PROJECT) || level(g) >= MAX_LEVEL;
+}
+/** 0.32.1 : XP d’un plat selon sa recette et son résultat (au moins l’XP du résultat). */
+export function dishXp(recipeId: string, outcomeId: string) {
+  const r = recipe(recipeId);
+  const o = outcome(outcomeId);
+  if (!r) return o.xp;
+  return Math.max(o.xp, Math.round((o.xp / 20) * DISH_XP_SHARE * recipeIngredientXp(r)));
+}
 export function cropMastery(g: Game, id: string) {
   return cropMasterySteps(id).filter((n) => (g.cropXP[id] || 0) >= n).length;
 }
@@ -1125,6 +1202,9 @@ export function growTimeBreakdown(g: Game, id: string, now?: number) {
     factors.push({ label: 'Irrigation douce', multiplier: 0.75 });
   if (buffActive(g, 'croissance', now))
     factors.push({ label: 'Effet Terre vive', multiplier: 0.85 });
+  // 0.33.0 : une plantation faite sous le soleil doux pousse plus vite.
+  if (now !== undefined && weatherFor(g, now).id === 'soleil')
+    factors.push({ label: 'Soleil doux', multiplier: SUN_GROWTH });
   const base = crop(id).time;
   return {
     base,
@@ -1288,8 +1368,21 @@ export function price(g: Game, id: string, now: number) {
     basePrice(id) *
       (1 + marketBonus(g, id, now) + (seasonFor(g.season.index).crops.includes(id.split('|')[0] as never) ? 0.08 : 0)) *
       (1 + hearts * 0.03 + (hearts >= 5 ? 0.1 : 0)) *
-      (stallEligible(g, id) ? 1.1 : 1),
+      (stallEligible(g, id) ? 1.1 : 1) *
+      (crop(id.split('|')[0]) && itemLineageId(id) ? LINEAGE_SALE : 1),
   );
+}
+/** 0.32.2 : une graine de lignée coûte cher ; ses produits se vendent 30 % plus cher. */
+export const LINEAGE_SALE = 1.3;
+/** Graines classiques et pièces pour multiplier une lignée d’une graine. */
+export function propagationCost(g: Game, cropId: string) {
+  const nursery = hasReward(g, 'pepiniere');
+  const coins = Math.max(100, Math.round((crop(cropId).price * 15 * (nursery ? 0.75 : 1)) / 10) * 10);
+  return { seeds: nursery ? 8 : 10, coins };
+}
+/** Une récolte de lignée rend une graine toutes les trois récoltes (deux avec la pépinière). */
+export function lineageSeedEvery(g: Game) {
+  return hasReward(g, 'pepiniere') ? 2 : 3;
 }
 /** Étal personnel : belles récoltes, récoltes exceptionnelles et plats. */
 export function stallEligible(g: Game, id: string) {
@@ -1875,7 +1968,9 @@ export function harvestProbabilities(
     longCropBonus +
     (specialization === 'artisanale' ? 0.15 : 0) +
     (buffActive(g, 'qualite', now) ? 0.08 : 0) +
-    ((POLLINATED as readonly string[]).includes(id) ? embellishmentValue(g, 'ruches') : 0);
+    ((POLLINATED as readonly string[]).includes(id) ? embellishmentValue(g, 'ruches') : 0) +
+    // 0.33.0 : la lumière dorée embellit les récoltes.
+    (now !== undefined && weatherFor(g, now).id === 'doree' ? GOLDEN_QUALITY : 0);
   return [1 - beautiful - exceptional, beautiful, exceptional];
 }
 function rollIndex(probabilities: number[], random: () => number) {
@@ -1887,7 +1982,7 @@ function rollIndex(probabilities: number[], random: () => number) {
   return probabilities.length - 1;
 }
 export function upgradeCost(g: Game, id: string) {
-  if (id === 'expand') return 35 * Math.pow(2, Math.floor((g.plots.length - 6) / 3));
+  if (id === 'expand') return EXPAND_COSTS[Math.min(EXPAND_COSTS.length - 1, Math.max(0, Math.floor((g.plots.length - START_PLOTS) / 2)))];
   const path = UPGRADE_PATHS[id as UpgradePathId];
   if (path) return path.costs[Math.min(4, upgradeTier(g, id as UpgradePathId))];
   return UPGRADES.find((u) => u.id === id)!.cost;
@@ -1951,6 +2046,8 @@ export type GoalCategory = 'Ferme' | 'Cuisine' | 'Village' | 'Maîtrise' | 'Coll
 export type Goal = {
   id: string; title: string; desc: string; category: GoalCategory;
   target: number; reward: number; xp: number; seeds?: { id: string; amount: number };
+  /** 0.32.1 : palier d’un défi renouvelable (visible à partir du niveau 10). */
+  ladder?: { key: string; tier: number; field: 'harvests' | 'orders' | 'crafted' | 'sold' };
 };
 export const GOALS: Goal[] = [
   ...MISSIONS.map((mission) => ({
@@ -1976,7 +2073,56 @@ export const GOALS: Goal[] = [
   { id: 'three-terroirs', title: 'Des terres aménagées', desc: 'Aménager les trois terroirs', category: 'Ferme', target: 3, reward: 420, xp: 210 },
   { id: 'fair-circuit', title: 'Les quatre saisons', desc: 'Présenter quatre foires', category: 'Collection', target: 4, reward: 500, xp: 240 },
 ];
+/**
+ * 0.32.1 : défis du domaine. Les 22 objectifs d’origine s’épuisent vers le
+ * niveau 10 ; ces quatre défis prennent le relais. Un seul palier de chaque
+ * défi est visible à la fois (le suivant apparaît quand on réclame le
+ * précédent), dès le niveau 10. Leur récompense suit le niveau du joueur au
+ * moment où il la réclame (voir goalReward). Identifiants fixes : rien ne
+ * change dans le format de sauvegarde.
+ */
+export const LADDER_LEVEL = 10;
+const LADDERS = [
+  { key: 'moissons', field: 'harvests', category: 'Ferme', title: 'Les moissons du domaine',
+    desc: (n: string) => `Récoltez ${n} plantes`,
+    targets: [1000, 1600, 2400, 3400, 4600, 6000, 7600, 9400, 11400, 13600, 16000, 18600, 21500, 25000] },
+  { key: 'livraisons', field: 'orders', category: 'Village', title: 'Le panier du village',
+    desc: (n: string) => `Livrez ${n} commandes`,
+    targets: [25, 40, 60, 85, 115, 150, 190, 235, 285, 340, 400, 470, 550, 640] },
+  { key: 'fourneaux', field: 'crafted', category: 'Cuisine', title: 'Les fourneaux chauds',
+    desc: (n: string) => `Récupérez ${n} plats`,
+    targets: [30, 60, 100, 150, 220, 300, 400, 520, 660, 820, 1000, 1200, 1450, 1750] },
+  { key: 'marche', field: 'sold', category: 'Village', title: 'Le marché prospère',
+    desc: (n: string) => `Vendez pour ${n} pièces`,
+    targets: [10000, 20000, 35000, 55000, 80000, 110000, 150000, 200000, 260000, 330000, 410000, 500000, 600000, 720000] },
+] as const;
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV'];
+const groupThousands = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f');
+for (const ladder of LADDERS)
+  ladder.targets.forEach((target, index) => GOALS.push({
+    id: `defi-${ladder.key}-${index + 1}`,
+    title: `${ladder.title} ${ROMAN[index]}`,
+    desc: ladder.desc(groupThousands(target)),
+    category: ladder.category,
+    target,
+    reward: 0,
+    xp: 0,
+    ladder: { key: ladder.key, tier: index + 1, field: ladder.field },
+  }));
+/** Un défi n’est visible qu’à partir du niveau 10, un palier à la fois. */
+export function goalVisible(g: Game, goal: Goal) {
+  if (!goal.ladder) return true;
+  if (level(g) < LADDER_LEVEL) return false;
+  return goal.ladder.tier === 1 || g.claimed.includes(`defi-${goal.ladder.key}-${goal.ladder.tier - 1}`);
+}
+/** Récompense d’un objectif ; celle d’un défi suit le niveau actuel (8 % et 3 % du palier). */
+export function goalReward(g: Game, goal: Goal) {
+  if (!goal.ladder) return { coins: goal.reward, xp: goal.xp };
+  const stepXp = levelStepXp(level(g));
+  return { coins: roundNice(stepXp * 0.08), xp: roundNice(stepXp * 0.03) };
+}
 export function goalProgress(g: Game, goal: Goal) {
+  if (goal.ladder) return Number(g[goal.ladder.field]) || 0;
   const legacy = MISSIONS.find((mission) => mission.id === goal.id);
   if (legacy) return g[legacy.field];
   switch (goal.id) {
@@ -2134,14 +2280,18 @@ function completeProjectStep(g: Game, now: number): string {
   const next = status.index + 1;
   if (next < project.steps.length) {
     g.projects.progress[project.id] = { step: next, count: 0 };
-    g.xp += 10;
-    return ` · ${project.title} : étape ${next}/${project.steps.length} terminée (+10 XP)`;
+    const evidence = g.projects.evidence?.[project.id];
+    if (evidence) evidence[next] = 0;
+    const stepXp = projectStepXp(project);
+    g.xp += stepXp;
+    return ` · ${project.title} : étape ${next}/${project.steps.length} terminée (+${stepXp} XP)`;
   }
   g.projects.done.push(project.id);
   delete g.projects.progress[project.id];
   g.projects.active = null;
-  g.coins += project.coins;
-  g.xp += project.xp;
+  const reward = projectReward(project);
+  g.coins += reward.coins;
+  g.xp += reward.xp;
   if (project.reward === 'toque') {
     g.talentPoints += 3;
     (Object.keys(g.stats) as (keyof CookingStats)[]).forEach((stat) => {
@@ -2150,7 +2300,7 @@ function completeProjectStep(g: Game, now: number): string {
   }
   if (project.reward === 'verger') g.orchard = now;
   gainFriendship(g, project.host, 3);
-  return ` · 🎉 ${project.title} accompli ! ${project.rewardName} débloqué · +${project.coins} pièces · +${project.xp} XP`;
+  return ` · 🎉 ${project.title} accompli ! ${project.rewardName} débloqué · +${reward.coins} pièces · +${reward.xp} XP`;
 }
 function advanceReadyProject(g: Game, now: number) {
   const messages: string[] = [];
@@ -2161,17 +2311,87 @@ function advanceReadyProject(g: Game, now: number) {
   }
   return messages.join('');
 }
-function recordProject(g: Game, event: ProjectEvent, now: number) {
-  for (const project of PROJECTS) {
-    if (g.projects.done.includes(project.id)) continue;
-    const evidence = (g.projects.evidence ??= {})[project.id] ??= project.steps.map(() => 0);
-    project.steps.forEach((step, index) => {
-      if (step.kind === 'deliver' || step.kind === 'fund') return;
-      evidence[index] = Math.min(stepTarget(step), (evidence[index] || 0) + projectGain(step, event));
-    });
+/**
+ * 0.32.2 : seule l’étape en cours du projet actif avance. Avant, chaque geste
+ * comptait pour toutes les étapes de tous les projets, même pas commencés :
+ * un projet ouvert tard se terminait d’un coup avec ce qui était déjà fait.
+ */
+/**
+ * 0.33.0 — Cultures longues : arrosées, elles donnent plus souvent double
+ * (de +6 % pour le maïs à +20 % pour le melon). Les cultures de moins de
+ * 10 minutes n’ont pas ce bonus.
+ */
+export const CARE_MIN_SECONDS = 600;
+export function careDouble(id: string) {
+  const time = crop(id)?.time ?? 0;
+  return time >= CARE_MIN_SECONDS ? Math.min(0.2, 0.05 + time / 48_000) : 0;
+}
+/** 0.33.0 : une culture « idéale pendant une absence » (20 minutes ou plus). */
+export const ABSENCE_CROP_SECONDS = 1200;
+export function absenceCrop(id: string) {
+  return (crop(id)?.time ?? 0) >= ABSENCE_CROP_SECONDS;
+}
+/** 0.33.0 : récompense d’une demande du jour (part du palier de niveau). */
+export function dailyReward(g: Game) {
+  const stepXp = levelStepXp(level(g));
+  return { coins: Math.max(10, roundNice(stepXp * DAILY_COIN_SHARE)), xp: Math.max(5, roundNice(stepXp * DAILY_XP_SHARE)) };
+}
+/** 0.33.0 : demandes du jour à jour (nouvelles au changement de date locale). */
+export function ensureDaily(g: Game, now: number) {
+  const day = dayKey(now);
+  if (g.daily?.day === day) return g.daily;
+  const before = g.daily;
+  g.daily = {
+    day,
+    requests: makeDaily(day, {
+      seed: Math.floor(g.created / 1000),
+      level: level(g),
+      plots: g.plots.length,
+      workshop: g.upgrades.includes('workshop'),
+      coop: g.upgrades.includes('coop'),
+      reward: dailyReward(g),
+    }),
+    ...(before ? { previous: { day: before.day, done: before.requests.filter((r) => r.done).length, total: before.requests.length } } : {}),
+  };
+  return g.daily;
+}
+/** 0.33.0 : un geste fait avancer les demandes du jour ; une demande faite paie aussitôt. */
+function recordDaily(g: Game, event: DailyEvent, now: number) {
+  const daily = ensureDaily(g, now);
+  for (const request of daily.requests) {
+    if (request.done) continue;
+    const gain = dailyGain(request, event);
+    if (!gain) continue;
+    request.count = Math.min(request.target, request.count + gain);
+    if (request.count >= request.target) {
+      request.done = true;
+      g.coins += request.coins;
+      g.xp += request.xp;
+    }
   }
+}
+/** 0.33.0 : pluie ou neige : les cultures en terre non arrosées le sont (nombre arrosé). */
+export function rainWater(g: Game, now: number) {
+  const sky = weatherFor(g, now).pixel;
+  if (sky !== 'pluie' && sky !== 'neige') return 0;
+  let watered = 0;
+  for (const plot of g.plots) {
+    if (!plot || plot.watered || plot.end <= now || (plot.garde && plot.garde > 0)) continue;
+    waterPlot(plot, g, now, false);
+    watered++;
+  }
+  return watered;
+}
+function recordProject(g: Game, event: ProjectEvent, now: number) {
+  // 0.33.0 : les mêmes gestes font avancer les demandes du jour.
+  if (event.kind === 'harvest') recordDaily(g, { kind: 'harvest', crop: event.crop, quality: event.quality, amount: event.amount }, now);
+  if (event.kind === 'cook') recordDaily(g, { kind: 'cook' }, now);
   const status = projectStatus(g);
-  if (status) g.projects.progress[status.project.id].count = status.count;
+  if (!status || status.step.kind === 'deliver' || status.step.kind === 'fund') return '';
+  const evidence = (g.projects.evidence ??= {})[status.project.id] ??= status.project.steps.map(() => 0);
+  const count = Math.min(status.target, status.count + projectGain(status.step, event));
+  evidence[status.index] = count;
+  g.projects.progress[status.project.id].count = count;
   return advanceReadyProject(g, now);
 }
 /** Prior actions are credited once when a v5 save is migrated. */
@@ -2379,8 +2599,10 @@ export function bulkNext(g: Game, now: number, from?: { x: number; y: number }) 
   return planBulk(g, job, now, from) ? { kind: job.kind, index: job.targets[0] } : null;
 }
 /** 0.11 : arroser une parcelle ; l’eau de la fontaine retire une part du temps restant. */
-function waterPlot(plot: NonNullable<Plot>, g: Game, now: number) {
+function waterPlot(plot: NonNullable<Plot>, g: Game, now: number, byRosalie = true) {
   plot.watered = true;
+  // 0.33.0 : l’arrosage de Rosalie compte pour les demandes du jour (pas la pluie).
+  if (byRosalie) recordDaily(g, { kind: 'water', amount: 1 }, now);
   const boost = embellishmentValue(g, 'fontaine');
   if (boost && plot.end > now) plot.end = Math.max(now + 1000, Math.round(now + (plot.end - now) * (1 - boost)));
 }
@@ -2416,9 +2638,12 @@ function harvestPlot(
     (buffActive(g, 'abondance', now) ? 0.15 : 0) +
     embellishmentValue(g, 'pigeonnier') +
     // 0.13 : champs, bois et vignes restaurés.
-    restorationDouble(g, c.id));
+    restorationDouble(g, c.id) +
+    // 0.33.0 : une culture longue bien soignée (arrosée) donne plus souvent double.
+    (p.watered ? careDouble(c.id) : 0));
   const amount = garde || (doubleChance && random() < doubleChance ? 2 : 1);
-  const xp = Math.round(c.xp * (buffActive(g, 'entrain', now) ? 1.2 : 1));
+  // 0.33.0 : brume claire, on travaille au frais (+10 % d’XP).
+  const xp = Math.round(c.xp * (buffActive(g, 'entrain', now) ? 1.2 : 1) * (weatherFor(g, now).id === 'brume' ? MIST_XP : 1));
   const firstHarvest = !(g.collection[c.id] > 0);
   // 0.11 : un semis de garde tire la qualité de chaque unité ; la première suit le tirage ci-dessus.
   const extra: Record<string, number> = {};
@@ -2443,17 +2668,21 @@ function harvestPlot(
     const localHarvests = lineage.terroirHarvests ??= {};
     localHarvests[terroir] = (localHarvests[terroir] || 0) + 1;
     lineage.bestQuality = Math.max(lineage.bestQuality, itemQualityRank(stockKey));
-    lineage.seeds += 1 + (hasReward(g, 'pepiniere') && lineage.harvests % 2 === 0 ? 1 : 0)
-      + (terroir === 'soleil' && g.terroirBuilds.includes('soleil') && localHarvests[terroir]! % 3 === 0 ? 1 : 0);
+    // 0.32.2 : une graine toutes les trois récoltes (deux avec la pépinière), au lieu
+    // d’une par récolte : une lignée ne se replante plus toute seule.
+    lineage.seeds += (lineage.harvests % lineageSeedEvery(g) === 0 ? 1 : 0)
+      + (terroir === 'soleil' && g.terroirBuilds.includes('soleil') && localHarvests[terroir]! % 6 === 0 ? 1 : 0);
     if (lineage.traits.length < 2 && lineage.harvests >= 3 && lineage.generation < 2 &&
       !g.seedFinds.some((find) => find.parentId === lineage.id))
       promising = createSeedFind(g, c.id, quality, terroir, now, p.start, lineage.id);
   } else if (garde || level(g) < SEED_FIND_LEVEL) {
     // Semis de garde : pas de graine prometteuse.
     // Les graines prometteuses attendent SEED_FIND_LEVEL (7), pour étaler les découvertes.
-  } else if ((g.lineages.length === 0 && g.harvests >= 3 && (p.watered || quality !== 'ordinaire' || g.harvests >= 6)) ||
-    (quality !== 'ordinaire' && (g.harvests + p.start) % 3 === 0) ||
-    (p.watered && g.harvests % 7 === 0)) {
+  } else if ((g.lineages.length === 0 && g.seedFinds.length === 0 && g.harvests >= 3 && (p.watered || quality !== 'ordinaire' || g.harvests >= 6)) ||
+    // 0.32.2 : beaucoup plus rares (une belle récolte sur 12 au lieu de 3, une
+    // récolte arrosée sur 40 au lieu de 7) ; la première reste offerte.
+    (quality !== 'ordinaire' && (g.harvests + p.start) % 12 === 0) ||
+    (p.watered && g.harvests % 40 === 0)) {
     promising = createSeedFind(g, c.id, quality, terroir, now, p.start);
   }
   g.plots[index] = null;
@@ -2535,6 +2764,7 @@ function collectEggs(g: Game, now: number) {
   g.stock.oeuf = (g.stock.oeuf || 0) + eggs;
   g.hens = null;
   g.xp += 15;
+  recordDaily(g, { kind: 'eggs' }, now);
   return `+${eggs} œufs frais · +15 XP`;
 }
 function pickOrchard(g: Game, now: number, random: () => number) {
@@ -2588,7 +2818,8 @@ function serveJob(g: Game, job: CookJob, now: number, random: () => number) {
     g.dishBest[masteryId] ?? -1,
     outcomeRank(qualityId),
   );
-  g.xp += result.xp * portions;
+  const gainedXp = dishXp(prepared, qualityId) * portions;
+  g.xp += gainedXp;
   let projects = '';
   for (let n = 0; n < portions; n++)
     projects += recordProject(
@@ -2597,7 +2828,7 @@ function serveJob(g: Game, job: CookJob, now: number, random: () => number) {
       now,
     );
   return (
-    `${result.icon} ${result.name} : ${recipe(prepared)?.name}${portions > 1 ? ' × ' + portions : ''}${signature ? ' · spécialité de ferme' : ''} · +${result.xp * portions} XP` +
+    `${result.icon} ${result.name} : ${recipe(prepared)?.name}${portions > 1 ? ' × ' + portions : ''}${signature ? ' · spécialité de ferme' : ''} · +${gainedXp} XP` +
     (qualityId === 'chef' ? ' ✨' : '') +
     (talents ? ` · +${talents} point${talents > 1 ? 's' : ''} de talent !` : '') +
     projects
@@ -2757,6 +2988,8 @@ export function act(
 } {
   const g = structuredClone(state);
   boundTimers(g, now);
+  // 0.33.0 : nouvelles demandes du jour au changement de date.
+  ensureDaily(g, now);
   const payload = typeof arg === 'object' && arg !== null ? arg : {};
   const scalar = typeof arg === 'string' || typeof arg === 'number' ? arg : '';
   let message = '';
@@ -3148,7 +3381,7 @@ export function act(
         : path ? tier >= 5 : g.upgrades.includes(id)))
       return fail('Cette amélioration n’est pas encore disponible.');
     g.coins -= upgradeCost(g, id);
-    if (id === 'expand') while (g.plots.length < Math.min(maxPlots(g), Math.ceil((state.plots.length + 1) / 3) * 3)) g.plots.push(null);
+    if (id === 'expand') while (g.plots.length < Math.min(maxPlots(g), state.plots.length + 2)) g.plots.push(null);
     else if (path) {
       g.upgradeTiers[id] = tier + 1;
       if (!g.upgrades.includes(id)) g.upgrades.push(id);
@@ -3184,8 +3417,8 @@ export function act(
     message = `${entry.name} : ${entry.stages[stage].toLowerCase()} ! Le domaine reprend vie.`;
   }
   if (action === 'donate') {
-    if (!g.projects.done.includes(DONATION_PROJECT))
-      return fail('La fête du village accepte les dons après le grand banquet.');
+    if (!donationsOpen(g))
+      return fail('La fête du village accepte les dons après le grand banquet ou au niveau 25.');
     const done = g.donations || 0;
     const cost = donationCost(done);
     if (g.coins < cost) return fail(`Il manque ${cost - g.coins} pièces pour ce don.`);
@@ -3213,6 +3446,7 @@ export function act(
     g.coins += reward;
     g.xp += o.xp;
     g.orders++;
+    recordDaily(g, { kind: 'order' }, now);
     let projectMessage = '';
     if (o.kind === 'grand' || o.kind === 'prestige') g.grandOrders++;
     if (o.kind === 'signature') {
@@ -3350,20 +3584,22 @@ export function act(
   if (action === 'mission') {
     const id = String(scalar);
     const goal = GOALS.find((entry) => entry.id === id);
-    if (!goal || g.claimed.includes(id) || goalProgress(g, goal) < goal.target)
+    if (!goal || g.claimed.includes(id) || !goalVisible(g, goal) || goalProgress(g, goal) < goal.target)
       return fail('Cet objectif n’est pas encore terminé.');
+    const reward = goalReward(g, goal);
     g.claimed.push(id);
     g.trackedGoals = g.trackedGoals.filter((entry) => entry !== id);
-    g.coins += goal.reward;
-    g.xp += goal.xp;
+    g.coins += reward.coins;
+    g.xp += reward.xp;
     if (goal.seeds)
       g.seeds[goal.seeds.id] = (g.seeds[goal.seeds.id] || 0) + goal.seeds.amount;
-    message = 'Objectif accompli ! +' + goal.reward + ' pièces · +' + goal.xp + ' XP' +
+    message = 'Objectif accompli ! +' + reward.coins + ' pièces · +' + reward.xp + ' XP' +
       (goal.seeds ? ' · +' + goal.seeds.amount + ' graines de ' + crop(goal.seeds.id).name : '');
   }
   if (action === 'trackGoal') {
     const id = String(scalar);
-    if (!GOALS.some((goal) => goal.id === id) || g.claimed.includes(id))
+    const trackable = GOALS.find((goal) => goal.id === id);
+    if (!trackable || g.claimed.includes(id) || !goalVisible(g, trackable))
       return fail('Cet objectif ne peut pas être suivi.');
     if (g.trackedGoals.includes(id)) {
       g.trackedGoals = g.trackedGoals.filter((entry) => entry !== id);
@@ -3453,14 +3689,13 @@ export function act(
   if (action === 'propagateLineage') {
     const lineage = lineageById(g, Number(payload.lineageId));
     if (!lineage) return fail('Cette lignée n’existe pas.');
-    const seedCost = hasReward(g, 'pepiniere') ? 1 : 2;
-    const coinCost = hasReward(g, 'pepiniere') ? 12 : 20;
+    const { seeds: seedCost, coins: coinCost } = propagationCost(g, lineage.crop);
     if ((g.seeds[lineage.crop] || 0) < seedCost || g.coins < coinCost)
-      return fail(`Il faut ${seedCost} graine${seedCost > 1 ? 's' : ''} classique${seedCost > 1 ? 's' : ''} et ${coinCost} pièces.`);
+      return fail(`Il faut ${seedCost} graines classiques et ${coinCost} pièces.`);
     g.seeds[lineage.crop] -= seedCost;
     g.coins -= coinCost;
-    lineage.seeds += 2;
-    message = `La pépinière multiplie ${lineage.name} : +2 graines · −${coinCost} pièces.`;
+    lineage.seeds += 1;
+    message = `La pépinière multiplie ${lineage.name} : +1 graine · −${seedCost} graines classiques · −${coinCost} pièces.`;
   }
   if (action === 'amendTerroir') {
     const data = AMENDMENTS.find((entry) => entry.terroir === payload.terroir);
@@ -3518,7 +3753,11 @@ export function act(
     if (g.projects.active === project.id)
       return fail('Ce projet est déjà en cours.');
     g.projects.active = project.id;
-    g.projects.progress[project.id] ??= { step: 0, count: 0 };
+    // 0.32.2 : un projet commence à zéro, sans reprendre ce qui a été fait avant lui.
+    if (!g.projects.progress[project.id]) {
+      g.projects.progress[project.id] = { step: 0, count: 0 };
+      (g.projects.evidence ??= {})[project.id] = project.steps.map(() => 0);
+    }
     message = `${project.title} devient votre grand projet. Les progrès des autres projets sont conservés.` + advanceReadyProject(g, now);
   }
   if (action === 'projectFund') {
@@ -3603,6 +3842,10 @@ export function act(
         ? payload.value
           ? 'Animations réduites.'
           : 'Animations rétablies.'
+        : setting === 'notifyReady'
+          ? payload.value
+            ? 'Le jeu vous préviendra quand une récolte sera prête.'
+            : 'Notifications coupées.'
         : setting === 'autoBuySeeds'
           ? payload.value
             ? 'Les graines manquantes seront rachetées au semis.'
@@ -3615,6 +3858,19 @@ export function act(
               ? 'Rosalie se déplace entre les parcelles.'
               : 'Déplacements de Rosalie désactivés.';
   }
+  if (action === 'dailyRead') {
+    // 0.33.0 : la gazette du jour a été lue (elle ne s’ouvre plus d’elle-même aujourd’hui).
+    if (g.daily!.read) return fail('La gazette du jour est déjà lue.');
+    g.daily!.read = true;
+    message = 'Bonne journée à la ferme !';
+  }
+  if (action === 'rain') {
+    // 0.33.0 : le ciel tourne à la pluie pendant la partie.
+    const sky = weatherFor(g, now);
+    const watered = rainWater(g, now);
+    if (!watered) return fail('Rien à arroser pour le moment.');
+    message = `${sky.label} : ${watered} culture${watered > 1 ? 's' : ''} arrosée${watered > 1 ? 's' : ''} par le ciel.`;
+  }
   if (action === 'scene') {
     const scene = payload.scene;
     if (!scene || g.seenScenes.includes(scene))
@@ -3623,6 +3879,8 @@ export function act(
     message = 'Un nouveau souvenir rejoint le carnet.';
   }
   if (!message) return fail('Action inconnue.');
+  // 0.33.0 : sous la pluie, ce qui vient d’être semé est arrosé aussitôt.
+  rainWater(g, now);
   const previousLevel = level(state);
   const currentLevel = level(g);
   const levelUps: { level: number; crop: string | null; system: string }[] = [];
@@ -3721,7 +3979,7 @@ export function restore(raw: string | null, now = Date.now()): Game {
     if (
       !isSupportedSaveVersion(g.version) ||
       !Array.isArray(g.plots) ||
-      g.plots.length < 6 ||
+      g.plots.length < START_PLOTS ||
       !Number.isFinite(g.coins) ||
       !Number.isFinite(g.xp) ||
       !g.seeds ||
@@ -3871,14 +4129,17 @@ export function restore(raw: string | null, now = Date.now()): Game {
       orderReady: Array.isArray(g.orderReady)
         ? g.orderReady.slice(0, 9).map((value: unknown) => typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.floor(value) : 0)
         : [],
+      // 0.33.0 : demandes du jour (absentes avant : de nouvelles sont tirées).
+      daily: normalizeDaily(g.daily, (id) => !!crop(id)),
     };
     // 0.10 : tutoriel. Une partie d’avant n’a pas de leçon pour ce qu’elle connaît déjà.
     restored.tutorial = normalizeTutorial(g.tutorial) ?? settledTutorial(restored);
     const occupied = restored.plots.reduce((last, plot, index) => plot ? index + 1 : last, 0);
-    const tiers = [6, 9, 12, 15, 18].filter(n => n <= maxPlots(restored) && n >= occupied);
-    const nearest = tiers.sort((a, b) => Math.abs(a - restored.plots.length) - Math.abs(b - restored.plots.length) || a - b)[0];
-    if (nearest !== undefined) restored.plots = Array.from({ length: nearest }, (_, i) => restored.plots[i] ?? null);
+    // 0.32.2 : nombre de parcelles gardé tel quel (2 à 20), jamais sous la dernière occupée.
+    const length = Math.min(PLOT_STEPS[PLOT_STEPS.length - 1], Math.max(START_PLOTS, occupied, restored.plots.length));
+    restored.plots = Array.from({ length }, (_, i) => restored.plots[i] ?? null);
     boundTimers(restored, now);
+    ensureDaily(restored, now);
     return restored;
   } catch (cause) {
     throw new Error('Sauvegarde illisible', { cause });

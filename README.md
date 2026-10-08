@@ -1,9 +1,9 @@
-# 🌻 Les Jardins de Rosalie
+# 🌻 Farmicia
 
 **Un jeu de ferme paisible, en pixel art, qui tient dans un onglet.**
-Semez, arrosez, récoltez, cuisinez, et faites rayonner un petit village de Provence — dans l'esprit de *Stardew Valley*, mais en une poignée de minutes à la fois.
+Avec Rosalie, semez, arrosez, récoltez, cuisinez, et faites rayonner un petit village de Provence — dans l'esprit de *Stardew Valley*, mais en une poignée de minutes à la fois.
 
-![Les Jardins de Rosalie](docs/apercu.webp)
+![Farmicia](docs/apercu.webp)
 
 > *« Un petit jardin, de grandes découvertes. »*
 

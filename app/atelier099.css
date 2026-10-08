@@ -2,10 +2,6 @@
    0.9.9 — L’atelier rafraîchi : fourneaux, poulailler, talents et recettes.
    Couleurs des jetons (tokens.css) ; contraste du texte ≥ 4,5:1 sur parchemin.
    ========================================================================== */
-.workshop-panel.atelier {
-  display: grid;
-  gap: 14px;
-}
 .atelier h3 {
   margin: 0;
   color: var(--c-ink);
@@ -304,7 +300,6 @@
 }
 
 /* L’atelier place le geste de cuisiner avant les réglages avancés. */
-.workshop-panel.atelier { gap: 7px; }
 .atelier-collect { min-height: 35px; padding: 0 9px; }
 .stove { min-height: 54px; padding: 4px 8px; grid-template-columns: 32px 1fr; column-gap: 7px; }
 .stove > .pixel-icon { width: 32px; height: 32px; }

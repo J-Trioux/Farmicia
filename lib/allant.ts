@@ -5,12 +5,16 @@
  * allant = BASE × niveau × sentiers × habitude × second souffle, plafonné.
  * Les vitesses sont en pixels de la grille de la carte (1 200 × 800) par seconde (0.12).
  */
-import { buffActive, gestureMs, level, type BulkKind, type Game } from './game.ts';
+import { buffActive, gestureMs, level, upgradeTier, type BulkKind, type Game } from './game.ts';
 import { approach, route, routeTimeline, type Point } from './farm-controls.ts';
 import { POTAGER, WORLD_W } from './world.ts';
 
-/** Niveau 1, sans rien : 120 px/s, soit 10 % de la largeur de la grande carte par seconde. */
-export const ALLANT_BASE = 120;
+/**
+ * Niveau 1, sans rien : 75 px/s, soit environ 6 % de la largeur de la grande carte
+ * par seconde (0.32.2 : 120 avant, Rosalie courait). Elle gagne ensuite en allant
+ * avec le niveau, les sentiers, l’habitude et le Second souffle (×2,3 au plus).
+ */
+export const ALLANT_BASE = 75;
 /** 0.10 : +2,1 % par niveau : ×1,5 au niveau 25 (comme au niveau 12 avant). */
 export const ALLANT_PER_LEVEL = 0.5 / 24;
 export const ALLANT_PATHS = 1.15;
@@ -45,9 +49,14 @@ export function allant(g: Game, now?: number) {
   return Math.min(ALLANT_MAX, speed);
 }
 
-/** Un trajet ne dépasse jamais cette durée : au-delà, Rosalie presse le pas. */
-export function allantMaxSeconds(speed: number) {
-  return (1.5 * ALLANT_BASE) / speed;
+/**
+ * 0.32.2 : plus de plafond de durée. Avant, un trajet ne dépassait jamais
+ * 1,5 s : quand Rosalie était loin de la parcelle cliquée, elle filait à
+ * plusieurs fois sa vitesse pour arriver à temps. Elle marche maintenant
+ * toujours à son allant, quelle que soit la distance.
+ */
+export function allantMaxSeconds(_speed: number) {
+  return Infinity;
 }
 /**
  * 0.12 : les courses hors du potager (atelier, poulailler, verger, fête)
@@ -55,6 +64,19 @@ export function allantMaxSeconds(speed: number) {
  * marche au lieu de filer. Les trajets dans le potager ne changent pas.
  */
 export const ERRAND_MAX_FACTOR = 2;
+
+/**
+ * 0.32.3 : l’élan des tournées. Pendant « tout récolter », « tout arroser » ou
+ * « tout semer », Rosalie enchaîne les parcelles d’un pas plus vif : +20 %, puis
+ * +6 % par palier de l’outil de la tournée (outils, arrosoir, semis en série),
+ * soit +50 % au palier 5. Les clics un par un gardent son allant normal.
+ */
+export const ELAN_BASE = 1.2;
+export const ELAN_PER_TIER = 0.06;
+const ELAN_TOOL: Record<BulkKind, 'tools' | 'watering-can' | 'auto'> = { harvest: 'tools', water: 'watering-can', sow: 'auto' };
+export function bulkElan(g: Game, kind: BulkKind) {
+  return ELAN_BASE + ELAN_PER_TIER * upgradeTier(g, ELAN_TOOL[kind]);
+}
 
 /** Durée d’un pas (une image de marche), liée à la vitesse : les pieds suivent le sol. */
 export function stepSeconds(speed: number) {
@@ -72,9 +94,9 @@ export const gardenCrossing = (speed: number) =>
  * 0.9.9 : durée d’un trajet de Rosalie (points en % de la carte, départ compris),
  * à son Allant du moment. Même calcul que la marche affichée sur la carte.
  */
-export function travelSeconds(g: Game, points: Point[], now?: number, errand = false) {
+export function travelSeconds(g: Game, points: Point[], now?: number, errand = false, boost = 1) {
   if (points.length < 2) return 0;
-  const speed = allant(g, now);
+  const speed = allant(g, now) * boost;
   return routeTimeline(points, speed, allantMaxSeconds(speed) * (errand ? ERRAND_MAX_FACTOR : 1)).duration;
 }
 const GESTURE_OF: Record<BulkKind, 'plant' | 'water' | 'harvest'> = { sow: 'plant', water: 'water', harvest: 'harvest' };
@@ -87,7 +109,7 @@ export function bulkSeconds(g: Game, kind: BulkKind, targets: number[], from: Po
   let total = 0;
   for (const index of targets) {
     const to = approach(index, GESTURE_OF[kind]);
-    total += travelSeconds(g, [position, ...route(position, to)], now) + gestureMs(g, kind) / 1000;
+    total += travelSeconds(g, [position, ...route(position, to)], now, false, bulkElan(g, kind)) + gestureMs(g, kind) / 1000;
     position = to;
   }
   return total;

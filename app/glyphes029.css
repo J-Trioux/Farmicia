@@ -1,0 +1,19 @@
+/* 0.29 — Glyphes d’interface en pixels : masques 16 × 16 colorés par le texte. */
+.glyph {
+  display: inline-block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  vertical-align: -3px;
+  background-color: currentColor;
+  -webkit-mask: var(--glyph) center / 16px 16px no-repeat;
+  mask: var(--glyph) center / 16px 16px no-repeat;
+}
+
+/* Petites icônes 3.0 dans le texte (cadenas, horloge, étoile, cloche). */
+:is(body, .carnet) .pixel-icon.inline-icon {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  vertical-align: -4px;
+}

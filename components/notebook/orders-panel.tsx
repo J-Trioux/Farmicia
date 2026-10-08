@@ -1,10 +1,40 @@
 'use client';
-/** Extrait de app/page.tsx (0.11.1), à comportement identique. */
+/**
+ * 0.25 — Page Commandes du carnet (maquette 02-commandes de ChatGPT).
+ *
+ * Bandeau du marché ; onglets Récoltes, Paniers, Cuisine ; à gauche les offres
+ * (paginées), à droite l’offre choisie : produits demandés (possédés/requis),
+ * récompenses, état et l’action « Livrer cette offre ». En bas de la fiche, le
+ * coup de cœur du marché. Mêmes offres, mêmes règles qu’avant (lib/game) ;
+ * une qualité supérieure n’est jamais livrée sans confirmation.
+ */
+import { useState } from 'react';
 import { frenchText } from '@/lib/typography';
 import { type AskConfirm } from '@/components/game-confirm';
-import { PixelIcon } from '@/components/farm/sprites';
-import { CROPS, buffActive, duration, itemLabel, marketEvent, nextMarketEvent, orderBoard, orderAvailable, orderReadyAt, orderReward, planMenu, satisfiesQuality, dishCourse, outcomeRank, dishParts, projectStatus, type MenuLine, type ActionArgument, type Game } from '@/lib/game';
+import { CarnetBanner, CarnetPager, CarnetRewards, CarnetTabs } from '@/components/notebook/carnet';
+import { CarnetIcon as PixelIcon } from '@/components/notebook/carnet-icon';
+import { CarnetPortrait as VillagerPortrait } from '@/components/notebook/carnet-portrait';
+import { CROPS, VILLAGERS, buffActive, duration, itemLabel, marketEvent, nextMarketEvent, orderBoard, orderAvailable, orderReadyAt, orderReward, planMenu, satisfiesQuality, dishCourse, outcomeRank, dishParts, projectStatus, type MenuLine, type ActionArgument, type Game, type OrderKind } from '@/lib/game';
 import { useGameClock } from '@/hooks/use-game-clock';
+import { Glyph } from '@/components/glyph';
+
+const PER_PAGE = 4;
+const CATEGORIES = [
+  { id: 'harvest', label: 'Récoltes', icon: 'cagette', kinds: ['simple', 'personal', 'signature'] },
+  { id: 'baskets', label: 'Paniers', icon: 'marche', kinds: ['market'] },
+  { id: 'kitchen', label: 'Cuisine', icon: 'casserole', kinds: ['dish', 'baker', 'grand', 'prestige'] },
+] as const;
+type Category = (typeof CATEGORIES)[number]['id'];
+const KIND_LABEL: Record<OrderKind, string> = {
+  personal: 'Pour un voisin',
+  simple: 'Récoltes',
+  dish: 'Cuisine',
+  baker: 'Cuisine',
+  grand: 'Grand contrat',
+  prestige: 'Grand contrat',
+  signature: 'Spécialité du village',
+  market: 'Panier assorti',
+};
 
 function ownedForLine(game: Game, line: MenuLine) {
   if (line.kind === 'item')
@@ -35,6 +65,18 @@ function orderLineName(game: Game, line: MenuLine) {
     : line.course === 'plat' ? 'Plat cuisiné' : 'Dessert cuisiné';
   return line.each && line.each > 1 ? `Cultures différentes · ${line.each} de chaque` : 'Cultures différentes';
 }
+function lineIcon(line: MenuLine) {
+  if (line.kind === 'item') return line.item.split('|')[0];
+  if (line.kind === 'course') return line.course === 'entree' ? 'sauce' : line.course === 'plat' ? 'pain' : 'tarte';
+  return 'cagette';
+}
+/** Portrait du demandeur : le voisin nommé dans l’offre (« Marcel, le maraîcher »). */
+function personIndex(person: string, villagerId?: string) {
+  const name = person.split(',')[0].trim();
+  const index = VILLAGERS.findIndex((v) => v.id === villagerId || v.name === name);
+  return index >= 0 ? index + 1 : 0;
+}
+
 export function OrdersPanel({
   game, now: snapshotNow, dispatch, askConfirm,
 }: {
@@ -44,90 +86,171 @@ export function OrdersPanel({
   askConfirm: AskConfirm;
 }) {
   const now = useGameClock() || snapshotNow;
-  const offers = orderBoard(game);
+  const offers = orderBoard(game).map((request) => {
+    const plan = planMenu(game.stock, request.lines);
+    const waiting = !orderAvailable(game, request.slot, now);
+    return { request, plan, waiting, ready: plan.possible && !waiting };
+  });
+  const inCategory = (id: Category) => offers.filter((offer) => (CATEGORIES.find((c) => c.id === id)!.kinds as readonly string[]).includes(offer.request.kind));
+  const firstReady = CATEGORIES.find((c) => inCategory(c.id).some((offer) => offer.ready))?.id;
+  const [category, setCategory] = useState<Category | null>(null);
+  const shownCategory: Category = category && inCategory(category).length ? category : firstReady || CATEGORIES.find((c) => inCategory(c.id).length)?.id || 'harvest';
+  const [chosen, setChosen] = useState<number | null>(null);
+  const [pageIndex, setPageIndex] = useState<Record<string, number>>({});
+  const list = inCategory(shownCategory).sort((a, b) => Number(b.ready) - Number(a.ready) || a.request.slot - b.request.slot);
+  const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+  const page = Math.min(pageIndex[shownCategory] || 0, pages - 1);
+  const selected = list.find((offer) => offer.request.slot === chosen) || list[0];
   const event = marketEvent(game, now);
   const next = nextMarketEvent(game, now);
   const intuition = buffActive(game, 'intuition', now);
   const project = projectStatus(game);
+
   return (
-    <section className="village-board" aria-label="Panneau des commandes du village">
-      <header className="village-board-heading">
-        <span className="board-pin" aria-hidden="true">✦</span>
-        <div>
-          <small>Place du village</small>
-          <h3>Le panneau des commandes</h3>
-          <p>{offers.length} offre{offers.length > 1 ? 's' : ''} sans échéance. Après une livraison, chaque place propose une nouvelle offre un peu plus tard.</p>
+    <div className="carnet-stack orders-page">
+      <CarnetBanner id="commandes" />
+      <CarnetTabs<Category>
+        label="Familles de commandes"
+        value={shownCategory}
+        onChange={(id) => {
+          setCategory(id);
+          setChosen(null);
+        }}
+        items={CATEGORIES.map((c) => ({
+          id: c.id,
+          label: c.label,
+          icon: c.icon,
+          count: inCategory(c.id).filter((offer) => offer.ready).length,
+          hidden: !inCategory(c.id).length,
+        }))}
+      />
+      <div className="carnet-split">
+        <div className="carnet-list-column">
+          <ul className="carnet-list" aria-label="Offres du village">
+            {list.slice(page * PER_PAGE, (page + 1) * PER_PAGE).map(({ request, ready, waiting }) => (
+              <li key={request.slot}>
+                <button
+                  type="button"
+                  className="carnet-row order-row"
+                  data-state={ready ? 'ready' : waiting ? 'waiting' : 'missing'}
+                  aria-pressed={selected?.request.slot === request.slot}
+                  onClick={() => setChosen(request.slot)}
+                >
+                  <span className="carnet-row-art carnet-row-portrait" aria-hidden="true">
+                    <VillagerPortrait index={personIndex(request.person, request.villagerId)} />
+                  </span>
+                  <span className="carnet-row-label">
+                    <b>{request.title}</b>
+                    <small>{request.person}</small>
+                  </span>
+                  {ready ? (
+                    <span className="carnet-chip" data-tone="ok">Prête</span>
+                  ) : waiting ? (
+                    <span className="carnet-chip" data-tone="muted">
+                      <PixelIcon id="horloge" className="inline-icon" /> {duration(Math.ceil((orderReadyAt(game, request.slot) - now) / 1000))}
+                    </span>
+                  ) : (
+                    <span className="carnet-chip" data-tone="warn">À compléter</span>
+                  )}
+                </button>
+              </li>
+            ))}
+            {!list.length && <li className="carnet-list-empty">Aucune offre dans cette famille pour l’instant.</li>}
+          </ul>
+          <CarnetPager page={page} pages={pages} label="Pages des offres" onPage={(n) => setPageIndex({ ...pageIndex, [shownCategory]: n })} />
+            <p className="carnet-band carnet-band-info orders-market">
+              <PixelIcon id="marche" />
+              <span>
+                <b>Coup de cœur du marché : {event.label}</b>
+                <small>
+                  +{Math.round(event.bonus * 100)}{' '}% à la vente · encore {duration((event.end - now) / 1000)}
+                  {intuition ? ` · ensuite : ${next.label}` : ''}
+                </small>
+              </span>
+            </p>
         </div>
-      </header>
-      <div className="village-offers">
-        {offers.map((request) => {
-          const plan = planMenu(game.stock, request.lines);
+        {selected && (() => {
+          const { request, plan, waiting } = selected;
           const reward = plan.possible ? orderReward(game, request, plan, now) : request.reward;
           const steps = request.lines.map((line) => ownedForLine(game, line));
-          // 0.11 : après une livraison, la place attend un peu avant l’offre suivante.
-          const waiting = !orderAvailable(game, request.slot, now);
           const wait = waiting ? duration(Math.ceil((orderReadyAt(game, request.slot) - now) / 1000)) : '';
+          const helpsProject = project?.step.kind === 'deliver' &&
+            request.lines.some((line) => line.kind === 'item' && project.step.kind === 'deliver' &&
+              project.step.lines.some((needed) => needed.kind === 'item' && needed.item.split('|')[0] === line.item.split('|')[0]));
           return (
-            <article className={'village-offer offer-' + request.kind + (waiting ? ' offer-waiting' : '')} key={request.slot}>
-              <header>
-                <span className="offer-number">N° {request.slot + 1}</span>
+            <article className="carnet-detail order-detail" aria-labelledby={`order-${request.slot}`}>
+              <header className="carnet-detail-head">
+                <span className="carnet-detail-art carnet-detail-portrait" aria-hidden="true">
+                  <VillagerPortrait index={personIndex(request.person, request.villagerId)} />
+                </span>
                 <div>
-                  <small>{request.kind === 'personal' ? 'Pour un voisin' : request.kind === 'simple' ? 'Récoltes'
-                    : request.kind === 'dish' || request.kind === 'baker' ? 'Cuisine'
-                    : request.kind === 'grand' || request.kind === 'prestige' ? 'Grand contrat'
-                    : request.kind === 'signature' ? 'Spécialité du village'
-                    : 'Panier assorti'}</small>
-                  <h4>{request.title}</h4>
-                  <p>{request.person}</p>
+                  <h4 id={`order-${request.slot}`}>{request.title}</h4>
+                  <p className="carnet-detail-sub">{KIND_LABEL[request.kind]} · {request.person}</p>
                 </div>
-                <PixelIcon id={request.crop} />
               </header>
-              <ul className="offer-lines">
-                {request.lines.map((line, index) => (
-                  <li key={index} data-ready={steps[index].owned >= steps[index].required || undefined}>
-                    <span>{orderLineName(game, line)}</span>
-                    <b>{steps[index].owned} / {steps[index].required}</b>
-                    {line.kind === 'item' && line.item.includes('|') &&
-                      <small>Qualité minimale : {line.item.split('|')[1]}</small>}
-                  </li>
-                ))}
+              <h5 className="carnet-rule">Produits demandés</h5>
+              <ul className="carnet-needs">
+                {request.lines.map((line, index) => {
+                  const ok = steps[index].owned >= steps[index].required;
+                  return (
+                    <li key={index} data-ready={ok || undefined}>
+                      <PixelIcon id={lineIcon(line)} />
+                      <span>
+                        {orderLineName(game, line)}
+                        {line.kind === 'item' && line.item.includes('|') && <small> · qualité minimale : {line.item.split('|')[1]}</small>}
+                      </span>
+                      <b>
+                        {steps[index].owned}
+                        {' '}/{' '}
+                        {steps[index].required}
+                      </b>
+                      {ok && <Glyph id="coche" label="réuni" />}
+                    </li>
+                  );
+                })}
               </ul>
-              <p className="offer-reward"><b>{reward} pièces</b><span>+{request.xp} XP{request.villagerId ? ' · +amitié' : ''}{request.kind === 'signature' ? ' · projet' : ''}</span></p>
-              {request.note && <p className="offer-note">{request.note}</p>}
-              {waiting && <output className="offer-wait">{frenchText(`${request.person.split(',')[0]} prépare cette commande : prête dans ${wait}.`)}</output>}
-              {project?.step.kind === 'deliver' &&
-                request.lines.some((line) => line.kind === 'item' &&
-                  project.step.kind === 'deliver' &&
-                  project.step.lines.some((needed) => needed.kind === 'item' &&
-                    needed.item.split('|')[0] === line.item.split('|')[0])) &&
-                <small className="offer-project-note">Produit utile au projet actif</small>}
-              <button
-                disabled={!plan.possible || waiting}
-                onClick={() => {
-                  const submit = () => dispatch('order', { slot: request.slot, confirmSuperior: plan.usesSuperior });
-                  if (plan.usesSuperior) askConfirm({
-                    title: 'Livrer une qualité supérieure ?',
-                    description: 'Cette offre accepte une qualité plus simple. Vérifiez les produits choisis avant de confirmer.',
-                    items: Object.entries(plan.used).map(([id, amount]) => `${amount} × ${itemLabel(game, id)}`),
-                    confirmLabel: 'Livrer cette offre',
-                  }, submit);
-                  else submit();
-                }}
-              >
-                {waiting ? 'Prête dans ' + wait : plan.possible ? 'Livrer cette offre' : 'À compléter'}
-              </button>
+              <h5 className="carnet-rule">Récompenses</h5>
+              <CarnetRewards
+                coins={reward}
+                xp={request.xp}
+                extra={[
+                  ...(request.villagerId ? [{ icon: 'lettre', label: '+ amitié' }] : []),
+                  ...(request.kind === 'signature' ? [{ icon: 'plan', label: 'Projet' }] : []),
+                ]}
+              />
+              {request.note && <p className="carnet-note">{request.note}</p>}
+              {helpsProject && <p className="carnet-note carnet-note-ok">Produit utile au projet en cours.</p>}
+              <p className="carnet-status" data-tone={waiting ? 'muted' : plan.possible ? 'ok' : 'warn'} aria-live="polite">
+                {waiting
+                  ? frenchText(`${request.person.split(',')[0]} prépare cette commande : prête dans ${wait}.`)
+                  : plan.possible
+                    ? 'Cette commande est prête.'
+                    : 'Encore quelques produits à réunir dans le panier.'}
+              </p>
+              <div className="carnet-detail-actions">
+                <button
+                  type="button"
+                  className="carnet-primary order-deliver"
+                  disabled={!plan.possible || waiting}
+                  onClick={() => {
+                    const submit = () => dispatch('order', { slot: request.slot, confirmSuperior: plan.usesSuperior });
+                    if (plan.usesSuperior) askConfirm({
+                      title: 'Livrer une qualité supérieure ?',
+                      description: 'Cette offre accepte une qualité plus simple. Vérifiez les produits choisis avant de confirmer.',
+                      items: Object.entries(plan.used).map(([id, amount]) => `${amount} × ${itemLabel(game, id)}`),
+                      confirmLabel: 'Livrer cette offre',
+                    }, submit);
+                    else submit();
+                  }}
+                >
+                  <PixelIcon id="cagette" />
+                  {waiting ? 'Prête dans ' + wait : plan.possible ? 'Livrer cette offre' : 'À compléter'}
+                </button>
+              </div>
             </article>
           );
-        })}
+        })()}
       </div>
-      <aside className="village-market-note">
-        <PixelIcon id="soleil" />
-        <div>
-          <b>Coup de cœur : {event.label}</b>
-          <span>+{Math.round(event.bonus * 100)} % à la vente · encore {duration((event.end - now) / 1000)}</span>
-          {intuition && <small>Ensuite : {next.label}</small>}
-        </div>
-      </aside>
-    </section>
+    </div>
   );
 }

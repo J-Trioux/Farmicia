@@ -49,7 +49,7 @@ const minLevel = (items: readonly { level: number }[]) =>
 
 /** Les quatre chapitres du carnet et leurs pages, dans l’ordre du dos. */
 export const NOTEBOOK_CHAPTERS: {
-  id: string;
+  id: 'village' | 'farm' | 'kitchen' | 'memories';
   label: string;
   pages: Omit<NotebookPage, 'chapter'>[];
 }[] = [
@@ -60,7 +60,7 @@ export const NOTEBOOK_CHAPTERS: {
       {
         value: 'projects',
         label: 'Projets',
-        icon: 'quality',
+        icon: 'plan',
         tagline: 'Le grand chantier du village, à votre rythme.',
         level: minLevel(PROJECTS),
         announce: 'Le village lance son premier projet',
@@ -69,7 +69,7 @@ export const NOTEBOOK_CHAPTERS: {
       {
         value: 'orders',
         label: 'Commandes',
-        icon: 'basket',
+        icon: 'commande',
         tagline: 'Ce que le village vous demande aujourd’hui.',
         level: 1,
         announce: 'Le village passe ses premières commandes',
@@ -78,7 +78,7 @@ export const NOTEBOOK_CHAPTERS: {
       {
         value: 'festival',
         label: 'Foires',
-        icon: 'tarte',
+        icon: 'rosette',
         tagline: 'Présentez vos récoltes, puis vos meilleurs plats au jury.',
         level: SEED_FIND_LEVEL,
         announce: 'La première foire s’installe sur la place',
@@ -96,7 +96,7 @@ export const NOTEBOOK_CHAPTERS: {
       {
         value: 'friends',
         label: 'Villageois',
-        icon: 'infusion',
+        icon: 'lettre',
         tagline: 'Amitiés, cadeaux et quêtes des habitants.',
         level: minLevel(LINKS),
         announce: 'Les villageois viennent se présenter',
@@ -111,7 +111,7 @@ export const NOTEBOOK_CHAPTERS: {
       {
         value: 'upgrades',
         label: 'Améliorer',
-        icon: 'tools',
+        icon: 'etabli',
         tagline: 'Aménagez la ferme et gagnez du temps.',
         level: 1,
         announce: 'Les premiers aménagements de la ferme',
@@ -120,7 +120,7 @@ export const NOTEBOOK_CHAPTERS: {
       {
         value: 'mastery',
         label: 'Maîtrise',
-        icon: 'seeds',
+        icon: 'loupe',
         tagline: 'Chaque culture a ses secrets.',
         level: 1,
         announce: 'Chaque culture a ses secrets',
@@ -153,7 +153,7 @@ export const NOTEBOOK_CHAPTERS: {
       {
         value: 'recipes',
         label: 'Atelier',
-        icon: 'pain',
+        icon: 'casserole',
         tagline: 'Recettes, poulailler et talents de cuisinière.',
         level: minLevel(RECIPES),
         announce: 'L’atelier ouvre ses fourneaux',
@@ -168,7 +168,7 @@ export const NOTEBOOK_CHAPTERS: {
       {
         value: 'goals',
         label: 'Objectifs',
-        icon: 'coin',
+        icon: 'planchette',
         tagline: 'Petits défis et récompenses à réclamer.',
         level: 1,
         announce: 'Petits défis et récompenses',

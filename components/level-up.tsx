@@ -9,6 +9,7 @@ import {
 import { PixelIcon } from '@/components/farm/sprites';
 import { crop } from '@/lib/game';
 import { levelFocus } from '@/lib/farm-ui';
+import { levelIconCards } from '@/lib/level-icons';
 
 export type LevelUpInfo = {
   level: number;
@@ -53,13 +54,9 @@ export function LevelUpScene({
               },
             ]
           : []),
-        ...info.system
-          .split(' · ')
-          .filter(Boolean)
-          .slice(0, info.crop ? 3 : 4)
-          .map((text) => ({
-            icon: iconFor(text),
-            title: text,
+        ...levelIconCards(info.system)
+          .map((card) => ({
+            ...card,
             text: 'Débloqué',
           })),
       ]
@@ -106,7 +103,7 @@ export function LevelUpScene({
                   <PixelIcon id="quality" />
                 </div>
                 <div className="levelup-card-front">
-                  <PixelIcon id={card.icon} />
+                  {card.icon && <PixelIcon id={card.icon} />}
                   <b>{card.title}</b>
                   <small>{card.text}</small>
                 </div>
@@ -127,24 +124,4 @@ export function LevelUpScene({
       </DialogContent>
     </Dialog>
   );
-}
-
-function iconFor(text: string) {
-  const t = text.toLowerCase();
-  if (t.includes('atelier')) return 'workshop';
-  if (t.includes('poulailler')) return 'coop';
-  if (t.includes('irrigation')) return 'water';
-  if (t.includes('arrosoir')) return 'watering-can';
-  if (t.includes('outils')) return 'tools';
-  if (t.includes('semis')) return 'auto';
-  if (t.includes('extension') || t.includes('jardin')) return 'expand';
-  if (t.includes('pain')) return 'pain';
-  if (t.includes('sauce')) return 'sauce';
-  if (t.includes('confiture')) return 'confiture';
-  if (t.includes('ratatouille')) return 'ratatouille';
-  if (t.includes('brioche')) return 'brioche';
-  if (t.includes('tarte')) return 'tarte';
-  if (t.includes('infusion')) return 'infusion';
-  if (t.includes('marché') || t.includes('panier')) return 'basket';
-  return 'quality';
 }

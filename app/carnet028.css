@@ -1,0 +1,225 @@
+/* ==========================================================================
+   0.28 — Finitions du carnet : la reliure, le papier, les ornements et les
+   boutons prennent le relief des maquettes, sans toucher aux mesures du
+   gabarit (aucune hauteur de rangée ni marge de page ne change).
+   Ornements dessinés en pixels : public/assets/pixel/carnet-1.3/
+   (scripts/preparer-carnet-ornements.py).
+   ========================================================================== */
+
+/* ---------- Coins de laiton : les quatre coins, comme sur les maquettes ----------
+   Celui du bas à gauche est plus petit : il ne couvre pas les raccourcis. */
+.carnet::before {
+  inset: -4px;
+  width: auto;
+  height: auto;
+  background:
+    linear-gradient(135deg, #f3d77a 0 45%, var(--c-brass) 45% 60%, transparent 60%) left top / 34px 34px,
+    linear-gradient(225deg, #f3d77a 0 45%, var(--c-brass) 45% 60%, transparent 60%) right top / 34px 34px,
+    linear-gradient(315deg, #f3d77a 0 45%, var(--c-brass) 45% 60%, transparent 60%) right bottom / 34px 34px,
+    linear-gradient(45deg, #f3d77a 0 45%, var(--c-brass) 45% 60%, transparent 60%) left bottom / 26px 26px;
+  background-repeat: no-repeat;
+}
+.carnet::after {
+  content: none;
+}
+
+/* ---------- La page : filet intérieur et ombre de la pliure ---------- */
+.carnet-page {
+  box-shadow:
+    inset 18px 0 16px -14px #17301f47,
+    inset 0 0 0 7px var(--c-paper),
+    inset 0 0 0 9px #d5ddc8;
+}
+/* Anneaux de laiton à cheval sur la pliure : un pied dans la couverture,
+   l’autre dans la page. Cinq anneaux, aux places des anciens. */
+.carnet-page::before {
+  left: -11px;
+  width: 48px;
+  background:
+    url('/assets/pixel/carnet-1.3/anneau.svg') center 10% / 48px 24px no-repeat,
+    url('/assets/pixel/carnet-1.3/anneau.svg') center 30% / 48px 24px no-repeat,
+    url('/assets/pixel/carnet-1.3/anneau.svg') center 50% / 48px 24px no-repeat,
+    url('/assets/pixel/carnet-1.3/anneau.svg') center 70% / 48px 24px no-repeat,
+    url('/assets/pixel/carnet-1.3/anneau.svg') center 90% / 48px 24px no-repeat;
+  filter: drop-shadow(0 2px 0 #0f1f1559);
+}
+/* Brin de feuillage dans l’angle de la couverture, à droite du titre
+   (comme la lavande des maquettes). */
+.carnet-cover {
+  position: relative;
+}
+.carnet-cover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 52px;
+  height: 52px;
+  pointer-events: none;
+  background: url('/assets/pixel/carnet-1.3/brin.svg') center / contain no-repeat;
+}
+/* Le petit rameau de l’en-tête (0.27, ChatGPT) cède la place au brin d’angle :
+   il tombait sous la saison du Sommaire. Celui de la reliure reste. */
+.carnet-head::after {
+  content: none;
+}
+
+/* ---------- Titres : encre plus franche, léger relief d’impression ---------- */
+.carnet-head h3 {
+  color: #263022;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 0 #dde3d2;
+}
+.carnet-medal {
+  box-shadow:
+    inset 0 0 0 3px var(--c-white),
+    inset 0 0 0 5px #e4e9da,
+    0 3px 0 var(--c-line-strong);
+}
+.carnet-cover-title b {
+  letter-spacing: 0.01em;
+}
+
+/* ---------- Boutons : biseau en trois tons (clair en haut, sombre en bas) ---------- */
+.carnet-primary {
+  border-radius: 6px;
+  box-shadow:
+    inset 0 3px 0 #8cb663,
+    inset 0 -3px 0 #44702f,
+    0 4px 0 #23431a;
+}
+.carnet-primary:not(:disabled):active {
+  box-shadow:
+    inset 0 3px 0 #44702f,
+    0 1px 0 #23431a;
+}
+.carnet-action {
+  border-radius: 5px;
+  box-shadow:
+    inset 0 2px 0 #8cb663,
+    inset 0 -2px 0 #44702f,
+    0 3px 0 var(--c-action-dark);
+}
+.carnet-action:disabled,
+.carnet-primary:disabled {
+  box-shadow: inset 0 2px 0 #eef0e8;
+}
+.carnet-secondary {
+  border-radius: 6px;
+  box-shadow:
+    inset 0 2px 0 var(--c-white),
+    inset 0 -3px 0 #e3e9d8,
+    0 4px 0 var(--c-action-dark);
+}
+.carnet-tab {
+  border-radius: 5px;
+  box-shadow:
+    inset 0 2px 0 var(--c-white),
+    inset 0 -2px 0 #eceee4,
+    0 3px 0 var(--c-line-strong);
+}
+.carnet-tab[aria-pressed='true'] {
+  box-shadow:
+    inset 0 2px 0 #8cb663,
+    inset 0 -2px 0 #44702f,
+    0 3px 0 var(--c-action-dark);
+}
+.carnet-pager button {
+  border-radius: 5px;
+  box-shadow:
+    inset 0 2px 0 var(--c-white),
+    0 2px 0 var(--c-line-strong);
+}
+.carnet-banner-choices button[aria-pressed='true'] {
+  box-shadow:
+    inset 0 2px 0 #8cb663,
+    inset 0 -2px 0 #44702f,
+    0 3px 0 #0003;
+}
+.carnet-chapter-head {
+  box-shadow:
+    inset 0 2px 0 #4f8063,
+    inset 0 -2px 0 #24463a,
+    0 3px 0 var(--c-spine-dark);
+}
+.carnet-chapter[data-open] .carnet-chapter-head {
+  box-shadow:
+    inset 0 0 0 2px var(--c-brass),
+    inset 0 4px 0 var(--c-white),
+    0 3px 0 var(--c-spine-dark);
+}
+.carnet-shortcut {
+  box-shadow:
+    inset 0 2px 0 #46745a,
+    0 3px 0 var(--c-spine-dark);
+}
+
+/* ---------- Cartes et rangées : bord supérieur éclairé ---------- */
+.carnet-card,
+.carnet-detail {
+  box-shadow:
+    inset 0 2px 0 var(--c-white),
+    0 2px 0 var(--c-line);
+}
+.carnet-row {
+  box-shadow:
+    inset 0 2px 0 var(--c-white),
+    0 2px 0 var(--c-line);
+}
+.carnet-row[aria-pressed='true'] {
+  box-shadow:
+    inset 0 0 0 2px #ffffffaa,
+    inset 4px 0 0 var(--c-olive),
+    0 2px 0 var(--c-olive);
+}
+
+/* ---------- Grands écrans : illustrations des fiches plus grandes ---------- */
+@media (min-height: 861px) {
+  .carnet-detail-head {
+    grid-template-columns: 116px minmax(0, 1fr);
+  }
+  .carnet-detail-art {
+    --icon: 96px;
+    width: 116px;
+    height: 116px;
+  }
+}
+
+/* ---------- Écrans bas : les ornements se font plus discrets ---------- */
+@media (max-height: 820px) {
+  .carnet-cover::after {
+    width: 36px;
+    height: 36px;
+  }
+}
+@media (max-width: 900px) {
+  .carnet-cover::after {
+    display: none;
+  }
+}
+
+/* ---------- Foires : la grille des produits suit l’en-tête de colonne ----------
+   (la colonne réservait la place libre à l’en-tête, d’où un vide au milieu). */
+.carnet-list-column:has(> .carnet-column-head) {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+/* ---------- Foires : le détail de la note tient sur les écrans étroits ----------
+   (à 1 280 px, les jauges débordaient sur « 0 / 46 »). */
+.carnet-score-parts .carnet-segments {
+  min-width: 0;
+}
+@media (max-width: 1400px) {
+  .carnet-score-parts div {
+    grid-template-columns: 70px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .carnet-score-parts dd {
+    grid-template-columns: minmax(0, 1fr) 44px;
+    gap: 6px;
+  }
+  /* Les anneaux restent dans la marge de la page. */
+  .carnet-page::before {
+    left: -18px;
+  }
+}

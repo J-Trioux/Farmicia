@@ -1,11 +1,4 @@
 /* Build 0.5.0 — grands projets, menus composés, effets des plats. */
-
-.projects-panel {
-  display: grid;
-  gap: 18px;
-  padding: 14px 4px;
-  color: #3c2d1f;
-}
 .project-intro {
   padding: 14px 16px;
   background: #fff6d5;
@@ -189,40 +182,6 @@
 }
 
 /* Menus composés */
-.menu-lines {
-  display: grid;
-  gap: 6px;
-  margin: 14px 0;
-  padding: 0;
-  list-style: none;
-}
-.menu-lines li {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 8px 10px;
-  background: #f2e6ba;
-  border: 2px dashed #9d7a44;
-}
-.menu-lines li[data-ready] {
-  background: #e3efcb;
-  border-style: solid;
-  border-color: #8fb163;
-}
-.menu-lines li > div {
-  flex: 1;
-  min-width: 0;
-}
-.menu-lines small {
-  display: block;
-  margin-top: 2px;
-  font-size: 12px;
-  color: #65553f;
-}
-.menu-lines li > span:last-child {
-  font-weight: 800;
-  color: #4c7a2f;
-}
 
 /* Panier : utilisations et actions secondaires */
 .item-uses {
@@ -320,34 +279,10 @@
 }
 
 /* Carnet : vitrine, effets, fête */
-.collection-heading {
-  margin: 18px 0 8px;
-  font-size: 15px;
-  font-weight: 800;
-}
-.collection-grid article[data-empty] {
-  opacity: 0.6;
-}
-.collection-exceptional {
-  color: #9a4b2d !important;
-  font-weight: 700;
-}
 .recipe-effect {
   display: block;
   margin-top: 4px;
   color: #8a4b24;
-}
-.festival-tab {
-  padding: 12px 4px;
-}
-.festival-project-hint {
-  max-width: 920px;
-  margin: 0 auto 10px;
-  padding: 8px 12px;
-  color: #fff8dc;
-  background: #9a4b2d;
-  font-size: 13px;
-  font-weight: 700;
 }
 
 @media (max-width: 720px) {

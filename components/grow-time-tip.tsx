@@ -3,6 +3,7 @@
 import { useId, type ReactNode } from 'react';
 import { growTimeTooltip } from '@/lib/farm-ui';
 import type { Game } from '@/lib/game';
+import { PixelIcon } from '@/components/farm/sprites';
 
 /**
  * Temps de pousse avec le détail des modificateurs. L’info-bulle s’affiche au
@@ -24,6 +25,7 @@ export function GrowTimeTip({
   return (
     <span className="grow-time">
       <button type="button" className="grow-time-trigger" aria-describedby={id}>
+        <PixelIcon id="sablier" />
         {children}
         <span className="grow-time-info" aria-hidden="true">
           i

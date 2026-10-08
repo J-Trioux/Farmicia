@@ -1,0 +1,84 @@
+/* ==========================================================================
+   0.32 — Rosalie dans la reliure, et la bulle de ses conseils aux couleurs
+   du carnet (écriteau de bois cérusé, boutons du carnet). Images HD sans
+   compression (règle de l’auteur).
+   ========================================================================== */
+
+/* ---------- Rosalie dans la place libre de la reliure ---------- */
+.carnet-chapters {
+  flex: 0 1 auto;
+}
+.carnet-spine-rosalie {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 0;
+  container-type: size;
+  pointer-events: none;
+}
+/* 80 × 96 : la moitié exacte d’une case de l’atlas HD (160 × 192). */
+.carnet-spine-rosalie-box {
+  position: relative;
+  width: 80px;
+  height: 96px;
+  margin-bottom: -4px;
+}
+.carnet-spine-rosalie-box .rosalie-sprite {
+  background-image: url('/assets/pixel/rosalie-v100/rosalie-atlas-hd.png');
+  background-size: 800% 2000%;
+  background-repeat: no-repeat;
+  /* Comme sur la carte : l’atlas HD réduit en douceur garde tous les détails. */
+  image-rendering: auto;
+  transform: none;
+  animation: none;
+  filter: drop-shadow(0 3px 0 #0f1f1566);
+}
+/* Pas assez de place (chapitre déplié, écran bas) : elle s’efface. */
+@container (max-height: 100px) {
+  .carnet-spine-rosalie-box {
+    display: none;
+  }
+}
+
+/* ---------- La bulle des conseils de Rosalie, dans le carnet ---------- */
+.carnet-dialog > .tutorial-coach {
+  color: var(--c-ink);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: 0 10px 24px #0f1f1540;
+  border-image: url('/assets/pixel/carnet-2.1/ecriteau@4x.png') 56 fill / 28px repeat;
+  image-rendering: pixelated;
+}
+/* La pointe vers l’élément visé, dans les teintes du bois cérusé. */
+.carnet-dialog > .tutorial-coach::before {
+  background: #f1f3e9;
+  border-right-color: #71806c;
+  border-bottom-color: #71806c;
+}
+.carnet-dialog > .tutorial-coach .coach-chapter {
+  color: var(--c-ink-soft);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+}
+.carnet-dialog > .tutorial-coach .coach-actions button:not(.coach-off) {
+  min-height: 36px;
+  color: var(--c-action-dark);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  border-image: url('/assets/pixel/carnet-2.1/bouton-creme-repos@4x.png') 32 fill / 16px repeat;
+  image-rendering: pixelated;
+}
+.carnet-dialog > .tutorial-coach .coach-actions button:not(.coach-off):hover {
+  border-image-source: url('/assets/pixel/carnet-2.1/bouton-creme-survol@4x.png');
+}
+.carnet-dialog > .tutorial-coach .coach-actions .coach-read {
+  color: var(--c-white);
+  border-image-source: url('/assets/pixel/carnet-2.1/bouton-vert-repos@4x.png');
+}
+.carnet-dialog > .tutorial-coach .coach-actions .coach-read:hover {
+  border-image-source: url('/assets/pixel/carnet-2.1/bouton-vert-survol@4x.png');
+}

@@ -47,8 +47,9 @@ export const OBJECT_HEIGHT: Record<string, number> = {
   haie: 17,
   // Établi : 90 cm de plateau, 1,4 m avec la caisse à outils.
   etabli: 33,
-  // Semoir : roues de 1,1 m.
-  semoir: 34,
+  // Semoir : roues de 1,1 m. 0.32.10 : 31 px de haut, 47 px de long (34 et
+  // 51 avant) : garé dans le pré nord, il ne domine plus ses voisins.
+  semoir: 31,
   // Colonne d’arrosage : 1,3 m.
   'colonne-arrosage': 30,
 };

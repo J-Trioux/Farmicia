@@ -1,0 +1,127 @@
+{
+  "version": "1.1",
+  "rendering": "pixel art",
+  "images": [
+    {
+      "id": "projets",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/projets.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2539654,
+      "source": "sources/projets.png",
+      "sourceSha256": "b22b2f39cf114f76c5a3194b316407b4f5697cd57a9d94d75a8b23fe0d6510ff",
+      "outputSha256": "67e3b948170d72402a6a91fac7edbd28afa108cb363b4bb1ddd5456a1da65e69",
+      "unchangedPixels": true
+    },
+    {
+      "id": "commandes",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/commandes.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2502738,
+      "source": "sources/commandes.png",
+      "sourceSha256": "c211e54f67676d15566f0839fd6f0ab6ac6568627bc51c34e4eeb0df324303b5",
+      "outputSha256": "7af39ee9713b554e506a286b66f2fb5cff80e847b4483f1530aa26c189484a3d",
+      "unchangedPixels": true
+    },
+    {
+      "id": "foires",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/foires.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2546182,
+      "source": "sources/foires.png",
+      "sourceSha256": "3b05081f844c795c225b1ebb51599ba102537bc2720887231bf123c856661155",
+      "outputSha256": "b0ea59f84afbd25e6ddfce67a7d820507a343949d0ef191f951686dedaaefa42",
+      "unchangedPixels": true
+    },
+    {
+      "id": "vallee",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/vallee.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2677884,
+      "source": "sources/vallee.png",
+      "sourceSha256": "bfd93bf323dd1dba895cc8a9fcb500ae3b2d3a382abba48ef085bdc2728246a9",
+      "outputSha256": "721c5bb71372b251fb3520a5518d5a202ec411ec3d08834e6a90999de6460d74",
+      "unchangedPixels": true
+    },
+    {
+      "id": "maitrise",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/maitrise.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2431850,
+      "source": "sources/maitrise.png",
+      "sourceSha256": "0c7a6a1ee5e372021be69da30a6305a2014ed2c93b12517e82ff7020dccdf01e",
+      "outputSha256": "7a53201d6789a8ad19ed81378ce9dffedf3f17d3789d008051998ded50b3565b",
+      "unchangedPixels": true
+    },
+    {
+      "id": "objectifs",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/objectifs.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2628562,
+      "source": "sources/objectifs.png",
+      "sourceSha256": "ee390b0056016ea05c95c5d4d128d3222b2cfe9c5c8cab9a388644935829e736",
+      "outputSha256": "876181e8eb087dbb276da86be5627e2375983a74419de89a725246f7905e8550",
+      "unchangedPixels": true
+    },
+    {
+      "id": "ameliorer",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/ameliorer.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2860784,
+      "source": "sources/ameliorer.png",
+      "sourceSha256": "265bfa438fef0f39bb1c76b73bb9f4058ac84bbb7db4f2f6d3b8f56715d93f22",
+      "outputSha256": "7f4e089b7ad7a176b4b621c55483099645b23fd968784c95d0e3f6f0853571b5",
+      "unchangedPixels": true
+    },
+    {
+      "id": "savoir-faire-culture",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/savoir-faire-culture.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2356572,
+      "source": "sources/savoir-faire-culture.png",
+      "sourceSha256": "60dfd0367b7df87579880b3116d8e4c18aaf9caef0589537d87bab897f9e2cbe",
+      "outputSha256": "29ff6fc8eab42d252397fdaabfdeec1e7151420a2f36bd3d63539b2e69f16760",
+      "unchangedPixels": true
+    },
+    {
+      "id": "savoir-faire-cuisine",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/savoir-faire-cuisine.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2133190,
+      "source": "sources/savoir-faire-cuisine.png",
+      "sourceSha256": "0e9f52659536d8f61a665265d87f7f89358f154e49e1207a7290a1ae1f10ca92",
+      "outputSha256": "381389efb0213ed647f244ed0ff81456fc949922b2360245052ed003411030a0",
+      "unchangedPixels": true
+    },
+    {
+      "id": "savoir-faire-commerce",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/savoir-faire-commerce.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2314496,
+      "source": "sources/savoir-faire-commerce.png",
+      "sourceSha256": "3acc1c0f1869a4acd74e8954240b5e121ef6b30d5ced6ead5426089f5ab1c5a8",
+      "outputSha256": "b59530764037b8374f9856eff35cc1355764920af88395bfd65b6ddf5d0de42f",
+      "unchangedPixels": true
+    },
+    {
+      "id": "atelier",
+      "src": "/assets/pixel/carnet-1.1/bandeaux/atelier.webp",
+      "width": 2172,
+      "height": 724,
+      "bytes": 1845332,
+      "source": "sources/atelier.png",
+      "sourceSha256": "f9caa627ef4f69bf10131800a3b000dba4585ddfd9fed1b8101e33a2b2b77a9f",
+      "outputSha256": "604577c9f5621a6cf836a758359986b63370373507504b4b04438def05e05ef3",
+      "unchangedPixels": true
+    }
+  ]
+}

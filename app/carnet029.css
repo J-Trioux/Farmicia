@@ -1,0 +1,444 @@
+/* ==========================================================================
+   0.29 — Habillage 2.1 du carnet (ChatGPT, vrai pixel art, PNG sans compression)
+   public/assets/pixel/carnet-2.1/ : pièces HD @4x (×4 exact des natives, sans
+   compression), affichées à moitié : 1 pixel d’art = 2 pixels d’écran. Cadres en neuf tranches : `border-image` avec bordure
+   nulle, donc l’image se pose sur la boîte sans changer la mise en page ; les
+   bords et le centre se répètent (couture, veinage), ils ne s’étirent pas.
+   ========================================================================== */
+
+.carnet :is(
+  .carnet-page, .carnet-chapter-head, .carnet-link, .carnet-shortcut, .carnet-tab, .carnet-primary,
+  .carnet-secondary, .carnet-action, .carnet-card, .carnet-detail, .carnet-row, .carnet-tile, .carnet-choice,
+  .carnet-band, .carnet-chip, .carnet-pager button, .carnet-banner-panel, .carnet-banner-choices button,
+  .carnet-tile-check, .carnet-switch i, .carnet-medal, .carnet-close, .carnet-count
+),
+.carnet,
+.carnet::before,
+.carnet-page::before,
+.carnet-cover::after,
+.carnet-banner::after {
+  image-rendering: pixelated;
+}
+
+/* ---------- La couverture : cuir vert cousu, débordant de 20 px ---------- */
+.carnet {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  border-image: url('/assets/pixel/carnet-2.1/couverture@4x.png') 48 fill / 24px / 20px repeat;
+  box-shadow: 0 34px 70px -6px #0b160f8c;
+}
+.carnet-spine {
+  background: none;
+}
+/* Coins de laiton gravés, aux quatre angles du cuir. */
+.carnet::before {
+  inset: -22px;
+  background:
+    url('/assets/pixel/carnet-2.1/coin-laiton@4x.png') left top / 40px 40px no-repeat,
+    url('/assets/pixel/carnet-2.1/coin-laiton-haut-droit@4x.png') right top / 40px 40px no-repeat,
+    url('/assets/pixel/carnet-2.1/coin-laiton-bas-gauche@4x.png') left bottom / 40px 40px no-repeat,
+    url('/assets/pixel/carnet-2.1/coin-laiton-bas-droit@4x.png') right bottom / 40px 40px no-repeat;
+  filter: none;
+}
+
+/* ---------- La page : papier ivoire fibré, filet sauge ---------- */
+.carnet-page {
+  background: none;
+  border-left-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border-image: url('/assets/pixel/carnet-2.1/cadre-page@4x.png') 48 fill / 24px repeat;
+}
+/* Ombre de la pliure, au-dessus du papier. */
+.carnet-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 26px;
+  pointer-events: none;
+  background: linear-gradient(90deg, #17301f3d, transparent);
+}
+/* Anneaux de laiton (26 × 15 natifs, ×2), à cheval sur la pliure. */
+.carnet-page::before {
+  left: -13px;
+  width: 52px;
+  background:
+    url('/assets/pixel/carnet-2.1/anneau@4x.png') center 10% / 52px 30px no-repeat,
+    url('/assets/pixel/carnet-2.1/anneau@4x.png') center 30% / 52px 30px no-repeat,
+    url('/assets/pixel/carnet-2.1/anneau@4x.png') center 50% / 52px 30px no-repeat,
+    url('/assets/pixel/carnet-2.1/anneau@4x.png') center 70% / 52px 30px no-repeat,
+    url('/assets/pixel/carnet-2.1/anneau@4x.png') center 90% / 52px 30px no-repeat;
+  filter: none;
+}
+/* Brin de feuillage et lavande dans l’angle de la couverture. */
+.carnet-cover::after {
+  width: 64px;
+  height: 64px;
+  background-image: url('/assets/pixel/carnet-2.1/brin-angle-reliure@4x.png');
+}
+.carnet-cover {
+  border-bottom-color: #6f9a7c;
+}
+
+/* ---------- Médaillon des titres et bouton fermer ---------- */
+.carnet-medal {
+  width: 72px;
+  height: 72px;
+  background: url('/assets/pixel/carnet-2.1/medaillon@4x.png') center / 72px 72px no-repeat;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.carnet-head {
+  --icon: 32px;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+}
+.carnet-close {
+  width: 52px;
+  height: 52px;
+  background: url('/assets/pixel/carnet-2.1/fermer-repos@4x.png') center / 52px 52px no-repeat;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.carnet-close:hover {
+  filter: none;
+  background-image: url('/assets/pixel/carnet-2.1/fermer-survol@4x.png');
+}
+.carnet-close:active {
+  background-image: url('/assets/pixel/carnet-2.1/fermer-appui@4x.png');
+}
+.carnet-close .glyph {
+  visibility: hidden;
+}
+
+/* ---------- La reliure : plaques de chapitre et raccourcis ---------- */
+.carnet-chapter-head,
+.carnet-shortcut {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-image: url('/assets/pixel/carnet-2.1/chapitre-ferme@4x.png') 32 fill / 16px repeat;
+}
+.carnet-chapter-head:hover,
+.carnet-shortcut:hover {
+  background: none;
+  filter: brightness(1.08);
+}
+.carnet-chapter[data-open] .carnet-chapter-head {
+  border-image-source: url('/assets/pixel/carnet-2.1/chapitre-ouvert@4x.png');
+  box-shadow: none;
+}
+.carnet-link[aria-current='page'] {
+  background: none;
+  border-color: transparent;
+  border-image: url('/assets/pixel/carnet-2.1/rangee-choisie@4x.png') 28 fill / 14px repeat;
+}
+
+/* ---------- Boutons : bois peint vert, carton crème ---------- */
+.carnet-primary,
+.carnet-action,
+.carnet-banner-choices button[aria-pressed='true'] {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-image: url('/assets/pixel/carnet-2.1/bouton-vert-repos@4x.png') 32 fill / 16px repeat;
+}
+.carnet-primary:not(:disabled):hover,
+.carnet-action:not(:disabled):hover {
+  filter: none;
+  border-image-source: url('/assets/pixel/carnet-2.1/bouton-vert-survol@4x.png');
+}
+.carnet-primary:not(:disabled):active,
+.carnet-action:not(:disabled):active {
+  padding-top: 4px;
+  box-shadow: none;
+  transform: none;
+  border-image-source: url('/assets/pixel/carnet-2.1/bouton-vert-appui@4x.png');
+}
+.carnet-primary:disabled,
+.carnet-action:disabled {
+  color: #545c4a;
+  text-shadow: none;
+  background: none;
+  box-shadow: none;
+  border-image-source: url('/assets/pixel/carnet-2.1/bouton-vert-inactif@4x.png');
+}
+.carnet-secondary,
+.carnet-banner-choices button,
+.carnet-pager button {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.carnet-secondary,
+.carnet-banner-choices button:not([aria-pressed='true']) {
+  border-image: url('/assets/pixel/carnet-2.1/bouton-creme-repos@4x.png') 32 fill / 16px repeat;
+}
+.carnet-secondary:not(:disabled):hover,
+.carnet-banner-choices button:not([aria-pressed='true']):not(:disabled):hover {
+  border-image-source: url('/assets/pixel/carnet-2.1/bouton-creme-survol@4x.png');
+}
+.carnet-secondary:not(:disabled):active {
+  padding-top: 4px;
+  transform: none;
+  border-image-source: url('/assets/pixel/carnet-2.1/bouton-creme-appui@4x.png');
+}
+.carnet-secondary:disabled,
+.carnet-banner-choices button:disabled:not([aria-pressed='true']) {
+  opacity: 1;
+  color: #545c4a;
+  border-image-source: url('/assets/pixel/carnet-2.1/bouton-creme-inactif@4x.png');
+}
+/* GPT : « ne pas doubler le déplacement » : l’image d’appui descend déjà. */
+.carnet :is(.carnet-primary, .carnet-secondary, .carnet-action, .carnet-pager button):not(:disabled):active,
+.carnet :is(.carnet-primary, .carnet-secondary, .carnet-action, .carnet-pager button):not(:disabled):hover {
+  transform: none;
+}
+
+/* ---------- Onglets ---------- */
+.carnet-tab {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-image: url('/assets/pixel/carnet-2.1/onglet-inactif@4x.png') 24 fill / 12px repeat;
+}
+.carnet-tab:hover {
+  background: none;
+  filter: brightness(1.03);
+}
+.carnet-tab[aria-pressed='true'] {
+  background: none;
+  box-shadow: none;
+  border-image-source: url('/assets/pixel/carnet-2.1/onglet-actif@4x.png');
+}
+
+/* ---------- Pagination : flèches dessinées dans leur bouton ---------- */
+.carnet-pager button {
+  background: url('/assets/pixel/carnet-2.1/pager-droite-repos@4x.png') center / 48px 40px no-repeat;
+}
+.carnet-pager button:first-child {
+  background-image: url('/assets/pixel/carnet-2.1/pager-gauche-repos@4x.png');
+}
+.carnet-pager button:not(:disabled):hover {
+  background-image: url('/assets/pixel/carnet-2.1/pager-droite-survol@4x.png');
+}
+.carnet-pager button:first-child:not(:disabled):hover {
+  background-image: url('/assets/pixel/carnet-2.1/pager-gauche-survol@4x.png');
+}
+.carnet-pager button:disabled {
+  opacity: 1;
+  background-image: url('/assets/pixel/carnet-2.1/pager-droite-inactif@4x.png');
+}
+.carnet-pager button:first-child:disabled {
+  background-image: url('/assets/pixel/carnet-2.1/pager-gauche-inactif@4x.png');
+}
+.carnet-pager .glyph {
+  visibility: hidden;
+}
+
+/* ---------- Cartes, fiches et rangées ---------- */
+.carnet-card,
+.carnet-detail,
+.carnet-tile,
+.carnet-choice {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-image: url('/assets/pixel/carnet-2.1/cadre-carte@4x.png') 32 fill / 16px repeat;
+}
+.carnet-tile[aria-pressed='true'],
+.carnet-choice[aria-pressed='true'] {
+  background: none;
+  box-shadow: none;
+  border-image-source: url('/assets/pixel/carnet-2.1/cadre-carte-choisie@4x.png');
+}
+.carnet-row {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-image: url('/assets/pixel/carnet-2.1/rangee@4x.png') 28 fill / 14px repeat;
+}
+button.carnet-row:hover {
+  background: none;
+  filter: brightness(1.02);
+}
+.carnet-row[aria-pressed='true'] {
+  background: none;
+  box-shadow: none;
+  border-image-source: url('/assets/pixel/carnet-2.1/rangee-choisie@4x.png');
+}
+.carnet-row:is([data-state='mystery'], [data-state='empty']) {
+  opacity: 0.8;
+}
+/* Cases à cocher des cartes à choisir. */
+.carnet-tile-check {
+  width: 24px;
+  height: 24px;
+  background: url('/assets/pixel/carnet-2.1/case-vide@4x.png') center / 24px 24px no-repeat;
+  border: 0;
+  border-radius: 0;
+}
+:is(.carnet-tile, .carnet-choice)[aria-pressed='true'] .carnet-tile-check {
+  background: url('/assets/pixel/carnet-2.1/case-cochee@4x.png') center / 24px 24px no-repeat;
+}
+.carnet-tile-check .glyph {
+  visibility: hidden;
+}
+
+/* ---------- Encarts, étiquettes et pastilles ---------- */
+.carnet-band:not(.carnet-band-info) {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  border-image: url('/assets/pixel/carnet-2.1/encart-information@4x.png') 24 fill / 12px repeat;
+}
+.carnet-chip[data-tone] {
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  border-image: url('/assets/pixel/carnet-2.1/etiquette-grise@4x.png') 16 fill / 8px repeat;
+}
+.carnet-chip[data-tone='ok'] {
+  color: var(--c-white);
+  border-image-source: url('/assets/pixel/carnet-2.1/etiquette-verte@4x.png');
+}
+.carnet-chip[data-tone='warn'] {
+  color: var(--c-ink);
+  border-image-source: url('/assets/pixel/carnet-2.1/etiquette-rouge@4x.png');
+}
+.carnet-chip[data-tone='info'] {
+  color: #24476e;
+  border-image-source: url('/assets/pixel/carnet-2.1/etiquette-bleue@4x.png');
+}
+.carnet-count {
+  background: url('/assets/pixel/carnet-2.1/pastille@4x.png') center / 100% 100% no-repeat;
+  border-radius: 0;
+}
+
+/* ---------- Bandeaux : cadre de cuir à rivets, écriteau de bois cérusé ---------- */
+.carnet-banner {
+  border-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+.carnet-banner::after {
+  box-shadow: none;
+  border: 0;
+  border-image: url('/assets/pixel/carnet-2.1/cadre-bandeau@4x.png') 40 / 20px repeat;
+}
+.carnet-banner-panel {
+  background: none;
+  border-right: 0;
+  border-image: url('/assets/pixel/carnet-2.1/ecriteau@4x.png') 56 fill / 28px repeat;
+}
+
+/* ---------- Interrupteur des conseils ---------- */
+.carnet-switch i {
+  width: 52px;
+  height: 28px;
+  background: url('/assets/pixel/carnet-2.1/interrupteur-off@4x.png') center / 52px 28px no-repeat;
+  border-radius: 0;
+}
+.carnet-switch[aria-checked='true'] i {
+  background: url('/assets/pixel/carnet-2.1/interrupteur-on@4x.png') center / 52px 28px no-repeat;
+}
+.carnet-switch i::after {
+  content: none;
+}
+
+/* ---------- Une feuille virevolte à chaque page tournée ----------
+   Dans l’en-tête (remonté à chaque page), à droite du titre : elle ne passe
+   jamais sur le contenu de la page. */
+.carnet-head::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: 24px;
+  bottom: auto;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  opacity: 0;
+  background: url('/assets/pixel/carnet-2.1/feuille-vole@4x.png') 0 0 / 144px 24px no-repeat;
+  image-rendering: pixelated;
+  animation:
+    carnet-leaf-frames 720ms steps(6) 2,
+    carnet-leaf-fall 1.44s ease-in-out 1;
+}
+@keyframes carnet-leaf-frames {
+  from { background-position-x: 0; }
+  to { background-position-x: -144px; }
+}
+@keyframes carnet-leaf-fall {
+  0% { opacity: 0; transform: translate(0, -10px) rotate(0deg); }
+  15% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-150px, 40px) rotate(-20deg); }
+}
+
+/* ---------- Le sceau de cire des objectifs réclamés ---------- */
+.carnet-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #6e2533;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.carnet-seal::before {
+  content: '';
+  width: 36px;
+  height: 36px;
+  background: url('/assets/pixel/carnet-2.1/sceau-cire@4x.png') center / 36px 36px no-repeat;
+  image-rendering: pixelated;
+  animation: carnet-seal-stamp 360ms steps(4, end) both;
+}
+@keyframes carnet-seal-stamp {
+  0% { opacity: 0; transform: scale(1.8) rotate(-12deg); }
+  60% { opacity: 1; transform: scale(0.9) rotate(2deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ---------- Écrans plus étroits ou plus bas ---------- */
+@media (max-width: 1400px) {
+  .carnet-page::before {
+    left: -20px;
+  }
+  .carnet-cover::after {
+    width: 32px;
+    height: 32px;
+  }
+}
+@media (max-height: 800px) {
+  .carnet-medal,
+  .carnet-head .carnet-medal {
+    width: 54px;
+    height: 54px;
+    background-size: 54px 54px;
+  }
+  .carnet-head {
+    --icon: 32px;
+    grid-template-columns: 54px minmax(0, 1fr) auto;
+  }
+}
+[data-reduce-motion] .carnet-head::after,
+[data-reduce-motion] .carnet-seal::before {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion-full]) .carnet-head::after {
+    display: none;
+  }
+}

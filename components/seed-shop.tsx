@@ -10,13 +10,12 @@
  * la bourse de l’enseigne défile et montre la dépense.
  */
 import { memo, useState, type CSSProperties } from 'react';
-import { Clock, Lock, Star } from 'lucide-react';
 import { GrowTimeTip } from '@/components/grow-time-tip';
 import { PixelIcon } from '@/components/farm/sprites';
 import { useRollingNumber } from '@/hooks/use-rolling-number';
 import { useGameClock } from '@/hooks/use-game-clock';
 import { inSeason } from '@/lib/farm-ui';
-import { CROPS, crop, duration, growTime, level, maxAffordable, type ActionArgument, type Game } from '@/lib/game';
+import { CROPS, absenceCrop, careDouble, crop, duration, growTime, level, maxAffordable, type ActionArgument, type Game } from '@/lib/game';
 
 /** Prochaines graines montrées en ombre sur le présentoir ; les suivantes sont comptées. */
 const LOCKED_SHOWN = 3;
@@ -129,7 +128,7 @@ export function SeedShop({
                 </span>
                 <b aria-hidden="true">?</b>
                 <small aria-hidden="true">
-                  <Lock size={11} /> Niv. {entry.level}
+                  <PixelIcon id="cadenas" className="inline-icon" /> Niv. {entry.level}
                 </small>
               </span>
             </li>
@@ -154,13 +153,18 @@ export function SeedShop({
           <div>
             <h3>{item.name}</h3>
             {season && <em className="season-badge">De saison · +8 %</em>}
+            {/* 0.33.0 : les cultures longues se sèment avant de partir. */}
+            {absenceCrop(item.id) && <em className="season-badge absence-badge">Idéale pendant une absence</em>}
             <p>{item.tag}</p>
+            {careDouble(item.id) > 0 && (
+              <p className="care-note">Arrosée : +{Math.round(careDouble(item.id) * 100)} % de chances de récolte double.</p>
+            )}
           </div>
         </div>
         <dl className="counter-stats">
           <div>
             <dt>
-              <Clock size={15} aria-hidden="true" /> Pousse
+              <PixelIcon id="horloge" className="inline-icon" /> Pousse
             </dt>
             <dd>
               <GrowTimeTip game={game} cropId={item.id} now={now}>
@@ -176,7 +180,7 @@ export function SeedShop({
           </div>
           <div>
             <dt>
-              <Star size={15} aria-hidden="true" /> Expérience
+              <PixelIcon id="etoile" className="inline-icon" /> Expérience
             </dt>
             <dd>{item.xp} XP</dd>
           </div>

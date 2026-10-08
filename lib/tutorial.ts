@@ -65,7 +65,9 @@ export type TutorialState = {
   replay?: boolean;
 };
 
-const tab = (label: string) => `[role="tab"][aria-label^="${label}"]`;
+// 0.24 : lien de la page dans la reliure du carnet, ou son chapitre s’il est replié.
+const tab = (label: string) =>
+  `.carnet-link[aria-label^="${label}"], .carnet-chapter-head[aria-expanded="false"][data-carnet-pages~="${label}"]`;
 const NOTEBOOK = '.dock-notebook';
 const plantedCount = (g: Game) => g.plots.filter(Boolean).length;
 const wateredCount = (g: Game) => g.plots.filter((plot) => plot?.watered).length;
@@ -114,9 +116,10 @@ export const TUTORIAL: TutorialChapter[] = [
       },
       {
         id: 'semer-plus',
-        text: 'Un radis pousse en 30 secondes. En attendant, semez d’autres parcelles : vous pouvez aussi glisser d’une parcelle à l’autre d’un seul geste.',
+        text: 'Un radis pousse en 30 secondes. En attendant, semez la seconde parcelle : vous pouvez aussi glisser d’une parcelle à l’autre d’un seul geste.',
         target: ['.farm-plot.prepared', '.farm-beds'],
-        done: (g, mark) => plantedCount(g) >= mark.planted + 2 || g.harvests > mark.harvests,
+        // 0.32.2 : le jardin n’a que deux parcelles au départ.
+        done: (g, mark) => plantedCount(g) >= mark.planted + 1 || g.harvests > mark.harvests,
       },
       {
         id: 'recolter',
@@ -150,8 +153,8 @@ export const TUTORIAL: TutorialChapter[] = [
       },
       {
         id: 'agrandir',
-        text: 'Dans « Améliorer », page « Bâtiments », « Un jardin plus grand » ajoute trois parcelles pour 35 pièces. Ce sera votre premier achat, dès que la bourse le permet.',
-        target: ['[data-upgrade="expand"] button', '.upgrade-switch [data-view="buildings"]', tab('Améliorer'), NOTEBOOK],
+        text: 'Dans « Améliorer », page « Bâtiments », « Un jardin plus grand » ajoute deux parcelles pour 25 pièces. Ce sera votre premier achat, dès que la bourse le permet.',
+        target: ['[data-upgrade="expand"] .carnet-primary:not(:disabled)', '[data-carnet-item="expand"]', '[data-carnet-tab="buildings"]', tab('Améliorer'), NOTEBOOK],
         done: (g, mark) => g.plots.length > mark.plots,
         read: true,
       },
@@ -267,14 +270,14 @@ export const TUTORIAL: TutorialChapter[] = [
       {
         id: 'atelier',
         text: 'L’atelier est installé ! Touchez-le sur la carte, ou ouvrez « Atelier » dans le carnet, pour entrer dans la cuisine.',
-        target: ['.kitchen-enter', tab('Atelier'), NOTEBOOK],
-        // 0.17.5 : la cuisine a sa propre fenêtre.
-        done: (g, mark, ui) => ui.modal === 'kitchen' || g.crafted > mark.crafted,
+        target: [tab('Atelier'), NOTEBOOK],
+        // 0.24 : la cuisine est la page Atelier du carnet.
+        done: (g, mark, ui) => (ui.modal === 'notebook' && ui.tab === 'recipes') || g.crafted > mark.crafted,
       },
       {
         id: 'cuisiner',
         text: 'Touchez « Cuisiner » sur une recette prête : j’irai à l’atelier mettre le plat sur le feu. Je reviendrai le sortir quand il sera prêt.',
-        target: ['.recipe-tile[data-state="ready"] .atelier-cook', '.atelier-cook', '.kitchen-enter', tab('Atelier'), NOTEBOOK],
+        target: ['.atelier-detail .atelier-cook:not(:disabled)', '.recipe-row[data-state="ready"]', '.atelier-cook', tab('Atelier'), NOTEBOOK],
         done: (g, mark) => g.crafted > mark.crafted || tutorialMark(g).cookingAt !== (mark.cookingAt ?? tutorialMark(g).cookingAt),
         read: true,
       },
@@ -289,7 +292,7 @@ export const TUTORIAL: TutorialChapter[] = [
       {
         id: 'poules',
         text: 'Les poules sont arrivées ! Donnez-leur du blé depuis la cuisine : quelques minutes plus tard, j’irai ramasser les œufs.',
-        target: ['.atelier-coop button', '.kitchen-enter', tab('Atelier'), NOTEBOOK],
+        target: ['.atelier-coop button', '[data-carnet-tab="coop"]', tab('Atelier'), NOTEBOOK],
         done: (g, mark) => (g.hens ?? 0) !== (mark.hensAt ?? g.hens ?? 0),
         read: true,
       },
@@ -310,7 +313,7 @@ export const TUTORIAL: TutorialChapter[] = [
       {
         id: 'fontaine',
         text: 'Choisissez « Embellissements ». La fontaine de pierre est la première : une fois construite, chaque arrosage fait aussi gagner un peu de temps de pousse. Chaque embellissement a trois étapes.',
-        target: ['[data-tutorial-embellish="fontaine"]', '.upgrade-switch [data-view="embellish"]', tab('Améliorer'), NOTEBOOK],
+        target: ['[data-tutorial-embellish="fontaine"]', '[data-carnet-item="fontaine"]', '[data-carnet-tab="embellish"]', tab('Améliorer'), NOTEBOOK],
         done: (g, mark) => embellishCount(g) > (mark.embellish ?? embellishCount(g)),
         read: true,
       },

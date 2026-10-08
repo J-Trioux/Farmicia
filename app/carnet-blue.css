@@ -1,0 +1,439 @@
+/* Carnet HD : cuir bleu nuit, papier ivoire, cuivre et accents violets.
+   Les cadres PNG sont découpés en neuf tranches ; leurs centres ne sont
+   jamais peints par border-image, pour garder un fond uni sous le texte. */
+.carnet-dialog {
+  --c-paper: #f8f5ed;
+  --c-card: #fffdf7;
+  --c-white: #ffffff;
+  --c-select: #ece8f6;
+  --c-spine: #202c50;
+  --c-spine-light: #33436d;
+  --c-spine-dark: #111a34;
+  --c-action: #33436d;
+  --c-action-dark: #202c50;
+  --c-ink: #202842;
+  --c-ink-soft: #566078;
+  --c-line: #ddd2c6;
+  --c-line-strong: #baaa9c;
+  --c-olive: #7567ad;
+  --c-brass: #bf825c;
+  --c-brass-dark: #754b34;
+  --c-alert: #9e453f;
+}
+
+.carnet {
+  background: var(--c-spine);
+  border-image: url('/assets/pixel/carnet-hd/couverture.png') 48 / 24px / 16px repeat;
+  box-shadow: 0 24px 48px #111a3470;
+}
+.carnet::before,
+.carnet::after,
+.carnet .carnet-cover::after,
+.carnet .carnet-head::after,
+.carnet .carnet-shortcuts::before {
+  content: none;
+  background: none;
+  animation: none;
+}
+.carnet .carnet-spine {
+  background: transparent;
+}
+.carnet .carnet-cover {
+  color: var(--c-paper);
+  border-bottom-color: var(--c-brass);
+}
+.carnet .carnet-cover:hover,
+.carnet .carnet-cover[aria-current='page'] {
+  background: #3d4c744d;
+}
+.carnet .carnet-shortcuts {
+  border-top-color: #8d7390;
+}
+.carnet .carnet-page {
+  color: var(--c-ink);
+  background: var(--c-paper);
+  border-image: url('/assets/pixel/carnet-hd/cadre-page.png') 48 / 24px repeat;
+  box-shadow: none;
+}
+.carnet .carnet-page::before {
+  background: none;
+}
+.carnet .carnet-page::after {
+  background: none;
+}
+.carnet .carnet-head h3 {
+  color: var(--c-ink);
+  text-shadow: none;
+}
+.carnet .carnet-head p {
+  color: var(--c-ink-soft);
+}
+.carnet .carnet-medal,
+.carnet .carnet-empty:has(> .pixel-icon:first-child)::before {
+  background: var(--c-card);
+  border-image: url('/assets/pixel/carnet-hd/cadre-selection.png') 48 / 12px repeat;
+  box-shadow: none;
+}
+
+/* Navigation : les plaques se détachent du cuir, la page choisie du papier. */
+.carnet .carnet-chapter-head,
+.carnet .carnet-shortcut {
+  color: var(--c-paper);
+  background: var(--c-spine-light);
+  border-image: url('/assets/pixel/carnet-hd/navigation.png') 48 / 12px repeat;
+  box-shadow: none;
+}
+.carnet .carnet-chapter-head:hover,
+.carnet .carnet-shortcut:hover {
+  background: #42517d;
+  filter: none;
+}
+.carnet .carnet-chapter[data-open] .carnet-chapter-head,
+.carnet .carnet-shortcut[data-ready] {
+  color: var(--c-paper);
+  background: #443e6f;
+  border-image-source: url('/assets/pixel/carnet-hd/navigation-selection.png');
+  box-shadow: none;
+}
+.carnet .carnet-chapter[data-open] .carnet-chapter-head:hover,
+.carnet .carnet-shortcut[data-ready]:hover {
+  background: #554b81;
+}
+.carnet .carnet-chapter[data-open] .carnet-pages {
+  background: var(--c-card);
+  border-image: url('/assets/pixel/carnet-hd/cadre-carte.png') 48 / 12px repeat;
+}
+.carnet .carnet-link {
+  color: var(--c-ink);
+  border-color: transparent;
+}
+.carnet .carnet-link:hover {
+  background: #f0eaf0;
+}
+.carnet .carnet-link[aria-current='page'] {
+  color: #3d346a;
+  background: var(--c-select);
+  border-image: url('/assets/pixel/carnet-hd/navigation-selection.png') 48 / 12px repeat;
+}
+.carnet .carnet-link[aria-current='page']:hover {
+  background: #ded5ee;
+}
+.carnet .carnet-tab {
+  color: var(--c-ink);
+  background: var(--c-card);
+  border-image: url('/assets/pixel/carnet-hd/navigation.png') 48 / 12px repeat;
+  box-shadow: none;
+}
+.carnet .carnet-tab:hover {
+  background: #eee9f4;
+  filter: none;
+}
+.carnet .carnet-tab[aria-pressed='true'] {
+  color: var(--c-white);
+  background: #4a406f;
+  border-image-source: url('/assets/pixel/carnet-hd/navigation-selection.png');
+}
+.carnet .carnet-tab[aria-pressed='true']:not(:disabled):hover {
+  background: #62538d;
+}
+
+/* Des centres clairs et un cadre discret pour les fiches et leurs listes. */
+.carnet :is(.carnet-card, .carnet-detail, .carnet-row, .carnet-tile, .carnet-choice, .goal-row, .collection-card, .summary-row) {
+  color: var(--c-ink);
+  background: var(--c-card);
+  border: 0;
+  border-radius: 0;
+  border-image: url('/assets/pixel/carnet-hd/cadre-carte.png') 48 / 12px repeat;
+  box-shadow: none;
+}
+.carnet :is(button.carnet-row, .carnet-tile, .carnet-choice):not(:disabled):hover {
+  background: #f1edf7;
+  filter: none;
+}
+.carnet :is(.carnet-row, .carnet-tile, .carnet-choice)[aria-pressed='true'],
+.carnet .goal-row[data-state='ready'] {
+  background: var(--c-select);
+  border-image-source: url('/assets/pixel/carnet-hd/cadre-selection.png');
+  box-shadow: none;
+}
+.carnet .summary-link:hover {
+  background: #f0eaf5;
+  border-color: #b7a9d1;
+}
+.carnet :is(.carnet-row[data-state='empty'], .carnet-row[data-state='mystery'], .collection-card[data-mystery]) {
+  background: #efedf0;
+}
+.carnet :is(.carnet-detail-art, .carnet-season, .carnet-step-art, .carnet-row-portrait, .friend-portrait) {
+  background-color: var(--c-paper);
+  border-color: var(--c-line-strong);
+}
+
+/* Actions : contraste franc, survol cuivré, repos atténué si indisponible. */
+.carnet :is(.carnet-primary, .carnet-action, .carnet-secondary, .carnet-mini-action, .carnet-mini, .carnet-close, .atelier-collect),
+.carnet .atelier-coop button,
+.carnet .carnet-banner-choices button,
+.carnet .carnet-pager button {
+  color: var(--c-white);
+  background: var(--c-action);
+  border: 0;
+  border-radius: 0;
+  border-image: url('/assets/pixel/carnet-hd/action.png') 48 / 12px repeat;
+  text-shadow: none;
+  box-shadow: none;
+}
+.carnet .carnet-secondary,
+.carnet .carnet-banner-choices button:not([aria-pressed='true']),
+.carnet .carnet-pager button,
+.carnet .carnet-pager button:first-child {
+  color: var(--c-ink);
+  background: var(--c-card);
+  border-image-source: url('/assets/pixel/carnet-hd/navigation.png');
+}
+.carnet :is(.carnet-primary, .carnet-action, .carnet-mini-action, .carnet-mini, .carnet-close, .atelier-collect):not(:disabled):hover,
+.carnet .atelier-coop button:not(:disabled):hover,
+.carnet .carnet-banner-choices button[aria-pressed='true']:not(:disabled):hover {
+  background: #4b4277;
+  border-image-source: url('/assets/pixel/carnet-hd/action-survol.png');
+  filter: none;
+}
+.carnet .carnet-secondary:not(:disabled):hover,
+.carnet .carnet-banner-choices button:not([aria-pressed='true']):not(:disabled):hover,
+.carnet .carnet-pager button:not(:disabled):hover,
+.carnet .carnet-pager button:first-child:not(:disabled):hover {
+  background: #eee8f3;
+  border-image-source: url('/assets/pixel/carnet-hd/navigation-selection.png');
+  filter: none;
+}
+.carnet :is(.carnet-primary, .carnet-action, .carnet-secondary):not(:disabled):active {
+  border-image-source: url('/assets/pixel/carnet-hd/action-survol.png');
+  box-shadow: none;
+}
+.carnet :is(.carnet-primary, .carnet-action, .carnet-secondary, .carnet-mini-action, .carnet-mini, .carnet-close, .carnet-tab, .atelier-collect):disabled,
+.carnet .atelier-coop button:disabled,
+.carnet .carnet-banner-choices button:disabled:not([aria-pressed='true']),
+.carnet .carnet-pager button:disabled,
+.carnet .carnet-pager button:first-child:disabled {
+  color: #626578;
+  background: #e5e2e6;
+  border-image-source: url('/assets/pixel/carnet-hd/navigation.png');
+  text-shadow: none;
+  box-shadow: none;
+  opacity: 0.75;
+}
+.carnet .carnet-close .glyph,
+.carnet .carnet-pager .glyph,
+.carnet .carnet-tile-check .glyph {
+  visibility: visible;
+}
+.carnet :focus-visible {
+  outline: 3px solid #a382df;
+  outline-offset: 3px;
+}
+.carnet .carnet-link-button {
+  color: #584287;
+}
+
+/* Les petites étiquettes restent unies : leurs couleurs décrivent l'état. */
+.carnet .carnet-chip[data-tone] {
+  color: var(--c-ink-soft);
+  background: #ebe8e6;
+  border-image: none;
+  box-shadow: inset 0 0 0 1px #cbc4c3;
+}
+.carnet .carnet-chip[data-tone='ok'] {
+  color: var(--c-white);
+  background: #4b4277;
+}
+.carnet .carnet-chip[data-tone='warn'] {
+  color: #7e342e;
+  background: #f2dfda;
+}
+.carnet .carnet-chip[data-tone='info'] {
+  color: #293961;
+  background: #e2e7f3;
+}
+.carnet .carnet-chip[data-tone='gold'] {
+  color: #614033;
+  background: #f1dfcd;
+}
+.carnet .carnet-count,
+.carnet .carnet-new {
+  color: var(--c-white);
+  background: #7567ad;
+  border-radius: 2px;
+}
+.carnet .carnet-new-dot {
+  background: var(--c-brass);
+}
+.carnet .carnet-tile-check {
+  color: var(--c-ink);
+  background: var(--c-card);
+  box-shadow: inset 0 0 0 2px var(--c-line-strong);
+}
+.carnet :is(.carnet-tile, .carnet-choice)[aria-pressed='true'] .carnet-tile-check {
+  color: var(--c-white);
+  background: #7567ad;
+}
+
+.carnet .carnet-band,
+.carnet .carnet-band:not(.carnet-band-info),
+.carnet .carnet-banner-panel,
+.carnet .carnet-page > .dialog-notice {
+  color: var(--c-ink);
+  background: var(--c-paper);
+  border: 0;
+  border-image: url('/assets/pixel/carnet-hd/cadre-carte.png') 48 / 12px repeat;
+}
+.carnet .carnet-banner::after {
+  border-image: url('/assets/pixel/carnet-hd/cadre-page.png') 48 / 12px repeat;
+}
+.carnet :is(.summary-status, .summary-status[data-ready], .summary-project, .carnet-counters > span, .carnet-tiers li[data-done], .festival-jury-row li[data-lead], .guide-switch) {
+  color: var(--c-ink);
+  background: #ede8f1;
+  border-color: #b9accb;
+}
+.carnet :is(.carnet-status[data-tone='muted'], .valley-crates li[data-empty], .carnet-tiers b) {
+  color: var(--c-ink-soft);
+  background: #ebe8e6;
+}
+.carnet :is(.carnet-roster button[aria-pressed='true'], .carnet-stepper[data-ready], .carnet-mini-action[data-done]) {
+  border-color: #9482b5;
+  box-shadow: inset 0 0 0 2px #d4cce5;
+}
+.carnet .carnet-stepper {
+  border-color: #b9accb;
+}
+.carnet :is(.carnet-gauge, .carnet-hearts i, .carnet-steps i) {
+  background: #d5cfdc;
+}
+.carnet .carnet-segments i {
+  background: linear-gradient(90deg, #7567ad var(--fill, 0%), #d5cfdc var(--fill, 0%));
+}
+.carnet .carnet-switch {
+  border-color: #aa98c5;
+}
+.carnet .carnet-switch i {
+  background: #b9b4c6;
+}
+.carnet .carnet-switch[aria-checked='true'] i {
+  background: #7567ad;
+}
+.carnet .carnet-switch i::after {
+  content: '';
+  background: var(--c-white);
+}
+.carnet .carnet-hearts i[data-on] {
+  background: #bf6874;
+}
+.carnet .carnet-seal {
+  color: #624580;
+}
+
+/* L'Atelier garde son dessin de jeu ; ses contrôles prennent le thème du carnet. */
+.carnet .atelier-stoves {
+  background: var(--c-card);
+  border-color: var(--c-brass);
+}
+.carnet .atelier-stove[data-state='locked'] {
+  color: var(--c-ink-soft);
+  background: #e8e4eb;
+}
+.carnet .atelier-stove[data-state='busy'] {
+  background: linear-gradient(90deg, #d8cee9 var(--cook, 0%), var(--c-white) var(--cook, 0%));
+  border-color: #a596bf;
+}
+.carnet .atelier-stove[data-state='ready'] {
+  color: #49302d;
+  background: #efddcf;
+  border-color: var(--c-brass);
+}
+.carnet .atelier-advanced :is(.recipe-effect, .recipe-counter, .recipe-options, .marmite-toggle, .recipe-facts div, .ingredient-selection select, .probabilities div) {
+  color: var(--c-ink);
+  background: var(--c-card);
+  border-color: var(--c-line-strong);
+}
+.carnet .atelier-advanced :is(.recipe-head p, .recipe-facts dt, .recipe-counter > b, .recipe-options > summary, .ingredient-selection label, .recipe-odds-brief, .recipe-odds-help) {
+  color: var(--c-ink-soft);
+}
+.carnet .atelier-advanced :is(.recipe-head p b, .recipe-odds-brief b) {
+  color: #584287;
+}
+.carnet .atelier-advanced .recipe-counter li {
+  color: var(--c-ink);
+  background: #ede8f1;
+  border-color: #b9accb;
+}
+.carnet .atelier-advanced .recipe-counter li[data-missing] {
+  color: #7e342e;
+  background: #f2dfda;
+  border-color: #cea8a2;
+}
+.carnet .atelier-advanced .atelier-cook {
+  color: var(--c-white);
+  background: var(--c-action);
+  border-color: var(--c-action-dark);
+  box-shadow: none;
+}
+.carnet .atelier-advanced .atelier-cook:disabled {
+  color: #626578;
+  background: #e5e2e6;
+  border-color: #c5becc;
+}
+
+.carnet-dialog > .tutorial-coach {
+  color: var(--c-ink);
+  background: var(--c-paper);
+  border-image: url('/assets/pixel/carnet-hd/cadre-carte.png') 48 / 12px repeat;
+  box-shadow: 0 10px 24px #111a3440;
+}
+.carnet-dialog > .tutorial-coach::before {
+  background: var(--c-paper);
+  border-color: var(--c-line-strong);
+}
+.carnet-dialog > .tutorial-coach .coach-actions button:not(.coach-off) {
+  color: var(--c-ink);
+  background: var(--c-card);
+  border-image: url('/assets/pixel/carnet-hd/navigation.png') 48 / 12px repeat;
+}
+.carnet-dialog > .tutorial-coach .coach-actions button:not(.coach-off):hover {
+  background: var(--c-select);
+  border-image-source: url('/assets/pixel/carnet-hd/navigation-selection.png');
+}
+.carnet-dialog > .tutorial-coach .coach-actions .coach-read {
+  color: var(--c-white);
+  background: var(--c-action);
+  border-image-source: url('/assets/pixel/carnet-hd/action.png');
+}
+.carnet-dialog > .tutorial-coach .coach-actions .coach-read:hover {
+  border-image-source: url('/assets/pixel/carnet-hd/action-survol.png');
+}
+
+@media (min-width: 1600px) and (min-height: 900px) {
+  .carnet .atelier-advanced .recipe-head {
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    gap: 16px;
+  }
+  .carnet .atelier-advanced .recipe-head .catalog-icon {
+    --icon: 64px;
+    width: 64px;
+    height: 64px;
+  }
+  .carnet .atelier-advanced .recipe-head h3 {
+    font-size: 28px;
+  }
+  .carnet .atelier-advanced :is(.recipe-head p, .recipe-facts dt, .recipe-counter li, .recipe-counter li b, .recipe-counter > b, .recipe-note, .ingredient-selection label, .marmite-toggle label, .marmite-toggle small, .recipe-options, .recipe-options summary, .recipe-odds-brief, .recipe-odds-help, .probabilities div) {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .carnet .atelier-advanced :is(.recipe-facts dd, .ingredient-selection select) {
+    font-size: 18px;
+  }
+  .carnet .atelier-advanced .recipe-counter li .pixel-icon {
+    --icon: 32px;
+    width: 32px;
+    height: 32px;
+  }
+  .carnet .atelier-advanced .ingredient-selection select {
+    min-height: 44px;
+  }
+}

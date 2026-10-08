@@ -1,0 +1,118 @@
+/* ==========================================================================
+   0.31 — Le carnet vivant : page qui tourne depuis la pliure, éclat
+   d’étincelles sur les retours d’action, étoile qui scintille sur ce qui est
+   à réclamer, pages vides posées dans un médaillon, liste des pages sur papier.
+   Toutes les images en HD, sans compression (règle de l’auteur).
+   ========================================================================== */
+
+/* ---------- La page tourne depuis la pliure ---------- */
+.carnet-body {
+  transform-origin: left center;
+  animation: carnet-page-turn 240ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes carnet-page-turn {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) rotateY(-9deg) translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Éclat d’étincelles quand une action répond ---------- */
+.carnet-page > .dialog-notice {
+  overflow: visible;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-image: url('/assets/pixel/carnet-2.1/cadre-carte-choisie@4x.png') 32 fill / 16px repeat;
+  image-rendering: pixelated;
+}
+.dialog-notice-text {
+  position: relative;
+  display: inline-block;
+}
+.carnet-page > .dialog-notice .dialog-notice-text::before,
+.carnet-page > .dialog-notice .dialog-notice-text::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 32px;
+  height: 32px;
+  margin-top: -16px;
+  pointer-events: none;
+  background: url('/assets/pixel/carnet-2.0/etincelles@4x.png') 0 0 / 192px 32px no-repeat;
+  image-rendering: pixelated;
+  opacity: 0;
+  animation: carnet-sparks 600ms steps(6) 1 both;
+}
+.carnet-page > .dialog-notice .dialog-notice-text::before {
+  left: -52px;
+}
+.carnet-page > .dialog-notice .dialog-notice-text::after {
+  right: -52px;
+  animation-delay: 90ms;
+}
+@keyframes carnet-sparks {
+  0% { opacity: 1; background-position-x: 0; }
+  99% { opacity: 1; }
+  100% { opacity: 0; background-position-x: -192px; }
+}
+
+/* ---------- L’étoile scintille sur ce qui est à réclamer ---------- */
+.goal-row[data-state='ready'] .carnet-rewards .pixel-icon[data-icon='etoile'] {
+  animation: carnet-star-twinkle 2.8s steps(1, end) infinite;
+}
+@keyframes carnet-star-twinkle {
+  0%, 70%, 100% { filter: none; }
+  76% { filter: brightness(1.25); }
+  82% { filter: brightness(1.45) drop-shadow(0 0 2px #fbeeb8); }
+  88% { filter: brightness(1.2); }
+}
+
+/* ---------- Pages vides : l’icône posée dans le médaillon, le tout centré ---------- */
+.carnet-empty {
+  align-content: center;
+}
+.carnet-empty:has(> .pixel-icon:first-child) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.carnet-empty:has(> .pixel-icon:first-child)::before {
+  content: '';
+  grid-row: 1;
+  grid-column: 1;
+  justify-self: center;
+  width: 144px;
+  height: 144px;
+  background: url('/assets/pixel/carnet-2.1/medaillon@4x.png') center / 144px 144px no-repeat;
+  image-rendering: pixelated;
+}
+.carnet-empty > .pixel-icon:first-child {
+  --icon: 64px;
+  grid-row: 1;
+  grid-column: 1;
+  align-self: center;
+  justify-self: center;
+}
+
+/* ---------- La liste des pages d’un chapitre ouvert, sur papier ---------- */
+.carnet-chapter[data-open] .carnet-pages {
+  background: none;
+  border: 0;
+  border-image: url('/assets/pixel/carnet-2.1/cadre-carte@4x.png') 32 fill / 16px repeat;
+  image-rendering: pixelated;
+}
+
+[data-reduce-motion] .carnet-page > .dialog-notice .dialog-notice-text::before,
+[data-reduce-motion] .carnet-page > .dialog-notice .dialog-notice-text::after {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion-full]) .carnet-page > .dialog-notice .dialog-notice-text::before,
+  html:not([data-motion-full]) .carnet-page > .dialog-notice .dialog-notice-text::after {
+    display: none;
+  }
+}

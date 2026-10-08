@@ -1,5 +1,5 @@
 /**
- * 0.22 — Le son des Jardins de Rosalie.
+ * 0.22 — Le son de Farmicia (ex-Jardins de Rosalie).
  *
  * Un seul AudioContext, trois bus réglables :
  * - musique : le thème de la saison (scripts/musique/composer.py), en deux

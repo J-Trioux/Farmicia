@@ -1,0 +1,429 @@
+{
+  "created": "2026-10-07",
+  "method": "built-in image_gen; alpha threshold 128; independent subject crop; shared 32-color production palette, no dithering; nearest-neighbor scale; fixed 32px cells; transparent padding; PNG compression level 0",
+  "source": "sources/effets-generees.png",
+  "source_size": [
+    1448,
+    1086
+  ],
+  "source_sha256": "d4cf746ea17522c3b0b7cae1e250d4e4d34c138c972db1841d7f17de2b8a45cb",
+  "prompt": "prompt-imagegen.txt",
+  "grid": {
+    "columns": 4,
+    "rows": 3,
+    "frame_count": 4,
+    "native_cell": [
+      32,
+      32
+    ],
+    "native_atlas": [
+      128,
+      96
+    ],
+    "hd_cell": [
+      256,
+      256
+    ],
+    "hd_atlas": [
+      1024,
+      768
+    ]
+  },
+  "atlas_url": "/assets/pixel/carnet-effets/atlas-effets.png",
+  "native_atlas_url": "/assets/pixel/carnet-effets/atlas-effets-x1.png",
+  "palette": [
+    "#0e072f",
+    "#100d3c",
+    "#1b1446",
+    "#233459",
+    "#271c54",
+    "#2e51a4",
+    "#36466b",
+    "#412264",
+    "#4477c1",
+    "#482b39",
+    "#505f82",
+    "#653e79",
+    "#6b6eac",
+    "#754639",
+    "#8f8cbe",
+    "#91afe7",
+    "#9658a3",
+    "#9bc1f0",
+    "#a46bc3",
+    "#aa674c",
+    "#aacdf1",
+    "#b47ed3",
+    "#bd8bc5",
+    "#c6bfce",
+    "#cab0e5",
+    "#ce8f66",
+    "#d5e9fb",
+    "#d9d0d7",
+    "#e7b68c",
+    "#e9e4df",
+    "#f4eee4",
+    "#fcf6ea"
+  ],
+  "alpha_values": [
+    0,
+    255
+  ],
+  "compression_level": 0,
+  "animation": {
+    "recommended_duration_ms": 700,
+    "iterations": 1,
+    "reduced_motion": "use frame 0 or suppress decoration",
+    "trigger": "page opening, focus, selection or reward; no permanent shimmer"
+  },
+  "effects": [
+    {
+      "name": "plume",
+      "row": 0,
+      "frames": 4,
+      "unique_frames": 4,
+      "strip_url": "/assets/pixel/carnet-effets/plume-strip-x8.png",
+      "frame_urls": [
+        "/assets/pixel/carnet-effets/plume-frame-0-x8.png",
+        "/assets/pixel/carnet-effets/plume-frame-1-x8.png",
+        "/assets/pixel/carnet-effets/plume-frame-2-x8.png",
+        "/assets/pixel/carnet-effets/plume-frame-3-x8.png"
+      ]
+    },
+    {
+      "name": "papillon",
+      "row": 1,
+      "frames": 4,
+      "unique_frames": 4,
+      "strip_url": "/assets/pixel/carnet-effets/papillon-strip-x8.png",
+      "frame_urls": [
+        "/assets/pixel/carnet-effets/papillon-frame-0-x8.png",
+        "/assets/pixel/carnet-effets/papillon-frame-1-x8.png",
+        "/assets/pixel/carnet-effets/papillon-frame-2-x8.png",
+        "/assets/pixel/carnet-effets/papillon-frame-3-x8.png"
+      ]
+    },
+    {
+      "name": "etincelles",
+      "row": 2,
+      "frames": 4,
+      "unique_frames": 4,
+      "strip_url": "/assets/pixel/carnet-effets/etincelles-strip-x8.png",
+      "frame_urls": [
+        "/assets/pixel/carnet-effets/etincelles-frame-0-x8.png",
+        "/assets/pixel/carnet-effets/etincelles-frame-1-x8.png",
+        "/assets/pixel/carnet-effets/etincelles-frame-2-x8.png",
+        "/assets/pixel/carnet-effets/etincelles-frame-3-x8.png"
+      ]
+    }
+  ],
+  "crops": [
+    {
+      "name": "plume",
+      "frame": 0,
+      "source_box": [
+        112,
+        164,
+        313,
+        384
+      ],
+      "sampled_size": [
+        18,
+        20
+      ],
+      "native_origin": [
+        7,
+        6
+      ],
+      "native_bounds": [
+        7,
+        6,
+        25,
+        26
+      ],
+      "sha256_native_pixels": "f382f6eaed452c05fbc4ba29ffada8a65b2b449e5ec9bc1847546bfae1b2d396"
+    },
+    {
+      "name": "plume",
+      "frame": 1,
+      "source_box": [
+        460,
+        150,
+        659,
+        358
+      ],
+      "sampled_size": [
+        18,
+        19
+      ],
+      "native_origin": [
+        7,
+        5
+      ],
+      "native_bounds": [
+        7,
+        5,
+        25,
+        24
+      ],
+      "sha256_native_pixels": "13c3eccbfe3330b6f3e535680fdd4e68850c58d92d31d9f15770fb1c3ecdf0cc"
+    },
+    {
+      "name": "plume",
+      "frame": 2,
+      "source_box": [
+        800,
+        164,
+        1014,
+        384
+      ],
+      "sampled_size": [
+        19,
+        20
+      ],
+      "native_origin": [
+        6,
+        6
+      ],
+      "native_bounds": [
+        6,
+        6,
+        25,
+        26
+      ],
+      "sha256_native_pixels": "20dbabd69934f422bf4db75e27ca0b36bc3f9bf7dc1691f52cf48f6d37b971f7"
+    },
+    {
+      "name": "plume",
+      "frame": 3,
+      "source_box": [
+        1139,
+        180,
+        1341,
+        393
+      ],
+      "sampled_size": [
+        18,
+        19
+      ],
+      "native_origin": [
+        7,
+        7
+      ],
+      "native_bounds": [
+        7,
+        7,
+        25,
+        26
+      ],
+      "sha256_native_pixels": "1bbeae660c82560b8785b24539d9a935717972e02f7bbcc2305d46ef020665a3"
+    },
+    {
+      "name": "papillon",
+      "frame": 0,
+      "source_box": [
+        100,
+        511,
+        310,
+        670
+      ],
+      "sampled_size": [
+        20,
+        15
+      ],
+      "native_origin": [
+        6,
+        8
+      ],
+      "native_bounds": [
+        6,
+        8,
+        26,
+        23
+      ],
+      "sha256_native_pixels": "3a3f1377dfd0708a3ec68b87ab266f449d7d0298352ed971eb9150df4ae3f94f"
+    },
+    {
+      "name": "papillon",
+      "frame": 1,
+      "source_box": [
+        475,
+        511,
+        642,
+        670
+      ],
+      "sampled_size": [
+        16,
+        15
+      ],
+      "native_origin": [
+        8,
+        8
+      ],
+      "native_bounds": [
+        8,
+        8,
+        24,
+        23
+      ],
+      "sha256_native_pixels": "da2ba38065d996d05a391371a1d777ff965087656e7dcb2474087ee4263a4206"
+    },
+    {
+      "name": "papillon",
+      "frame": 2,
+      "source_box": [
+        842,
+        511,
+        957,
+        670
+      ],
+      "sampled_size": [
+        11,
+        15
+      ],
+      "native_origin": [
+        10,
+        8
+      ],
+      "native_bounds": [
+        10,
+        8,
+        21,
+        23
+      ],
+      "sha256_native_pixels": "fc757c6e0f364c9a8b9c7c3845e35ba39f46bbec9eda44393b748512946379a7"
+    },
+    {
+      "name": "papillon",
+      "frame": 3,
+      "source_box": [
+        1152,
+        511,
+        1333,
+        670
+      ],
+      "sampled_size": [
+        17,
+        15
+      ],
+      "native_origin": [
+        7,
+        8
+      ],
+      "native_bounds": [
+        7,
+        8,
+        24,
+        23
+      ],
+      "sha256_native_pixels": "0104aabc6220964eb878e18aaf5b7cbe9fd11f3aaf5855cf637022b39b95ff64"
+    },
+    {
+      "name": "etincelles",
+      "frame": 0,
+      "source_box": [
+        169,
+        855,
+        250,
+        942
+      ],
+      "sampled_size": [
+        8,
+        9
+      ],
+      "native_origin": [
+        12,
+        11
+      ],
+      "native_bounds": [
+        12,
+        11,
+        20,
+        20
+      ],
+      "sha256_native_pixels": "b80810ac3a88d9f04ee517f893ef40bafc4118feb9380a4a33ceebd406c432da"
+    },
+    {
+      "name": "etincelles",
+      "frame": 1,
+      "source_box": [
+        502,
+        823,
+        629,
+        953
+      ],
+      "sampled_size": [
+        13,
+        14
+      ],
+      "native_origin": [
+        9,
+        9
+      ],
+      "native_bounds": [
+        9,
+        9,
+        22,
+        23
+      ],
+      "sha256_native_pixels": "2365b58e9600fafb2db1c526a204ca039af7e970efe487ae68dae8183c0dc301"
+    },
+    {
+      "name": "etincelles",
+      "frame": 2,
+      "source_box": [
+        828,
+        808,
+        977,
+        962
+      ],
+      "sampled_size": [
+        15,
+        16
+      ],
+      "native_origin": [
+        8,
+        8
+      ],
+      "native_bounds": [
+        8,
+        8,
+        23,
+        24
+      ],
+      "sha256_native_pixels": "883c01ee61b53df9708abc1aff4048eac99930ec2956221c5588de255ee3752c"
+    },
+    {
+      "name": "etincelles",
+      "frame": 3,
+      "source_box": [
+        1205,
+        855,
+        1286,
+        943
+      ],
+      "sampled_size": [
+        8,
+        9
+      ],
+      "native_origin": [
+        12,
+        11
+      ],
+      "native_bounds": [
+        12,
+        11,
+        20,
+        19
+      ],
+      "sha256_native_pixels": "8fe5107e8eeb18a14dc26f464a357e24d8d12f12bdfed19899f6d3316296b217"
+    }
+  ],
+  "validation": {
+    "distinct_frames_per_row": 4,
+    "native_palette_size": 32,
+    "binary_alpha": true,
+    "nearest_hd_roundtrip": true,
+    "minimum_native_transparent_margin": 5
+  }
+}

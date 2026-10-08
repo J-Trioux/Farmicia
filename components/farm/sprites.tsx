@@ -1,10 +1,18 @@
 'use client';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { CROP_ATLAS_ROWS } from '@/lib/farm-visuals';
+import { CROP_DRIPS } from '@/lib/crop-drips';
+import { pixelIconAsset } from '@/lib/pixel-icons';
+import { iconArtSize, snapIcon } from '@/lib/icon-snap';
 import { CUE_EFFECT, cuesBetween, effectBox, framePosition, rosalieClip, sampleClip, type RosalieAction } from '@/lib/rosalie-anim';
-const ROOT = '/assets/pixel/v040/';
 /** 0.9.5 : les cultures de lignée prennent la couleur d’une variété ancienne (atlas v095). */
-export function CropSprite({ crop, stage, lineage = false }: { crop: string; stage: number; lineage?: boolean }) {
+/**
+ * 0.32.7 : `drip` (délai en secondes) = la plante est arrosée : une simple goutte
+ * descend le long de sa forme (chemin propre à la culture et au stade,
+ * lib/crop-drips.ts), puis disparaît au pied de la tige.
+ */
+export function CropSprite({ crop, stage, lineage = false, drip }: { crop: string; stage: number; lineage?: boolean; drip?: number }) {
+  const path = drip === undefined ? null : CROP_DRIPS[crop]?.[stage] ?? null;
   return (
     <span
       className="crop-sprite"
@@ -14,31 +22,16 @@ export function CropSprite({ crop, stage, lineage = false }: { crop: string; sta
         backgroundPosition: `${stage * 25}% ${((CROP_ATLAS_ROWS[crop] ?? 0) / 11) * 100}%`,
         '--crop-ground-shift': `${15 * (1 - 34 / ([34, 42, 48, 52, 56][stage] ?? 56))}%`,
       } as CSSProperties}
-    />
+    >
+      {path && (
+        <i
+          className="crop-drip"
+          style={Object.fromEntries([['--drip-delay', `${drip}s`], ...path.flatMap(([x, y], i) => [[`--x${i}`, `${x}%`], [`--y${i}`, `${y}%`]])]) as CSSProperties}
+        />
+      )}
+    </span>
   );
 }
-const icons: Record<string, number> = {
-  coin: 0,
-  seeds: 1,
-  water: 2,
-  'watering-can': 2,
-  tools: 3,
-  pain: 4,
-  confiture: 5,
-  sauce: 6,
-  ratatouille: 7,
-  violette: 8,
-  brioche: 9,
-  infusion: 10,
-  tarte: 11,
-  oeuf: 12,
-  soleil: 13,
-  doree: 13,
-  pluie: 14,
-  brume: 14,
-  quality: 15,
-  marmite: 7,
-};
 const props: Record<string, number> = {
   soil: 0,
   foundation: 1,
@@ -60,6 +53,62 @@ const props: Record<string, number> = {
   stove2: 2,
   stove3: 2,
 };
+/**
+ * 0.32.11 — Icônes nettes (lib/icon-snap.ts). Un seul ResizeObserver pour
+ * toutes les icônes : à chaque changement de taille (et de densité d’écran),
+ * l’icône est redessinée à un multiple entier de sa grille, en pixels francs,
+ * ou lissée si aucun multiple n’est assez proche. Variables posées sur
+ * l’élément : --icon-draw, --icon-x, --icon-y (app/icones-nettes.css).
+ */
+const snapped = new Set<HTMLElement>();
+let snapObserver: ResizeObserver | null = null;
+let snapDpr = 0;
+function applySnap(el: HTMLElement, width?: number, height?: number) {
+  const art = Number(el.dataset.art);
+  if (!art) return;
+  if (width === undefined || height === undefined) {
+    const style = getComputedStyle(el);
+    width = parseFloat(style.width);
+    height = parseFloat(style.height);
+  }
+  if (!(width > 0) || !(height > 0)) return;
+  const dpr = window.devicePixelRatio || 1;
+  const { mode, draw } = snapIcon(Math.min(width, height), dpr, art, el.dataset.cell ? 0.05 : undefined);
+  el.dataset.snap = mode;
+  if (el.dataset.cell) return;
+  // Bord de l’icône sur un pixel physique entier : pas de colonne coupée.
+  const ox = Math.round(((width - draw) / 2) * dpr) / dpr;
+  const oy = Math.round(((height - draw) / 2) * dpr) / dpr;
+  el.style.setProperty('--icon-draw', `${draw}px`);
+  el.style.setProperty('--icon-x', `${ox - Number(el.dataset.cx || 0) * draw}px`);
+  el.style.setProperty('--icon-y', `${oy - Number(el.dataset.cy || 0) * draw}px`);
+}
+function watchDensity() {
+  snapDpr = window.devicePixelRatio || 1;
+  const query = window.matchMedia(`(resolution: ${snapDpr}dppx)`);
+  query.addEventListener('change', () => {
+    snapped.forEach((el) => applySnap(el));
+    watchDensity();
+  }, { once: true });
+}
+function snapRef(el: HTMLSpanElement | null) {
+  if (!el || typeof ResizeObserver === 'undefined') return;
+  if (!snapObserver) {
+    snapObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const box = entry.borderBoxSize?.[0];
+        applySnap(entry.target as HTMLElement, box?.inlineSize ?? entry.contentRect.width, box?.blockSize ?? entry.contentRect.height);
+      }
+    });
+    watchDensity();
+  }
+  snapped.add(el);
+  snapObserver.observe(el);
+  return () => {
+    snapped.delete(el);
+    snapObserver?.unobserve(el);
+  };
+}
 export function PixelIcon({
   id,
   className = '',
@@ -67,59 +116,54 @@ export function PixelIcon({
   id: string;
   className?: string;
 }) {
-  const base = id.split('|')[0].replace('_maison', '');
+  const base = id.split('|')[0];
   if (base in CROP_ATLAS_ROWS)
     return (
-      <span className={`pixel-icon crop-icon ${className}`}>
+      // 0.32.11 : la planche des cultures (cases de 128 px) n’est lissée qu’à
+      // une échelle non entière ; à 64 px CSS sur écran Retina, pixels francs.
+      <span className={`pixel-icon crop-icon ${className}`} ref={snapRef} data-art={128} data-cell="crop">
         <CropSprite crop={base} stage={4} lineage={/\|l[1-9]\d*(?:$|\|)/.test(id)} />
       </span>
     );
-  const carnetIcon = {
-    basket: 0, valley: 1, lineage: 2,
-    savoirfaire: 3, album: 4, guidebook: 5,
-  }[base];
-  if (carnetIcon !== undefined)
-    return <span aria-hidden="true" className={'pixel-icon ' + className}
-      style={{
-        backgroundImage: 'url(/assets/pixel/carnet-v016/icons.png)',
-        backgroundSize: '300% 200%',
-        backgroundPosition: `${(carnetIcon % 3) * 50}% ${Math.floor(carnetIcon / 3) * 100}%`,
-        imageRendering: 'pixelated',
-      }} />;
-  const recipeIcon = {
-    potage: 0, assiette: 1, galette: 2,
-    clafoutis: 3, veloute: 4, jus: 5,
-    melonade: 6, fougasse: 7, pickles: 8,
-  }[base];
-  if (recipeIcon !== undefined)
-    return <span aria-hidden="true" className={'pixel-icon ' + className}
-      style={{
-        backgroundImage: 'url(/assets/pixel/recettes-v016/icons.png)',
-        backgroundSize: '300% 300%',
-        backgroundPosition: `${(recipeIcon % 3) * 50}% ${Math.floor(recipeIcon / 3) * 50}%`,
-        imageRendering: 'pixelated',
-      }} />;
+  const asset = pixelIconAsset(base);
+  if (asset) return <SheetIcon id={base} asset={asset} className={className} />;
   if (base in props)
     return <PropSprite id={base} className={`pixel-icon ${className}`} />;
-  const markIcon = {
-    'season-printemps': 0, 'season-ete': 1, 'season-automne': 2, 'season-hiver': 3,
-    paths: 4, souffle: 5,
-  }[base];
-  if (markIcon !== undefined)
-    return <span aria-hidden="true" className={'pixel-icon ' + className}
-      style={{ backgroundImage: 'url(/assets/pixel/v095/icons.png)',
-        backgroundSize: '600% 100%', backgroundPosition: (markIcon * 20) + '% 0%',
-        imageRendering: 'pixelated' }} />;
-  const i = icons[base] ?? 15;
+  // Un identifiant inconnu ne devient plus silencieusement une étoile.
+  return null;
+}
+function SheetIcon({ id, asset, className }: { id: string; asset: NonNullable<ReturnType<typeof pixelIconAsset>>; className: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const attach = useCallback((el: HTMLSpanElement | null) => {
+    ref.current = el;
+    return snapRef(el);
+  }, []);
+  // Les planches HD conservent la grille native de 32 px.
+  const hd = asset.image.includes('/icones-3.');
+  const cx = asset.index % asset.columns;
+  const cy = Math.floor(asset.index / asset.columns);
+  // Une autre icône dans le même élément : la case change, la taille non.
+  useEffect(() => {
+    if (ref.current?.dataset.snap) applySnap(ref.current);
+  }, [asset.image, cx, cy]);
   return (
     <span
+      ref={attach}
       aria-hidden="true"
+      data-icon={id}
+      data-hd={hd || undefined}
+      data-art={iconArtSize(asset.image) ?? undefined}
+      data-cx={cx}
+      data-cy={cy}
       className={`pixel-icon ${className}`}
       style={{
-        backgroundImage: `url(${ROOT}icons.png)`,
-        backgroundSize: '400% 400%',
-        backgroundPosition: `${((i % 4) * 100) / 3}% ${(Math.floor(i / 4) * 100) / 3}%`,
-      }}
+        backgroundImage: `url(${asset.image})`,
+        backgroundSize: `${asset.columns * 100}% ${asset.rows * 100}%`,
+        backgroundPosition: `${asset.columns > 1 ? (cx * 100) / (asset.columns - 1) : 0}% ${asset.rows > 1 ? (cy * 100) / (asset.rows - 1) : 0}%`,
+        imageRendering: 'pixelated',
+        '--icon-cols': asset.columns,
+        '--icon-rows': asset.rows,
+      } as CSSProperties}
     />
   );
 }
@@ -173,7 +217,8 @@ export function RosalieSprite({
     const el = ref.current;
     if (!el) return;
     const clip = rosalieClip(action);
-    const speed = action.startsWith('walk') ? walkScale : gestureScale;
+    // 0.23 : les animations de repos gardent leur rythme (pas celui de l’outil).
+    const speed = action.startsWith('walk') ? walkScale : action.startsWith('repos') ? 1 : gestureScale;
     let shown = -1;
     let previous = 0;
     let frame = 0;
@@ -193,7 +238,9 @@ export function RosalieSprite({
       const done = show(elapsed);
       for (const cue of cuesBetween(clip, previous, elapsed)) {
         const id = CUE_EFFECT[cue.type];
-        if (id) setEffects((list) => [...list.slice(-3), { key: ++serial.current, id, offset: cue.offset }]);
+        // 0.32.5 : l’eau, les graines, la terre et l’éclat de récolte se jouent sur la
+        // parcelle visée (ActionEffect, farm-map.tsx), plus à côté de Rosalie.
+        if (id && !PLOT_EFFECTS.has(id)) setEffects((list) => [...list.slice(-3), { key: ++serial.current, id, offset: cue.offset }]);
       }
       previous = elapsed;
       if (done && repeat) {
@@ -211,6 +258,9 @@ export function RosalieSprite({
         ref={ref}
         className={`rosalie-sprite ${action.startsWith('walk') ? 'walking' : ''}`}
         aria-hidden="true"
+        // 0.32.5 : l’atlas de Rosalie (320 × 384 par image) est réduit en douceur
+        // (image-rendering: auto, app/rosalie097.css). Le rendu « pixelated »
+        // le réduisait au plus proche voisin : traits cassés, aspect basse résolution.
       />
       {!reduced &&
         effects.map((fx) => {
@@ -223,6 +273,7 @@ export function RosalieSprite({
               data-fx={fx.id}
               onAnimationEnd={() => setEffects((list) => list.filter((e) => e.key !== fx.key))}
               style={{
+                imageRendering: 'pixelated',
                 left: `${box.left}%`,
                 top: `${box.top}%`,
                 width: `${box.width}%`,
@@ -239,6 +290,8 @@ export function RosalieSprite({
     </>
   );
 }
+/** Effets de geste dessinés sur la parcelle plutôt qu’à côté de Rosalie. */
+const PLOT_EFFECTS = new Set(['water', 'seeds', 'soil', 'harvest']);
 export function VillagerPortrait({ index }: { index: number }) {
   return (
     <span

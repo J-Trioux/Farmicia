@@ -7,8 +7,8 @@
  */
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
-import { UPGRADES, UNLOCKS, SEED_FIND_LEVEL, GARDE_STEPS, type Game } from '@/lib/game';
-import { TUTORIAL, tutorialCurrent } from '@/lib/tutorial';
+import { type Game } from '@/lib/game';
+import { tutorialCurrent } from '@/lib/tutorial';
 import { framePosition } from '@/lib/rosalie-anim';
 import { ROSALIE_ATLAS } from '@/lib/rosalie-clips';
 
@@ -77,21 +77,35 @@ export function TutorialCoach({
       const box = (dialog || document.documentElement).getBoundingClientRect();
       const width = Math.min(360, box.width - 24);
       const height = bubble.current?.offsetHeight || 150;
+      // 0.32.9 : sur la carte, la bulle reste entre le bandeau du haut et la
+      // barre d’actions (portables Windows à 125-150 % : 600 à 730 px utiles).
+      const dock = dialog ? null : document.querySelector('.action-dock')?.getBoundingClientRect();
+      const hud = dialog ? null : document.querySelector('.pixel-hud')?.getBoundingClientRect();
+      const floor = dock && dock.top > box.top + box.height / 2 ? dock.top - box.top : box.height;
+      const ceiling = hud && hud.bottom < box.top + box.height / 2 ? hud.bottom - box.top : 0;
       if (!target) {
         // Sans cible visible : en bas, au-dessus de la barre d’actions.
-        placeIfChanged({ left: Math.max(12, (box.width - width) / 2), top: Math.max(12, box.height - height - 110), below: false });
+        placeIfChanged({
+          left: Math.max(12, (box.width - width) / 2),
+          top: Math.max(ceiling + 12, dock ? floor - height - 12 : box.height - height - 110),
+          below: false,
+        });
         return;
       }
       const rect = target.getBoundingClientRect();
       const x = rect.left - box.left + rect.width / 2 - width / 2;
-      const room = box.bottom - rect.bottom;
-      const below = room > height + 24 || rect.top - box.top < height + 24;
+      const roomBelow = floor - (rect.bottom - box.top);
+      const roomAbove = rect.top - box.top - ceiling;
+      const below = roomBelow > height + 24 || (roomAbove < height + 24 && roomBelow >= roomAbove);
       const y = below ? rect.bottom - box.top + 14 : rect.top - box.top - height - 14;
+      const lo = ceiling + 12;
+      const hi = floor - height - 12;
+      const top = hi >= lo ? Math.min(Math.max(lo, y), hi) : Math.min(Math.max(12, y), box.height - height - 12);
       // Dans une fenêtre qui défile, la bulle suit le contenu.
       const scroll = dialog ? dialog.scrollTop : 0;
       placeIfChanged({
         left: Math.min(Math.max(12, x), box.width - width - 12),
-        top: Math.min(Math.max(12, y), box.height - height - 12) + scroll,
+        top: top + scroll,
         below,
       });
     };
@@ -156,56 +170,5 @@ export function TutorialCoach({
       </div>
     </section>,
     host,
-  );
-}
-
-/** Le Guide du carnet : relire un chapitre, couper ou rallumer les conseils. */
-export function GuidePanel({
-  game,
-  onReplay,
-  onToggle,
-}: {
-  game: Game;
-  onReplay: (id: string) => void;
-  onToggle: (off: boolean) => void;
-}) {
-  const state = game.tutorial || { done: [] };
-  const off = !!state.off;
-  return (
-    <div className="guide-book">
-      <header>
-        <h3>Le guide de Rosalie</h3>
-        <p>
-          Chaque mécanique a sa petite leçon, qui s’ouvre au moment où elle arrive dans la partie.
-          Vous pouvez la revoir ici à tout moment.
-        </p>
-        <button type="button" className="guide-toggle" aria-pressed={!off} onClick={() => onToggle(!off)}>
-          {off ? 'Rallumer les conseils de Rosalie' : 'Couper les conseils de Rosalie'}
-        </button>
-      </header>
-      <ol className="guide-chapters">
-        {TUTORIAL.map((chapter) => {
-          const done = state.done.includes(chapter.id);
-          const active = state.chapter === chapter.id;
-          const open = done || active || chapter.ready(game);
-          const upgrade = { arrosoir: 'watering-can', outils: 'tools', atelier: 'workshop', poulailler: 'coop' }[chapter.id];
-          const required = upgrade ? UPGRADES.find(u => u.id === upgrade)?.level : ({ village: UNLOCKS.marketBasket, caravane: UNLOCKS.caravan, lignees: SEED_FIND_LEVEL, garde: GARDE_STEPS[0].level } as Record<string, number>)[chapter.id];
-          return (
-            <li key={chapter.id} data-state={active ? 'active' : done ? 'done' : open ? 'open' : 'locked'}>
-              <div>
-                <b>{chapter.title}</b>
-                <small>{active ? 'En cours' : done ? 'Vu' : open ? 'À voir' : `À partir du niveau ${required || 1}${upgrade ? ', après installation' : chapter.id === 'lignees' ? ', après découverte d’une graine' : ''}`}</small>
-                <p>{open ? chapter.guide : 'Cette leçon s’ouvrira avec sa mécanique.'}</p>
-              </div>
-              {open && (
-                <button type="button" onClick={() => onReplay(chapter.id)} disabled={active && !off}>
-                  {active && !off ? 'En cours' : done ? 'Revoir' : 'Commencer'}
-                </button>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </div>
   );
 }

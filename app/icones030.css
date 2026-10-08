@@ -1,0 +1,62 @@
+/* ==========================================================================
+   0.30 — Icônes 3.x en vrai pixel art : planches HD ×16 (cases de 512 px).
+   Rendu net (`pixelated`) : il est exact à toutes les tailles multiples de
+   32 px (32, 64, 96). Les icônes importantes restent sur cette grille ;
+   les repères compacts utilisent sa moitié, 16 px. Aucun lissage, même
+   pour un écran à forte densité ou une illustration de taille fluide.
+   ========================================================================== */
+.pixel-icon[data-hd] {
+  image-rendering: pixelated;
+}
+
+/* Évite la réduction arbitraire à 18 px des anciens repères dans le texte. */
+:is(body, .carnet) .pixel-icon.inline-icon[data-hd],
+.carnet .buff-chips li .pixel-icon[data-hd] {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+}
+
+/* Les portraits d'objet du bandeau avaient une taille en pourcentage :
+   à 1920 × 1080 ils peuvent afficher deux pixels d'écran par pixel d'art. */
+.carnet :is(.carnet-banner-panel, .carnet-panel-portrait) .pixel-icon[data-hd] {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+}
+@media (max-width: 900px), (max-height: 600px) {
+  .carnet :is(.carnet-banner-panel, .carnet-panel-portrait) .pixel-icon[data-hd] {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+  }
+}
+
+/* Tailles calées sur la grille de 32 px (icônes 3.x seulement : les cultures
+   gardent la taille de leurs propres sprites). */
+.dock-actions button .pixel-icon[data-hd] {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  flex: 0 0 32px;
+}
+:is(
+  .farm-game .hud-resource .pixel-icon,
+  .page-announce .pixel-icon,
+  .seed-all li .pixel-icon,
+  .basket-row .pixel-icon,
+  .absence-list .pixel-icon,
+  .valley-stock .pixel-icon,
+  .game-confirm-head .pixel-icon,
+  .harvest-flight > .pixel-icon,
+  .basket-dialog .surplus-crate .pixel-icon,
+  .basket-dialog .basket-row .basket-plate .pixel-icon
+)[data-hd] {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+}
+:is(.quality-burst .pixel-icon, .levelup-card-front .pixel-icon)[data-hd] {
+  width: 64px;
+  height: 64px;
+}

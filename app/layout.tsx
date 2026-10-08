@@ -1,17 +1,15 @@
 import type { Metadata } from 'next';
 import './globals.css';
 export const metadata: Metadata = {
-  title: 'Les Jardins de Rosalie',
+  title: 'Farmicia',
   description:
     'Un petit jardin, de grandes découvertes. Un jeu de ferme paisible en français.',
   icons: { icon: '/favicon.svg' },
 };
-/** Carte, plantes, décor et icônes du dock effectivement affichés au démarrage. */
+/** Images effectivement affichées au démarrage (0.32.1 : décor et icônes retirés, jamais utilisés au premier écran). */
 const FIRST_SCREEN_IMAGES = [
   // 0.21 : la carte de la saison est préchargée par la carte elle-même (next/image, priority).
   '/assets/pixel/crops-atlas.png',
-  '/assets/pixel/v040/props-hd.png',
-  '/assets/pixel/v040/icons.png',
 ];
 export default function RootLayout({
   children,

@@ -1,0 +1,266 @@
+/* Finitions du Carnet : mouvements courts pour les contrôles, petits décors
+   en pixels dans les illustrations. Aucun mouvement sur le texte courant. */
+
+.carnet-head {
+  position: relative;
+}
+.carnet-head::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 96px;
+  height: 24px;
+  background: url('/assets/pixel/carnet-1.2/rameau.svg') center / contain no-repeat;
+  opacity: 0.65;
+  pointer-events: none;
+}
+.carnet-shortcuts {
+  position: relative;
+  margin-top: 18px;
+}
+.carnet-shortcuts::before {
+  content: '';
+  position: absolute;
+  top: -34px;
+  left: calc(50% - 64px);
+  width: 128px;
+  height: 32px;
+  background: var(--c-spine) url('/assets/pixel/carnet-1.2/rameau.svg') center / contain no-repeat;
+  pointer-events: none;
+}
+.carnet-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  box-shadow: inset 0 0 0 1px #ffffff40;
+  pointer-events: none;
+}
+.carnet :is(.carnet-chapter-head, .carnet-link, .carnet-shortcut, .carnet-tab, .carnet-row, .summary-link, .carnet-primary, .carnet-secondary, .carnet-action, .carnet-choice, .carnet-pager button) {
+  transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+.carnet :is(.carnet-link, .carnet-shortcut, .carnet-tab, .carnet-row, .summary-link, .carnet-primary, .carnet-choice) > .pixel-icon {
+  transition: transform 160ms steps(2, end);
+}
+.carnet-head .carnet-medal {
+  animation: carnet-medal-arrive 200ms steps(3, end) both;
+}
+.carnet-row[aria-pressed='true'] > .pixel-icon {
+  animation: carnet-icon-settle 180ms steps(3, end);
+}
+.carnet :is(.carnet-primary, .carnet-secondary, .carnet-action, .carnet-pager button):not(:disabled):active {
+  transform: translateY(2px);
+}
+@media (hover: hover) and (pointer: fine) {
+  .carnet :is(.carnet-link, .carnet-shortcut, .carnet-tab, .carnet-row, .summary-link, .carnet-primary, .carnet-choice):not(:disabled):hover > .pixel-icon {
+    transform: translateY(-2px);
+  }
+  .carnet :is(.carnet-primary, .carnet-secondary, .carnet-action, .carnet-pager button):not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+}
+@keyframes carnet-medal-arrive {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes carnet-icon-settle {
+  0% { transform: translateY(2px); }
+  50% { transform: translateY(-2px); }
+  100% { transform: none; }
+}
+
+/* Les repères suivent l’image complète : ils restent sur l’eau, les fleurs
+   et le four même quand le bandeau se recadre sur un écran étroit. */
+.carnet-ambience {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.carnet-accent {
+  position: absolute;
+  display: block;
+  translate: -50% -50%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+.carnet-accent-butterfly {
+  animation: carnet-butterfly-flight 9s steps(18, end) infinite;
+  animation-delay: var(--accent-delay, 0s);
+}
+.carnet-butterfly-wings {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: url('/assets/pixel/carnet-1.2/papillon.svg') 0 0 / 400% 100% no-repeat;
+  animation: carnet-butterfly-wings 640ms steps(1, end) infinite;
+}
+@keyframes carnet-butterfly-wings {
+  0%, 100% { background-position-x: 0%; }
+  25% { background-position-x: 33.333333%; }
+  50% { background-position-x: 66.666667%; }
+  75% { background-position-x: 100%; }
+}
+@keyframes carnet-butterfly-flight {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(50%, -24%); }
+  40% { transform: translate(110%, -4%); }
+  60% { transform: translate(74%, 36%); }
+  80% { transform: translate(-30%, 16%); }
+}
+.carnet-accent-water {
+  background: url('/assets/pixel/carnet-1.2/reflet.svg') center / contain no-repeat;
+  opacity: 0;
+  animation: carnet-water-glint 5.4s steps(6, end) infinite;
+  animation-delay: var(--accent-delay, 0s);
+}
+@keyframes carnet-water-glint {
+  0%, 30%, 80%, 100% { opacity: 0; transform: translateX(0); }
+  45% { opacity: 0.65; }
+  65% { opacity: 0.2; transform: translateX(8%); }
+}
+.carnet-accent-steam {
+  background: url('/assets/pixel/carnet-1.2/vapeur.svg') center / contain no-repeat;
+  opacity: 0;
+  animation: carnet-bread-steam 4.8s steps(12, end) infinite;
+}
+@keyframes carnet-bread-steam {
+  0%, 100% { opacity: 0; transform: translate(0, 10%); }
+  30% { opacity: 0.42; }
+  80% { opacity: 0; transform: translate(-18%, -30%); }
+}
+/* Le feu reprend les pixels du décor ; seule leur luminosité locale varie. */
+.carnet-accent-fire {
+  clip-path: polygon(8% 100%, 8% 70%, 24% 52%, 30% 18%, 44% 38%, 51% 0%, 60% 26%, 66% 45%, 80% 31%, 94% 66%, 94% 100%);
+  animation: carnet-oven-fire 1.8s steps(3, end) infinite;
+}
+@keyframes carnet-oven-fire {
+  0%, 100% { filter: brightness(1); }
+  25% { filter: brightness(1.17); }
+  55% { filter: brightness(0.94); }
+  75% { filter: brightness(1.09); }
+}
+
+/* La vapeur de la marmite apparaît pendant une préparation réelle. */
+.atelier-stoves {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  width: 44%;
+  max-width: none;
+}
+.atelier-stoves ol {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.atelier-stove {
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 0 5px;
+  font-size: 13px;
+}
+.atelier-stove span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.atelier-stoves .atelier-collect {
+  grid-column: 2;
+  grid-row: 1;
+  justify-content: center;
+  padding: 0 6px;
+  font-size: 13px;
+}
+.atelier-steam {
+  position: absolute;
+  right: 10.5%;
+  bottom: 26%;
+  width: 5%;
+  height: 44%;
+  opacity: 0;
+  pointer-events: none;
+}
+.atelier-page[data-cooking] .atelier-steam {
+  opacity: 1;
+}
+.atelier-steam i {
+  position: absolute;
+  bottom: 0;
+  width: 36%;
+  height: 80%;
+  background: url('/assets/pixel/carnet-1.2/vapeur.svg') center / contain no-repeat;
+  image-rendering: pixelated;
+  opacity: 0;
+  animation: carnet-pot-steam 3.6s steps(12, end) infinite;
+  animation-play-state: paused;
+}
+.atelier-page[data-cooking] .atelier-steam i {
+  animation-play-state: running;
+}
+.atelier-steam i:nth-child(2) {
+  left: 32%;
+  animation-delay: -1.2s;
+}
+.atelier-steam i:nth-child(3) {
+  left: 60%;
+  animation-delay: -2.4s;
+}
+@keyframes carnet-pot-steam {
+  0%, 100% { opacity: 0; transform: translate(0, 15%); }
+  25% { opacity: 0.58; }
+  75% { opacity: 0; transform: translate(-18%, -45%); }
+}
+
+@media (max-width: 900px) {
+  .carnet-shortcuts { margin-top: 0; }
+  .carnet-shortcuts::before,
+  .carnet-head::after { display: none; }
+  .atelier-page .carnet-banner { height: 188px; }
+  .atelier-stoves {
+    right: 6px;
+    bottom: 6px;
+    left: 6px;
+    width: auto;
+    padding: 6px 8px;
+  }
+  .atelier-rosalie {
+    bottom: 24%;
+    height: 88%;
+  }
+  .atelier-steam {
+    right: 10%;
+    bottom: 54%;
+    width: 6%;
+    height: 28%;
+  }
+}
+@media (max-width: 1300px) {
+  /* farm.css force l’affichage des icônes ; ici la durée garde la priorité. */
+  .atelier-stove .pixel-icon { display: none !important; }
+}
+@media (min-width: 901px) and (max-height: 800px) {
+  .atelier-page .carnet-banner { height: 104px; }
+}
+
+/* Le réglage du jeu couvre aussi les fenêtres rendues hors de <main>. */
+[data-reduce-motion] .carnet *,
+[data-reduce-motion] .carnet *::before,
+[data-reduce-motion] .carnet *::after {
+  animation: none !important;
+  transition: none !important;
+}
+[data-reduce-motion] .carnet-ambience,
+[data-reduce-motion] .atelier-steam { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion-full]) .carnet *,
+  html:not([data-motion-full]) .carnet *::before,
+  html:not([data-motion-full]) .carnet *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  html:not([data-motion-full]) .carnet-ambience,
+  html:not([data-motion-full]) .atelier-steam { display: none; }
+}

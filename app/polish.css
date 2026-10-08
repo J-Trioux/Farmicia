@@ -21,12 +21,6 @@
   top: -5px;
   right: -5px;
 }
-.notebook-tab-list [data-slot='tabs-trigger'] {
-  gap: 5px;
-}
-.notebook-tab-list .todo-badge {
-  margin-left: 2px;
-}
 
 /* ---------- Messages dans les fenêtres ---------- */
 .dialog-notice {

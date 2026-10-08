@@ -42,6 +42,9 @@ const FACES_RIGHT: ReadonlySet<PlotGesture> = new Set(['water', 'harvest', 'plan
 export function approach(index: number, gesture: PlotGesture = 'plant'): Point {
   const r = plotRect(index);
   const centre = r.x + r.w / 2;
+  // 0.32.6 : pour arroser, Rosalie se tient dans l’allée à gauche de la parcelle :
+  // l’eau de son arrosoir (planche d’effet de l’eau) tombe alors sur la plante.
+  if (gesture === 'water') return pct({ x: AISLES_PX[index % PLOT.columns], y: r.y + GESTURE_FEET });
   return pct({
     x: centre + (FACES_RIGHT.has(gesture) ? -GESTURE_SIDE : GESTURE_SIDE),
     y: r.y + GESTURE_FEET,

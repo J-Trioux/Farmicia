@@ -151,40 +151,17 @@ export const PROJECTS: VillageProject[] = [
     xp: 180,
     outro: 'Le four de l’atelier a reçu une voûte de briques neuves.',
     steps: [
-      {
-        kind: 'harvest',
-        crop: 'tomate',
-        amount: 12,
-        text: 'Produire 12 tomates',
-      },
-      {
-        kind: 'harvest',
-        crop: 'tomate',
-        amount: 3,
-        minQuality: 'belle',
-        text: 'Obtenir 3 tomates de belle qualité',
-      },
-      {
-        kind: 'cook',
-        recipe: 'sauce',
-        amount: 2,
-        minOutcome: 'reussi',
-        text: 'Préparer 2 sauces réussies',
-      },
-      {
-        kind: 'cook',
-        recipe: 'pain',
-        amount: 1,
-        minOutcome: 'savoureux',
-        text: 'Cuire un pain savoureux',
-      },
+      { kind: 'harvest', crop: 'tomate', amount: 30, text: 'Produire 30 tomates' },
+      { kind: 'harvest', crop: 'tomate', amount: 6, minQuality: 'belle', text: 'Obtenir 6 tomates de belle qualité' },
+      { kind: 'cook', recipe: 'sauce', amount: 3, minOutcome: 'reussi', text: 'Préparer 3 sauces réussies' },
+      { kind: 'cook', recipe: 'pain', amount: 2, minOutcome: 'savoureux', text: 'Cuire 2 pains savoureux' },
       {
         kind: 'deliver',
         lines: [
-          { kind: 'item', item: 'sauce|reussi', amount: 1 },
+          { kind: 'item', item: 'sauce|reussi', amount: 2 },
           { kind: 'item', item: 'pain|reussi', amount: 1 },
-          { kind: 'item', item: 'tomate|belle', amount: 2 },
-          { kind: 'item', item: 'ble', amount: 4 },
+          { kind: 'item', item: 'tomate|belle', amount: 4 },
+          { kind: 'item', item: 'ble', amount: 8 },
         ],
         text: 'Organiser le banquet',
       },
@@ -206,38 +183,15 @@ export const PROJECTS: VillageProject[] = [
     xp: 220,
     outro: 'Les vieux arbres ont été taillés : le verger donne à nouveau.',
     steps: [
-      {
-        kind: 'harvest',
-        crop: 'fraise',
-        amount: 8,
-        text: 'Récolter 8 fraises',
-      },
-      {
-        kind: 'harvest',
-        crop: 'fraise',
-        amount: 3,
-        minQuality: 'belle',
-        text: 'Obtenir 3 belles fraises',
-      },
-      {
-        kind: 'harvest',
-        crop: '*',
-        amount: 1,
-        minQuality: 'exceptionnelle',
-        text: 'Obtenir une récolte exceptionnelle',
-      },
-      {
-        kind: 'cook',
-        recipe: 'confiture',
-        amount: 2,
-        minOutcome: 'reussi',
-        text: 'Préparer 2 confitures réussies',
-      },
+      { kind: 'harvest', crop: 'fraise', amount: 30, text: 'Récolter 30 fraises' },
+      { kind: 'harvest', crop: 'fraise', amount: 8, minQuality: 'belle', text: 'Obtenir 8 belles fraises' },
+      { kind: 'harvest', crop: '*', amount: 2, minQuality: 'exceptionnelle', text: 'Obtenir 2 récoltes exceptionnelles' },
+      { kind: 'cook', recipe: 'confiture', amount: 4, minOutcome: 'reussi', text: 'Préparer 4 confitures réussies' },
       {
         kind: 'deliver',
         lines: [
-          { kind: 'item', item: 'fraise|belle', amount: 3 },
-          { kind: 'item', item: 'confiture|reussi', amount: 1 },
+          { kind: 'item', item: 'fraise|belle', amount: 6 },
+          { kind: 'item', item: 'confiture|reussi', amount: 2 },
         ],
         text: 'Dresser la table des fruits',
       },
@@ -258,26 +212,16 @@ export const PROJECTS: VillageProject[] = [
     xp: 300,
     outro: 'La toque dorée du concours trône désormais dans l’atelier.',
     steps: [
-      {
-        kind: 'cook',
-        recipe: '*',
-        amount: 3,
-        minOutcome: 'savoureux',
-        text: 'Préparer 3 plats savoureux ou mieux',
-      },
-      {
-        kind: 'festival',
-        minScore: 65,
-        text: 'Obtenir la Médaille du village à la Fête des Saveurs',
-      },
+      { kind: 'cook', recipe: '*', amount: 6, minOutcome: 'savoureux', text: 'Préparer 6 plats savoureux ou mieux' },
+      { kind: 'festival', minScore: 65, text: 'Obtenir la Médaille du village à la Fête des Saveurs' },
       {
         kind: 'deliver',
         lines: [
           { kind: 'course', course: 'entree', minOutcome: 'reussi' },
-          { kind: 'course', course: 'plat', minOutcome: 'reussi' },
+          { kind: 'course', course: 'plat', minOutcome: 'savoureux' },
           { kind: 'course', course: 'dessert', minOutcome: 'reussi' },
         ],
-        text: 'Servir un repas prestigieux : entrée, plat, dessert',
+        text: 'Servir un repas prestigieux : entrée, plat savoureux, dessert',
       },
     ],
   },
@@ -296,12 +240,12 @@ export const PROJECTS: VillageProject[] = [
     xp: 320,
     outro: 'La recette de la galette passe de table en table au village.',
     steps: [
-      { kind: 'harvest', crop: 'mais', amount: 5, text: 'Récolter 5 maïs' },
-      { kind: 'harvest', crop: 'aubergine', amount: 3, text: 'Récolter 3 aubergines' },
-      { kind: 'cook', recipe: 'ratatouille', amount: 1, minOutcome: 'rustique', text: 'Préparer une ratatouille' },
+      { kind: 'harvest', crop: 'mais', amount: 40, text: 'Récolter 40 maïs' },
+      { kind: 'harvest', crop: 'aubergine', amount: 25, text: 'Récolter 25 aubergines' },
+      { kind: 'cook', recipe: 'ratatouille', amount: 3, minOutcome: 'reussi', text: 'Préparer 3 ratatouilles réussies' },
       { kind: 'deliver', lines: [
-        { kind: 'item', item: 'ratatouille|rustique', amount: 1 },
-        { kind: 'item', item: 'mais', amount: 2 },
+        { kind: 'item', item: 'ratatouille|reussi', amount: 2 },
+        { kind: 'item', item: 'mais', amount: 10 },
       ], text: 'Servir les ouvriers des champs' },
     ],
   },
@@ -319,11 +263,11 @@ export const PROJECTS: VillageProject[] = [
     xp: 400,
     outro: 'Le parfum du clafoutis attire les voisins sur la place.',
     steps: [
-      { kind: 'harvest', crop: 'myrtille', amount: 4, text: 'Récolter 4 myrtilles' },
-      { kind: 'cook', recipe: 'violette', amount: 1, minOutcome: 'rustique', text: 'Préparer une confiture des bois' },
+      { kind: 'harvest', crop: 'myrtille', amount: 30, text: 'Récolter 30 myrtilles' },
+      { kind: 'cook', recipe: 'violette', amount: 3, minOutcome: 'reussi', text: 'Préparer 3 confitures des bois réussies' },
       { kind: 'deliver', lines: [
-        { kind: 'item', item: 'violette|rustique', amount: 1 },
-        { kind: 'item', item: 'fraise', amount: 2 },
+        { kind: 'item', item: 'violette|reussi', amount: 2 },
+        { kind: 'item', item: 'fraise|belle', amount: 6 },
       ], text: 'Installer la table des douceurs' },
     ],
   },
@@ -341,11 +285,11 @@ export const PROJECTS: VillageProject[] = [
     xp: 480,
     outro: 'Une grande marmite parfume désormais la fête.',
     steps: [
-      { kind: 'harvest', crop: 'citrouille', amount: 4, text: 'Récolter 4 citrouilles' },
-      { kind: 'cook', recipe: 'sauce', amount: 1, minOutcome: 'rustique', text: 'Préparer une sauce du jardin' },
+      { kind: 'harvest', crop: 'citrouille', amount: 24, text: 'Récolter 24 citrouilles' },
+      { kind: 'cook', recipe: 'sauce', amount: 3, minOutcome: 'reussi', text: 'Préparer 3 sauces du jardin réussies' },
       { kind: 'deliver', lines: [
-        { kind: 'item', item: 'citrouille', amount: 2 },
-        { kind: 'item', item: 'sauce|rustique', amount: 1 },
+        { kind: 'item', item: 'citrouille', amount: 8 },
+        { kind: 'item', item: 'sauce|reussi', amount: 2 },
       ], text: 'Remplir la marmite du village' },
     ],
   },
@@ -363,11 +307,11 @@ export const PROJECTS: VillageProject[] = [
     xp: 600,
     outro: 'Le pressoir est prêt pour chaque nouvelle vendange.',
     steps: [
-      { kind: 'harvest', crop: 'raisin', amount: 3, text: 'Récolter 3 raisins' },
-      { kind: 'cook', recipe: 'confiture', amount: 1, minOutcome: 'rustique', text: 'Préparer une confiture de fraises' },
+      { kind: 'harvest', crop: 'raisin', amount: 20, text: 'Récolter 20 raisins' },
+      { kind: 'cook', recipe: 'confiture', amount: 3, minOutcome: 'reussi', text: 'Préparer 3 confitures de fraises réussies' },
       { kind: 'deliver', lines: [
-        { kind: 'item', item: 'raisin', amount: 2 },
-        { kind: 'item', item: 'confiture|rustique', amount: 1 },
+        { kind: 'item', item: 'raisin', amount: 8 },
+        { kind: 'item', item: 'confiture|reussi', amount: 2 },
       ], text: 'Ouvrir la dégustation des vendanges' },
     ],
   },
@@ -377,7 +321,7 @@ export const PROJECTS: VillageProject[] = [
     host: 'marcel', style: 'Lignées et partage', level: 7,
     intro: 'Marcel voudrait garder les graines qui racontent votre ferme et partager leur goût.',
     reward: 'pepiniere', rewardName: 'La pépinière',
-    rewardDesc: 'Une graine de lignée supplémentaire toutes les deux récoltes de cette lignée ; la pépinière apparaît au bord du potager.',
+    rewardDesc: 'Les lignées rendent une graine toutes les deux récoltes au lieu de trois, et multiplier coûte 8 graines classiques au lieu de 10 ; la pépinière apparaît au bord du potager.',
     coins: 180, xp: 160,
     outro: 'Des bacs de semis en bois accueillent désormais les graines de Rosalie au bord du potager.',
     steps: [
@@ -397,10 +341,10 @@ export const PROJECTS: VillageProject[] = [
     coins: 420, xp: 380,
     outro: 'La halle porte maintenant le nom des terres vivantes de Rosalie.',
     steps: [
-      { kind: 'harvest', crop: '*', lineageOnly: true, amount: 6, text: 'Récolter 6 produits de lignées' },
-      { kind: 'signatureOrder', amount: 2, text: 'Livrer 2 commandes de spécialité' },
-      { kind: 'fair', minScore: 55, text: 'Présenter une foire notée au moins 55/100' },
-      { kind: 'deliver', lines: [{ kind: 'distinct', count: 4, minValue: 45 }], text: 'Ouvrir la halle avec 4 cultures différentes' },
+      { kind: 'harvest', crop: '*', lineageOnly: true, amount: 30, text: 'Récolter 30 produits de lignées' },
+      { kind: 'signatureOrder', amount: 4, text: 'Livrer 4 commandes de spécialité' },
+      { kind: 'fair', minScore: 65, text: 'Présenter une foire notée au moins 65/100' },
+      { kind: 'deliver', lines: [{ kind: 'distinct', count: 6, minValue: 45, each: 3 }], text: 'Ouvrir la halle avec 6 cultures différentes, 3 de chaque' },
     ],
   },
   {
@@ -418,13 +362,14 @@ export const PROJECTS: VillageProject[] = [
     xp: 850,
     outro: 'La grande table accueille désormais les menus du village.',
     steps: [
-      { kind: 'harvest', crop: 'melon', amount: 2, text: 'Récolter 2 melons' },
-      { kind: 'cook', recipe: 'galette', amount: 1, minOutcome: 'rustique', text: 'Préparer une galette des champs' },
-      { kind: 'cook', recipe: 'veloute', amount: 1, minOutcome: 'rustique', text: 'Préparer un velouté de courge' },
+      { kind: 'harvest', crop: 'melon', amount: 12, text: 'Récolter 12 melons' },
+      { kind: 'cook', recipe: 'galette', amount: 2, minOutcome: 'reussi', text: 'Préparer 2 galettes des champs réussies' },
+      { kind: 'cook', recipe: 'veloute', amount: 2, minOutcome: 'reussi', text: 'Préparer 2 veloutés de courge réussis' },
       { kind: 'deliver', lines: [
-        { kind: 'item', item: 'galette|rustique', amount: 1 },
-        { kind: 'item', item: 'veloute|rustique', amount: 1 },
-        { kind: 'item', item: 'jus|rustique', amount: 1 },
+        { kind: 'item', item: 'galette|reussi', amount: 1 },
+        { kind: 'item', item: 'veloute|reussi', amount: 1 },
+        { kind: 'item', item: 'jus|reussi', amount: 1 },
+        { kind: 'item', item: 'melon', amount: 4 },
       ], text: 'Dresser le grand banquet' },
     ],
   },
@@ -436,12 +381,12 @@ export const PROJECTS: VillageProject[] = [
  * dans les sauvegardes.
  */
 export const PROJECT_FUNDS: Record<string, number> = {
-  champs: 6000,
-  'halle-terroirs': 6000,
-  douceurs: 10000,
-  courges: 16000,
-  vendanges: 25000,
-  'grand-banquet': 45000,
+  champs: 12000,
+  'halle-terroirs': 15000,
+  courges: 20000,
+  douceurs: 22000,
+  vendanges: 28000,
+  'grand-banquet': 50000,
 };
 const thousands = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f');
 for (const project of PROJECTS) {
@@ -609,7 +554,12 @@ export function normalizeProjects(raw: unknown): ProjectState {
     for (const [id, counts] of Object.entries(value.evidence as Record<string, unknown>)) {
       const project = PROJECTS.find((p) => p.id === id);
       if (!project || !Array.isArray(counts)) continue;
+      // 0.32.2 : les avances prises par les projets pas encore commencés et par
+      // les étapes à venir sont effacées.
+      const entry = progress[id];
+      if (!entry) continue;
       evidence[id] = project.steps.map((step, index) => {
+        if (index > entry.step) return 0;
         const raw = counts[index];
         const maximum = step.kind === 'harvest' || step.kind === 'cook' || step.kind === 'sell' || step.kind === 'signatureOrder' ? step.amount : 1;
         return typeof raw === 'number' && Number.isFinite(raw) ? Math.min(maximum, Math.max(0, Math.floor(raw))) : 0;

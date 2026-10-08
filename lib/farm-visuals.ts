@@ -1,5 +1,4 @@
-import type { Game, Plot } from './game.ts';
-import { seasonFor } from './terres.ts';
+import type { Plot } from './game.ts';
 
 export const CROP_ATLAS_ROWS: Record<string, number> = {
   radis: 0,
@@ -16,12 +15,8 @@ export const CROP_ATLAS_ROWS: Record<string, number> = {
   melon: 11,
 };
 
-export const WEATHER = [
-  { id: 'soleil', icon: '☀', label: 'Soleil doux' },
-  { id: 'pluie', icon: '☂', label: 'Pluie légère' },
-  { id: 'brume', icon: '≈', label: 'Brume claire' },
-  { id: 'doree', icon: '✦', label: 'Lumière dorée' },
-] as const;
+// 0.33.0 : la météo a des effets de jeu ; elle vit dans lib/weather.ts.
+export { WEATHER, weatherFor } from './weather.ts';
 
 export const DAY_PHASES = [
   'dawn',
@@ -120,15 +115,6 @@ export const PHASE_PREVIEW_HOUR: Record<DayPhase, number> = {
   evening: 21,
   night: 1,
 };
-
-export function weatherFor(game: Game, now: number): { id: string; icon: string; label: string; pixel: string } {
-  const cycle = Math.floor((now - game.created) / 1_200_000);
-  const weather = WEATHER[Math.abs(game.weatherSeed + cycle) % WEATHER.length];
-  // 0.9.5 : en hiver, la pluie tombe en neige (décor seulement).
-  if (weather.id === 'pluie' && seasonFor(game.season?.index ?? 0).id === 'hiver')
-    return { ...weather, icon: '❄', label: 'Neige légère', pixel: 'season-hiver' };
-  return { ...weather, pixel: weather.id };
-}
 
 export function plotStage(plot: Plot, now: number) {
   if (!plot) return 0;

@@ -3,7 +3,6 @@ import { memo, useEffect, useRef, useState, type CSSProperties, type RefObject }
 import { MapBackdrop, type SeasonId } from '@/components/farm/map-backdrop';
 import { gameAudio } from '@/lib/audio/engine';
 import { createPortal } from 'react-dom';
-import { LocateFixed, Maximize2, ZoomIn, ZoomOut } from 'lucide-react';
 import { ANCHORS, BUILD_FOCUS, FOCUS, RING, WORLD_H, WORLD_W, ZONES, pct, px, rectPct, type AnchorId, type RectPx } from '@/lib/world';
 import { nearestWalkable } from '@/lib/nav';
 import { FEAST_DECOR_READY, feastDecorFor } from '@/lib/embellishments';
@@ -39,9 +38,11 @@ import {
 } from '@/lib/farm-controls';
 import { clipDuration, rosalieClip } from '@/lib/rosalie-anim';
 import { type ActionFeedback } from '@/lib/action-feedback';
-import { ALLANT_BASE, ERRAND_MAX_FACTOR, allant, allantMaxSeconds, stepSeconds } from '@/lib/allant';
+import { ALLANT_BASE, ERRAND_MAX_FACTOR, allant, allantMaxSeconds, bulkElan, stepSeconds } from '@/lib/allant';
 import { useGameClock, useReducedMotion } from '@/hooks/use-game-clock';
 import { reduceMotionFor } from '@/lib/motion';
+import { useRosalieRepos } from '@/components/farm/rosalie-repos';
+import { UPGRADE_ICONS } from '@/lib/pixel-icons';
 import { READABLE_ZOOM, useFarmCamera } from '@/hooks/use-farm-camera';
 import { worldObstacles } from '@/lib/nav-obstacles';
 import {
@@ -50,6 +51,7 @@ import {
   RosalieSprite,
   type RosalieAction,
 } from './sprites';
+import { Glyph } from '@/components/glyph';
 
 type Result = { g: Game; message: string; feedback: ActionFeedback };
 type Props = {
@@ -95,6 +97,8 @@ type Effect = {
   index: number;
   kind: string;
   item?: ActionFeedback['items'][number];
+  /** Graines trouvées en récoltant (petite graine qui s’envole, sans texte). */
+  seeds?: number;
   flight?: { x: number; y: number; dx: number; dy: number };
 };
 type StrokeMode = 'plant' | 'water' | 'harvest' | 'observe';
@@ -126,8 +130,16 @@ function zoneStyle(r: RectPx): CSSProperties {
     '--zh': q.h,
   } as CSSProperties;
 }
-/** Image d’un objet dessiné par Astra (public/assets/pixel/objets-1.0/). */
-const objectImage = (name: string): CSSProperties => ({ backgroundImage: `url(/assets/pixel/objets-1.0/${name}.png)` });
+/**
+ * 0.32.10 — Ombre de contact : une ellipse douce sous le pied des objets posés
+ * sur la carte, dessinée sous le sprite (second calque de fond). Elle remplace
+ * l’ombre décalée (drop-shadow), qui détourait l’objet comme un autocollant.
+ */
+const CONTACT_SHADOW = 'radial-gradient(closest-side, rgb(38 30 14 / 42%), rgb(38 30 14 / 20%) 55%, rgb(38 30 14 / 0))';
+/** Image d’un objet dessiné par Astra (public/assets/pixel/objets-1.0/), posée sur son ombre. */
+const objectImage = (name: string): CSSProperties => ({ backgroundImage: `url(/assets/pixel/objets-1.0/${name}.png), ${CONTACT_SHADOW}` });
+/** Largeur de l’ombre des embellissements (part de la case, objet de l’étape 3) ; la barque flotte. */
+const EMBELLISH_SHADOW: Record<string, number> = { fontaine: 0.56, pigeonnier: 0.56, epouvantail: 0.26, ruches: 0.6, moulin: 0.62, barque: 0 };
 /** Sprite posé par ses pieds sur un ancrage (taille en px de la grille). */
 function anchorStyle(id: AnchorId, w: number, h: number): CSSProperties {
   const at = pct(ANCHORS[id]);
@@ -182,6 +194,7 @@ export const FarmMap = memo(function FarmMap({
   // 0.5.2 : parcelles tout juste creusées et aménagement tout juste posé.
   // 0.20 : Rosalie bêche chaque nouvelle parcelle ; d’ici là, elle reste en herbe.
   const [untilled, setUntilled] = useState<number[]>([]);
+  const plotsBefore = useRef(game.plots.length);
   const [dug, setDug] = useState<Record<number, number>>({});
   // 0.20 : halo doré du passage de niveau.
   const [aura, setAura] = useState(0);
@@ -280,10 +293,11 @@ export const FarmMap = memo(function FarmMap({
      * écrite directement sur le nœud à chaque image, sans rendu React. Le
      * changement de direction seul passe par l’état ; poussière à chaque pas.
      */
-    function walk(points: Point[], mode: WalkMode = 'plot') {
+    function walk(points: Point[], mode: WalkMode = 'plot', boost = 1) {
       const el = rosalieRef.current;
-      // Allant (0.9.5) : la vitesse de marche progresse avec la ferme.
-      const speed = allant(latest.current.game, Date.now());
+      // Allant (0.9.5) : la vitesse de marche progresse avec la ferme ;
+      // 0.32.3 : `boost` = élan d’une tournée groupée.
+      const speed = allant(latest.current.game, Date.now()) * boost;
       const step = stepSeconds(speed);
       // 0.16 : une marche libre va au pas de Rosalie, sans plafond de durée,
       // et s’arrête là où elle est si un autre clic la redirige.
@@ -404,7 +418,7 @@ export const FarmMap = memo(function FarmMap({
           : undefined;
       setEffects((prev) => [
         ...prev.slice(-8),
-        { key, index, kind, item, flight },
+        { key, index, kind, item, seeds: result.feedback.seeds, flight },
       ]);
       // 0.22 : la récolte tombe dans le panier ; une belle ou une exceptionnelle a sa petite musique.
       if (item?.quality === 'exceptionnelle') gameAudio.play('recolte-exceptionnelle', { duck: 1.5 });
@@ -416,8 +430,8 @@ export const FarmMap = memo(function FarmMap({
       }, 1500);
       if (item?.quality === 'exceptionnelle') {
         setAction('celebrate');
-        // Moment fort : ralenti de 150 ms, onde dorée, secousse de 2 px et
-        // éclats (coupés en mouvement réduit).
+        // Moment fort : ralenti de 150 ms, secousse de 2 px et gerbe d’éclats
+        // d’or (coupés en mouvement réduit).
         if (!latest.current.reduced) {
           const farm =
             scroller.current?.querySelector<HTMLElement>('.pixel-farm');
@@ -426,7 +440,7 @@ export const FarmMap = memo(function FarmMap({
           farm?.classList.add('shake');
           setTimeout(() => farm?.classList.remove('shake'), 400);
           const spot = plotPosition(index);
-          ambienceBurst('sparkle', spot.x, spot.y + 1.1, 14);
+          ambienceBurst('sparkle', spot.x, spot.y + 0.4, 10);
           await sleep(150);
         }
       }
@@ -440,7 +454,7 @@ export const FarmMap = memo(function FarmMap({
       const { index } = step;
       const kind = GESTURE[step.kind];
       setTarget(index);
-      await walk(route(positionRef.current, approach(index, kind), obstacles()));
+      await walk(route(positionRef.current, approach(index, kind), obstacles()), 'plot', bulkElan(latest.current.game, step.kind));
       if (generation.current !== token) return;
       const ms = startGesture(kind);
       await sleep(ms * 0.45);
@@ -515,11 +529,13 @@ export const FarmMap = memo(function FarmMap({
       const cam = cameraRef.current;
       const reducedNow = latest.current.reduced;
       const wasFollowing = cam.isFollowing();
-      const zoomBefore = cam.currentZoom();
       const above = () => ({ x: positionRef.current.x, y: positionRef.current.y - 2.6 });
-      if (cam.desktop && !reducedNow) {
+      // 0.32.11 : plus de zoom sur elle (le décalage gênait l’action en cours) ;
+      // la vue ne glisse vers elle que si elle n’est pas à l’écran.
+      const glide = cam.desktop && !reducedNow && !cam.sees(positionRef.current);
+      if (glide) {
         cam.unfollow();
-        cam.fly({ zoom: Math.min(cam.max, Math.max(zoomBefore * 1.45, 1.7)), center: above() }, CELEBRATE_ZOOM_MS);
+        cam.fly({ center: above() }, CELEBRATE_ZOOM_MS);
       }
       setGestureSpeed(1);
       setAction('celebrate');
@@ -529,11 +545,7 @@ export const FarmMap = memo(function FarmMap({
       await sleep(reducedNow ? 700 : CELEBRATE_MS);
       setAura(0);
       if (generation.current === token) setAction('idle');
-      if (cam.desktop && !reducedNow) {
-        cam.fly({ zoom: zoomBefore, center: above() }, CELEBRATE_ZOOM_MS);
-        await sleep(CELEBRATE_ZOOM_MS);
-        if (wasFollowing) cam.follow();
-      }
+      if (glide && wasFollowing) cam.follow();
       window.dispatchEvent(new CustomEvent('rosalie:celebrated', { detail: levelReached }));
     }
     async function execute(intent: QueuedIntent) {
@@ -633,6 +645,8 @@ export const FarmMap = memo(function FarmMap({
     if (!feedback?.building || !feedback.changed) return;
     const el = scroller.current;
     const point = BUILD_FOCUS[feedback.building] || FOCUS.potager;
+    // 0.32.11 : construction déjà à l’écran : la vue ne bouge pas.
+    if (desktop && cameraRef.current.sees(point)) return;
     unfollow();
     // 0.17.3 : la caméra glisse en douceur vers la construction.
     if (desktop) fly({ center: point });
@@ -646,15 +660,18 @@ export const FarmMap = memo(function FarmMap({
   useEffect(() => {
     if (!feedback?.building || !feedback.changed) return;
     const key = feedback.id;
+    // 0.32.11 : nombre de parcelles avant l’achat (lu avant sa mise à jour, plus bas).
+    const before = plotsBefore.current;
     const timers: ReturnType<typeof setTimeout>[] = [];
     // Différé d’un tick : l’état suit l’achat sans rendu en cascade.
     timers.push(
       setTimeout(() => {
         if (feedback.building === 'expand') {
           // 0.20 : Rosalie va bêcher chaque nouvelle parcelle, l’une après l’autre ;
-          // elles restent en herbe jusqu’à son passage. 3 par extension, 2 à la dernière.
+          // elles restent en herbe jusqu’à son passage. 0.32.11 : seulement les
+          // parcelles ajoutées (deux depuis la 0.32.2), jamais une parcelle déjà semée.
           const count = latest.current.game.plots.length;
-          const fresh = Array.from({ length: count % 3 === 2 ? 2 : 3 }, (_, i) => count - (count % 3 === 2 ? 2 : 3) + i);
+          const fresh = Array.from({ length: Math.max(0, count - before) }, (_, i) => before + i);
           setUntilled((list) => [...new Set([...list, ...fresh])]);
           followRef.current();
           queue.current?.first(...fresh.map((index) => ({ dig: index })));
@@ -669,6 +686,10 @@ export const FarmMap = memo(function FarmMap({
     );
     return () => timers.forEach(clearTimeout);
   }, [feedback]);
+  // Après l’effet d’achat ci-dessus : il a lu l’ancien nombre de parcelles.
+  useEffect(() => {
+    plotsBefore.current = game.plots.length;
+  }, [game.plots.length]);
   useEffect(() => {
     if (!feedback?.changed) return;
     // 0.9.9 : l’atelier, le poulailler, le verger et les gestes groupés passent
@@ -681,22 +702,21 @@ export const FarmMap = memo(function FarmMap({
     }
   }, [feedback]);
   // Après un passage de niveau, la caméra glisse vers la nouveauté.
-  const zoomRef = useRef(camera.zoom);
-  useEffect(() => {
-    zoomRef.current = camera.zoom;
-  }, [camera.zoom]);
   useEffect(() => {
     function focus(event: Event) {
       const point = (event as CustomEvent<Point>).detail;
       const el = scroller.current;
       const farm = el?.firstElementChild as HTMLElement | null;
       if (!el || !farm || !point) return;
-      unfollow();
-      // 0.17.3 : zoom et position glissent ensemble vers la nouveauté.
+      // 0.32.11 : nouveauté déjà à l’écran : la vue ne bouge pas ; sinon elle
+      // glisse vers elle sans changer de zoom.
       if (desktop) {
-        fly({ zoom: Math.max(zoomRef.current, READABLE_ZOOM), center: point });
+        if (cameraRef.current.sees(point)) return;
+        unfollow();
+        fly({ center: point });
         return;
       }
+      unfollow();
       requestAnimationFrame(() =>
         requestAnimationFrame(() =>
           el.scrollTo({
@@ -710,33 +730,17 @@ export const FarmMap = memo(function FarmMap({
     window.addEventListener('rosalie:focus', focus);
     return () => window.removeEventListener('rosalie:focus', focus);
   }, [fly, desktop, reduced, scroller, unfollow]);
-  useEffect(() => {
-    // Après 8 s sans action, Rosalie prend une attitude puis revient au repos.
-    if (action !== 'idle' || reduced) return;
-    const poses: RosalieAction[] = [
-      'idle-look-left',
-      'idle-look-right',
-      'idle-back',
-      'idle-basket',
-    ];
-    const timer = setTimeout(
-      () => setAction(poses[Math.floor(Math.random() * poses.length)]),
-      8000,
-    );
-    return () => clearTimeout(timer);
-  }, [action, reduced]);
-  useEffect(() => {
-    if (!action.startsWith('idle-')) return;
-    const timer = setTimeout(() => setAction('idle'), 2600);
-    return () => clearTimeout(timer);
-  }, [action]);
+  // 0.22.1 : plus d’attitudes au hasard (images de marche figées, de profil ou de dos).
+  // 0.23 : à leur place, de vraies petites animations de repos, face au joueur,
+  // après 12 à 25 s de calme (components/farm/rosalie-repos.ts).
+  useRosalieRepos({ action, setAction, game, reduced, disabled: !!disabled });
   const states = zoneStates(game, level(game));
   function center() {
     const el = scroller.current;
     // 0.17.3 : sur ordinateur, la caméra rejoint Rosalie en douceur (et reprend le suivi).
+    // 0.32.11 : le bouton la recentre même si elle est déjà à l’écran.
     if (desktop) {
-      unfollow();
-      follow();
+      follow(true);
       return;
     }
     follow();
@@ -771,7 +775,7 @@ export const FarmMap = memo(function FarmMap({
               aria-label="Dézoomer (touche −)"
               title="Dézoomer (−)"
             >
-              <ZoomOut size={17} />
+              <Glyph id="loupe-moins" />
             </button>
             <output aria-label="Niveau de zoom, 100 % = taille réelle de la carte">
               {Math.round(camera.zoom * 100)} %
@@ -782,7 +786,7 @@ export const FarmMap = memo(function FarmMap({
               aria-label="Zoomer (touche +)"
               title="Zoomer (+) · molette"
             >
-              <ZoomIn size={17} />
+              <Glyph id="loupe-plus" />
             </button>
             <button
               className="zoom-real"
@@ -799,13 +803,13 @@ export const FarmMap = memo(function FarmMap({
               aria-label="Vue d’ensemble de la carte (touche 0)"
               title="Vue d’ensemble (0) · Maj + flèches pour se déplacer"
             >
-              <Maximize2 size={16} />
+              <Glyph id="plein-ecran" />
             </button>
           </fieldset>
         )}
         {/* 0.17.3 : aussi en vue d’ensemble : la caméra revient à 1:1 sur Rosalie. */}
         <button onClick={center} aria-label="Recentrer sur Rosalie">
-          <LocateFixed size={18} />
+          <Glyph id="viseur" />
         </button>
       </div>
       <div
@@ -918,7 +922,6 @@ export const FarmMap = memo(function FarmMap({
           >
             {aura > 0 && <RosalieAura reduced={reduced} />}
             <RosalieSprite action={action} reduced={reduced} walkScale={walkScale} gestureScale={gestureSpeed} repeat={action === 'hoe' || (action === 'celebrate' && aura > 0)} />
-            <RosalieBubble game={game} />
             {queueSize > 0 && <span className="queue-badge">{queueSize}</span>}
           </div>
           {/* oxlint-enable jsx-a11y/prefer-tag-over-role */}
@@ -1066,7 +1069,6 @@ export const FarmMap = memo(function FarmMap({
             <BuildBurst
               key={built.key}
               id={built.id}
-              plots={game.plots.length}
               at={
                 built.id === 'expand'
                   ? plotPosition(Math.max(0, game.plots.length - 2))
@@ -1187,7 +1189,12 @@ const FarmPlot = memo(function FarmPlot({
               key={pulse.n}
               className={`crop-pop ${pulse.kind ? `pop-${pulse.kind}` : ''}`}
             >
-              <CropSprite crop={plot.crop} stage={stage} lineage={!!lineageName} />
+              <CropSprite
+                crop={plot.crop}
+                stage={stage}
+                lineage={!!lineageName}
+                drip={plot.watered && !ripe ? +((index * 0.83) % 6).toFixed(2) : undefined}
+              />
             </span>
           </span>
         )}
@@ -1200,7 +1207,7 @@ const FarmPlot = memo(function FarmPlot({
             aria-hidden="true"
           >
             <PixelIcon
-              id={ripe ? 'basket' : plot.watered ? plot.crop : 'water'}
+              id={ripe ? 'faucille' : plot.watered ? plot.crop : 'arrosoir'}
             />
           </span>
         )}
@@ -1208,6 +1215,78 @@ const FarmPlot = memo(function FarmPlot({
     </div>
   );
 });
+/**
+ * 0.32.6 : planches d’effets (fx-hd, 6 images de 128 px) posées dans la boîte de la
+ * parcelle (45 × 17,6 px de carte, origine au coin haut gauche de la parcelle).
+ * `land` = point d’impact dans l’image (éclaboussure, graines au sol, cœur de la
+ * terre), mesuré sur la planche ; il est posé au centre de la plante (22,5 ; 8,5).
+ * `size` = côté de l’image en px de carte.
+ * 0.32.8 : effets ramenés à l’échelle de la plante (eau 24 px, graines 28 px,
+ * terre 20 px, au lieu de 38 à 51). Pour qu’ils partent quand même du bec de
+ * l’arrosoir ou de la main de Rosalie, l’image part de `from` (décalage en px de
+ * carte) et tombe à sa place pendant le premier tiers du geste ; elle apparaît
+ * en fondu au lieu de surgir d’un coup.
+ */
+const PLANT_CENTRE = { x: 22.5, y: 8.5 };
+function gestureSprite(id: string, size: number, land: [number, number], duration: number, delay = 0, from: [number, number] = [0, 0], at = PLANT_CENTRE) {
+  return {
+    id,
+    style: {
+      '--fx-left': (at.x - land[0] * size).toFixed(2),
+      '--fx-top': (at.y - land[1] * size).toFixed(2),
+      '--fx-size': size.toFixed(2),
+      '--fx-dx': from[0].toFixed(2),
+      '--fx-dy': from[1].toFixed(2),
+      '--fx-duration': `${duration}ms`,
+      '--fx-delay': `${delay}ms`,
+    } as CSSProperties,
+  };
+}
+/**
+ * 0.32.8 : l’eau sort de la pomme de l’arrosoir. Bout du bec mesuré dans le jeu,
+ * pendant le versement (images 4 à 6 de l’animation « arroser ») : 14,7 px à
+ * droite et 9,2 px au-dessus du point où se tient Rosalie (px de carte).
+ * La planche d’eau (20 px) est posée pour que sa première goutte (29 %, 31 % de
+ * l’image) parte de là, puis glisse jusqu’à ce que l’éclaboussure (66 %, 84 %)
+ * tombe au pied de la plante (1,5 px sous son centre).
+ */
+const SPOUT = { x: 14.7, y: -9.2 };
+const WATER_SIZE = 20;
+const WATER_LAND: [number, number] = [0.66, 0.84];
+const WATER_FIRST_DROP: [number, number] = [0.29, 0.31];
+function waterSprite(index: number) {
+  const stand = approach(index, 'water');
+  const plot = plotPosition(index);
+  // Bec, relatif au centre de la plante (x : milieu de la parcelle ; y : haut + 8,5 px).
+  const spout = {
+    x: (stand.x - plot.x) * 12 + SPOUT.x,
+    y: (stand.y - plot.y) * 8 + SPOUT.y - PLANT_CENTRE.y,
+  };
+  const at = { x: PLANT_CENTRE.x, y: PLANT_CENTRE.y + 1.5 };
+  // Première goutte si l’image restait à sa place d’arrivée.
+  const first = {
+    x: at.x - PLANT_CENTRE.x - (WATER_LAND[0] - WATER_FIRST_DROP[0]) * WATER_SIZE,
+    y: at.y - PLANT_CENTRE.y - (WATER_LAND[1] - WATER_FIRST_DROP[1]) * WATER_SIZE,
+  };
+  return gestureSprite('water', WATER_SIZE, WATER_LAND, 420, 0, [spout.x - first.x, spout.y - first.y], at);
+}
+/* Graines : départ de la main qui sème, vers (2,1 ; −19) depuis le centre de la plante. */
+const PLANT_SPRITES = [
+  gestureSprite('seeds', 28, [0.56, 0.78], 380, 0, [3.5, -8.6]),
+  gestureSprite('soil', 20, [0.5, 0.68], 360, 160),
+];
+/** 0.32.9 : éclats de récolte (planche de Rosalie) sur le feuillage d’une plante mûre. */
+const HARVEST_SPRITES = [
+  gestureSprite('harvest', 26, [0.5, 0.55], 420, 0, [0, 0], { x: PLANT_CENTRE.x, y: 2 }),
+  gestureSprite('harvest-2', 20, [0.5, 0.55], 420, 160, [0, 0], { x: PLANT_CENTRE.x + 5, y: 5 }),
+];
+/** Étoiles de qualité : position (px de carte, centre au-dessus de la plante), taille, délai. */
+const star = (x: number, y: number, size: number, delay: number) =>
+  ({ '--star-x': x, '--star-y': y, '--star-size': size, '--star-delay': `${delay}ms` }) as CSSProperties;
+const QUALITY_STARS: Record<string, CSSProperties[]> = {
+  belle: [star(0, -10, 9, 120)],
+  exceptionnelle: [star(0, -12, 11, 120), star(-9, -6, 6, 260), star(9, -7, 6, 360)],
+};
 function ActionEffect({ effect }: { effect: Effect }) {
   const { index, kind, item } = effect;
   return (
@@ -1216,8 +1295,11 @@ function ActionEffect({ effect }: { effect: Effect }) {
       style={toStyle(plotPosition(index))}
       aria-hidden="true"
     >
-      {kind === 'water' || kind === 'plant' ? null : (
-        // 0.9.7 : l’eau, les graines et la terre viennent des gestes de Rosalie (RosalieSprite).
+      {kind === 'water' || kind === 'plant' ? (
+        // 0.32.6 : les planches d’effets de Rosalie (eau, graines, terre), posées pour
+        // que l’eau éclabousse et que les graines tombent pile sur la plante.
+        (kind === 'water' ? [waterSprite(index)] : PLANT_SPRITES).map((fx) => <span key={fx.id} className={`gesture-sprite fx-${fx.id}`} style={fx.style} />)
+      ) : (
         <>
           {effect.flight &&
             createPortal(
@@ -1238,39 +1320,30 @@ function ActionEffect({ effect }: { effect: Effect }) {
               </span>,
               document.body,
             )}
-          <span className="harvest-caption">
-            +{item?.amount} ·{' '}
-            {item?.quality === 'exceptionnelle'
-              ? 'Exceptionnelle'
-              : item?.quality === 'belle'
-                ? 'Belle'
-                : 'Ordinaire'}
-          </span>
-          {item?.quality !== 'ordinaire' && (
-            <span className="quality-burst">
-              <PixelIcon id="quality" />
+          {/* 0.32.9 : plus de halo rond. La récolte se lit en pixel art : les
+              éclats de récolte de Rosalie sur la plante (deux fois pour une
+              récolte double), puis la qualité en étoiles, aux couleurs du
+              panier : une étoile bleue pour une belle récolte, trois étoiles
+              d’or pour une exceptionnelle. Rien de plus pour l’ordinaire. */}
+          {HARVEST_SPRITES.slice(0, (item?.amount ?? 1) > 1 ? 2 : 1).map((fx) => (
+            <span key={fx.id} className="gesture-sprite fx-harvest" style={fx.style} />
+          ))}
+          {(QUALITY_STARS[item?.quality || ''] || []).map((style, i) => (
+            <span key={i} className={`quality-star star-${item?.quality}`} style={style} />
+          ))}
+          {(effect.seeds ?? 0) > 0 && (
+            <span className="harvest-seed">
+              <PixelIcon id="seeds" />
             </span>
-          )}
-          {item?.quality === 'exceptionnelle' && (
-            <span className="golden-wave" />
           )}
         </>
       )}
     </div>
   );
 }
-const upgradeIcons: Record<string, string> = {
-  expand: 'soil',
-  water: 'irrigation',
-  tools: 'tools',
-  workshop: 'workshop',
-  coop: 'coop',
-  auto: 'auto',
-  'watering-can': 'watering-can',
-};
 const BUILD_CAPTIONS: Record<string, string> = {
   // 0.20 : Rosalie va les bêcher une à une.
-  expand: 'Trois nouvelles parcelles',
+  expand: 'Deux nouvelles parcelles',
   water: 'Irrigation douce installée',
   tools: 'Outils rangés sur l’établi',
   workshop: 'L’atelier ouvre ses portes',
@@ -1288,15 +1361,15 @@ const SPARKS = Array.from({ length: 10 }, (_, i) => {
   } as CSSProperties;
 });
 /** Retour d’un aménagement : éclats, poussière et légende parchemin. */
-function BuildBurst({ id, at, plots }: { id: string; at: Point; plots: number }) {
-  const name = id === 'expand' && plots % 3 === 2 ? 'Deux nouvelles parcelles' : BUILD_CAPTIONS[id] ?? 'Aménagement terminé';
+function BuildBurst({ id, at }: { id: string; at: Point }) {
+  const name = BUILD_CAPTIONS[id] ?? 'Aménagement terminé';
   return (
     <div className="build-burst" style={toStyle(at)} aria-hidden="true">
       {SPARKS.map((style, i) => (
         <i key={i} style={style} />
       ))}
       <b>
-        <PixelIcon id={upgradeIcons[id] || 'tools'} />
+        {UPGRADE_ICONS[id] && <PixelIcon id={UPGRADE_ICONS[id]} />}
         {name}
       </b>
     </div>
@@ -1428,16 +1501,10 @@ function RosalieAura({ reduced }: { reduced: boolean }) {
   );
 }
 
-/** Bulle « ! » au-dessus de Rosalie quand une récolte attend. */
-function RosalieBubble({ game }: { game: Game }) {
-  const now = useGameClock();
-  const ready = game.plots.some((plot) => plot && plot.end <= now);
-  return ready ? (
-    <span className="rosalie-bubble" aria-hidden="true">
-      !
-    </span>
-  ) : null;
-}
+/*
+ * 0.32.3 : la bulle « ! » au-dessus de Rosalie est retirée. Elle redisait ce
+ * que montrent déjà le panier sur la parcelle mûre et le bouton Récolter du dock.
+ */
 
 function ValleyFarmCaravan({ valley, onOpen }: { valley: ValleyState; onOpen: (panel: string) => void }) {
   const now = useGameClock();
@@ -1491,8 +1558,17 @@ function EmbellishLayer({ game }: { game: Game }) {
             // 0.19 : case agrandie à l’échelle de la carte (lib/echelle.ts).
             width: `${((64 * entry.scale) / WORLD_W) * 100}%`,
             height: `${(((entry.cell === 192 ? 96 : 64) * entry.scale) / WORLD_H) * 100}%`,
-            backgroundImage: `url(/assets/pixel/embellissements-hd/${entry.id}.png)`,
-            backgroundPosition: `${(stage - 1) * 50}% 0`,
+            // 0.32.10 : ombre de contact sous le pied (case : pieds à 93,75 %).
+            ...(EMBELLISH_SHADOW[entry.id]
+              ? {
+                  backgroundImage: `url(/assets/pixel/embellissements-hd/${entry.id}.png), ${CONTACT_SHADOW}`,
+                  backgroundPosition: `${(stage - 1) * 50}% 0, 50% 98.6%`,
+                  backgroundSize: `300% 100%, ${EMBELLISH_SHADOW[entry.id] * 100}% 8%`,
+                }
+              : {
+                  backgroundImage: `url(/assets/pixel/embellissements-hd/${entry.id}.png)`,
+                  backgroundPosition: `${(stage - 1) * 50}% 0`,
+                }),
           }}
         >
           {entry.id === 'moulin' && stage >= 2 && <span className="embellish-anim moulin-wings" />}

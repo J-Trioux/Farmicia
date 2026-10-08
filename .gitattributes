@@ -1,0 +1,20 @@
+# 0.32.9 — Compatibilité Windows : le dépôt garde des fins de ligne LF partout,
+# même cloné sous Windows avec core.autocrlf. Les tests lisent les sources avec
+# des expressions régulières qui attendent « \n ».
+* text=auto eol=lf
+
+# Images, sons et polices : jamais convertis (PNG sans compression, tels quels).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.ogg binary
+*.mp3 binary
+*.wav binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.psd binary
+*.aseprite binary

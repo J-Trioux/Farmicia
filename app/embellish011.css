@@ -267,14 +267,6 @@
 .feast-decor-list li[data-done] { color: var(--c-ink); font-weight: 700; }
 
 /* ---------- Commandes en préparation ---------- */
-.village-offer.offer-waiting { opacity: 0.78; }
-.offer-wait {
-  display: block;
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: var(--c-ink-soft);
-  font-style: italic;
-}
 @media (max-width: 600px) {
   .embellish-card { grid-template-columns: 60px 1fr; }
   .embellish-sprite { width: 60px; }

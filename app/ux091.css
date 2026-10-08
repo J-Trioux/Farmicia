@@ -96,29 +96,6 @@
 }
 
 /* ---------- Marque-page « Nouveau » ---------- */
-.book-tab-new {
-  flex: none;
-  padding: 1px 5px;
-  color: #3b2a1b;
-  background: #ffd96f;
-  border-radius: 4px;
-  font-size: 11px;
-  font-style: normal;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.notebook-tab-list [data-slot='tabs-trigger'][data-new] .pixel-icon {
-  animation: book-tab-new 1.8s ease-in-out 3;
-}
-@keyframes book-tab-new {
-  50% {
-    transform: translateY(-2px) rotate(-6deg);
-  }
-}
-[data-reduce-motion] .notebook-tab-list [data-slot='tabs-trigger'][data-new] .pixel-icon {
-  animation: none;
-}
 
 @media (max-width: 900px) {
   /* Bandeau trop étroit : l’annonce flotte sous lui. */
@@ -397,7 +374,6 @@
   font-weight: 700;
 }
 .basket-name small,
-.notebook-dialog .basket-name small,
 .paper-dialog .basket-name small {
   display: block;
   overflow: hidden;
@@ -542,17 +518,7 @@
 /* ---------- Grand écran (1920 × 1080 et plus) ---------- */
 @media (min-width: 1700px) and (min-height: 1000px) {
   /* Le carnet profite de la place : 1400 × 940 au lieu de 1160 × 820. */
-  .notebook-dialog.book-dialog {
-    --book-width: min(1400px, calc(100vw - 160px));
-    --book-height: min(940px, calc(100dvh - 110px));
-  }
-  .book-dialog .notebook-tabs {
-    grid-template-columns: 260px minmax(0, 1fr);
-  }
   /* Les trois pistes du village côte à côte. */
-  .projects-panel .project-list.project-picks {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
   /* Tiroir des graines : quatre colonnes. */
   .seed-all {
     width: 700px;
@@ -573,55 +539,6 @@
 }
 .pixel-farm .rosalie-player.walking .rosalie-sprite {
   animation-duration: var(--walk-step, 0.26s), calc(var(--walk-step, 0.26s) / 2);
-}
-.allant-card {
-  margin: 10px 0 12px;
-  padding: 10px 14px;
-  color: var(--c-ink);
-  background: #f3f6e4;
-  border: 1px solid #a9b98a;
-  border-left: 4px solid var(--c-leaf);
-  border-radius: var(--r-md);
-}
-.allant-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 12px;
-}
-.allant-head h4 {
-  margin: 0;
-  font: 700 17px Georgia, 'Times New Roman', serif;
-}
-.allant-head b {
-  color: #3f6a35;
-  font-size: 18px;
-}
-.allant-card ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 6px;
-  margin: 8px 0 6px;
-  padding: 0;
-  list-style: none;
-}
-.allant-card li {
-  display: flex;
-  gap: 6px;
-  padding: 2px 8px;
-  color: #7a7461;
-  background: #fffdf3;
-  border: 1px solid #d8d2b8;
-  border-radius: var(--r-pill);
-  font-size: 12px;
-}
-.allant-card li[data-active] {
-  color: #33502b;
-  border-color: #9ab27c;
-}
-.allant-card > small {
-  color: var(--c-ink-soft);
-  font-size: 12px;
 }
 
 /* ---------- 0.9.5 : avance rapide des gestes groupés ---------- */
@@ -758,45 +675,6 @@
 /* ==========================================================================
    0.9.5 — Longues tournées de la caravane
    ========================================================================== */
-.valley-tours {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
-  gap: 7px;
-  margin: 10px 0;
-  padding: 0;
-  border: 0;
-}
-.valley-tours legend {
-  margin-bottom: 5px;
-  padding: 0;
-  color: #503820;
-  font: 700 15px Georgia, serif;
-}
-.valley-tours button {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  min-height: 52px;
-  padding: 7px 9px;
-  border: 2px solid #ac8958;
-  background: #f6e9c4;
-  color: #3b2d1c;
-  text-align: left;
-  box-shadow: 2px 3px 0 #85694a66;
-}
-.valley-tours button[aria-pressed='true'] {
-  border-color: #456c47;
-  background: #e9d6a0;
-  box-shadow: inset 0 0 0 2px #82a574;
-}
-.valley-tours button:disabled {
-  opacity: 0.6;
-  box-shadow: none;
-}
-.valley-tours small {
-  font-size: 12px;
-}
 
 /* 0.9.5 : Rosalie reste au premier plan, même au-dessus d’une parcelle survolée
    (qui monte à 25 pour son anneau). */

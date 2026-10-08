@@ -1,70 +1,293 @@
 'use client';
+/**
+ * 0.25 — Page Vallée du carnet (maquette 04-vallee de ChatGPT).
+ *
+ * Bandeau de la vallée, avec les deux destinations posées dessus ; onglets
+ * des tournées (durée) ; à gauche le chargement de la caravane (caisses et
+ * réserve, en −/+), à droite la tournée choisie, les récompenses estimées et
+ * « Envoyer la caravane ». Pendant le trajet : sa progression, puis l’accueil
+ * de la caravane. En bas, le relais de la vallée. Règles inchangées
+ * (lib/valley.ts, actions valleySelect, valleyTour, valleyLoad, valleyDepart,
+ * valleyClaim).
+ */
+import { useState, type CSSProperties } from 'react';
+import { CarnetBanner, CarnetPager, CarnetRewards, CarnetSegments } from '@/components/notebook/carnet';
+import { ContextualPixelIcon as PixelIcon } from '@/components/notebook/carnet-icon';
+import { CarnetProgress } from '@/components/notebook/carnet-progress';
 import { useGameClock } from '@/hooks/use-game-clock';
-import { useState } from 'react';
-import Image from 'next/image';
-import { PixelIcon } from '@/components/farm/sprites';
 import { REGIONS, VALLEY_PROJECT_TARGET, VALLEY_TOURS, cargoLimit, tourMinimum, tourOf, valleyCapacity, valleyPreview, type RegionId } from '@/lib/valley';
 import { UNLOCKS, crop, duration, itemLabel, level, price, recipe, valleyRequests, valleyUnlocked, type ActionArgument, type Game } from '@/lib/game';
+import { Glyph } from '@/components/glyph';
 
 type Props = { game: Game; now: number; dispatch: (action: string, arg?: ActionArgument) => unknown };
-function unitName(game: Game, item: string) { return itemLabel(game, item).replace(' · Ordinaire', '').replace(' · Réussi', ''); }
+const PER_PAGE = 4;
+const REGION_ICONS: Record<RegionId, string> = { moulins: 'moulin', vergers: 'barque' };
+function unitName(game: Game, item: string) {
+  return itemLabel(game, item).replace(' · Ordinaire', '').replace(' · Réussi', '');
+}
+
 export function ValleyPanel({ game, now: snapshotNow, dispatch }: Props) {
   const now = useGameClock() || snapshotNow;
-  const [showAll, setShowAll] = useState(false);
+  const [page, setPage] = useState(0);
   const valley = game.valley;
   const region = valley.region;
   const trip = valley.trip;
+  const preferred = REGIONS[region].preference as readonly string[];
   const stock = Object.entries(game.stock)
     .filter(([item, amount]) => amount > 0 && (item === 'oeuf' || !!crop(item.split('|')[0]) || !!recipe(item.split('|')[0])))
-    .sort(([a], [b]) => Number((REGIONS[region].preference as readonly string[]).includes(b.split('|')[0])) - Number((REGIONS[region].preference as readonly string[]).includes(a.split('|')[0])) || a.localeCompare(b, 'fr'));
+    .sort(([a], [b]) => Number(preferred.includes(b.split('|')[0])) - Number(preferred.includes(a.split('|')[0])) || a.localeCompare(b, 'fr'));
   const request = valleyRequests(game, region);
   const tour = tourOf(valley.tour);
   const preview = valleyPreview(valley.cargo, region, (item) => price(game, item, now), tour.id);
-  const ready = trip && now >= trip.returnAt;
+  const ready = !!trip && now >= trip.returnAt;
   const remaining = trip ? Math.max(0, Math.ceil((trip.returnAt - now) / 1000)) : 0;
-  if (!valleyUnlocked(game)) return <div className="valley-locked"><Image src="/assets/pixel/v090/valley.png" width={768} height={432} unoptimized alt="Le Bourg des Moulins et le Port des Vergers, de part et d’autre de la rivière"/><p>Au niveau {UNLOCKS.caravan}, Rosalie pourra charger sa première caravane. Continuez à cultiver : les deux routes resteront ouvertes, sans date limite.</p></div>;
-  return <div className="valley-panel">
-    <div className="valley-map"><Image src="/assets/pixel/v090/valley.png" width={768} height={432} unoptimized alt="Carte pixel art de la vallée : les Moulins à gauche, le Port des Vergers à droite"/><span className="valley-map-label mills">Bourg des Moulins</span><span className="valley-map-label port">Port des Vergers</span></div>
-    <div className="valley-routes">
-      {(['moulins','vergers'] as RegionId[]).map((id) => <button key={id} type="button" className={id === region ? 'chosen' : ''} disabled={!!trip} onClick={() => dispatch('valleySelect', { region: id })} aria-pressed={id === region}>
-        <strong>{REGIONS[id].name}</strong><small>{REGIONS[id].note}</small><span>Réputation {valley.reputations[id]} · {valley.shipments[id]} trajet{valley.shipments[id] > 1 ? 's' : ''}</span>
-      </button>)}
-    </div>
-    {trip ? <section className={`valley-travel ${ready ? 'arrived' : ''}`} aria-live="polite">
-      <div className="valley-travel-head"><strong>{ready ? 'La caravane est revenue !' : `En route vers ${REGIONS[trip.region].name}`}</strong><span>{ready ? 'Récompense prête à réclamer' : `Retour dans ${duration(remaining)}`}</span></div>
-      <div className="valley-travel-bar"><i style={{width:`${Math.min(100, Math.max(2, ((now - trip.departedAt)/(trip.returnAt-trip.departedAt))*100))}%`}}/></div>
-      <p>{trip.cargo.map((line) => `${line.amount} ${unitName(game,line.item)}`).join(' · ')}</p>
-      <p>{trip.preference}{trip.combination ? ` · ${trip.combination}` : ''}</p>
-      <div className="valley-preview"><b>+{trip.coins} pièces</b><b>+{trip.xp} XP</b><b>+{trip.reputation} réputation</b></div>
-      {ready && <button className="valley-primary" type="button" onClick={() => dispatch('valleyClaim')}>Accueillir la caravane et recevoir les récompenses</button>}
-    </section> : <>
-      <div className="valley-voice"><strong>{REGIONS[region].voice}</strong><p>« {REGIONS[region].greeting} »</p></div>
-      <div className="valley-wanted"><strong>Sur l’avis du moment</strong><p>{request.length ? request.map((id) => crop(id)?.name || recipe(id)?.name || id).join(' · ') : 'Tous les produits de la ferme sont bienvenus.'} {game.lineages.length > 0 && 'Les variétés signature sont aussi reconnues.'}</p><small>Ces préférences changent après une livraison. Elles n’expirent jamais et les autres produits restent acceptés.</small></div>
-      <fieldset className="valley-tours">
-        <legend>Durée de la tournée</legend>
-        {VALLEY_TOURS.map((entry) => {
-          const locked = entry.level > level(game);
-          return <button key={entry.id} type="button" aria-pressed={entry.id === tour.id} disabled={locked}
-            onClick={() => dispatch('valleyTour', { id: entry.id })}
-            title={locked ? `S’ouvre au niveau ${entry.level}` : entry.name}>
-            <b>{entry.short}</b>
-            <small>{locked ? `Niveau ${entry.level}` : entry.id === 'court' ? `${duration(REGIONS[region].travel)} · tarif de base` : `caisses ×${entry.crate} · +${Math.round((entry.reward - 1) * 100)} %`}</small>
-          </button>;
-        })}
-      </fieldset>
-      <div className="valley-section-title"><h4>Charger la caravane</h4><span>{valley.cargo.length}/{valleyCapacity(valley)} emplacements · {cargoLimit(valley,region)} par caisse</span></div>
-      <div className="valley-cargo">
-        {Array.from({length:valleyCapacity(valley)},(_,i) => { const line=valley.cargo[i]; return <div key={i} className={line?'filled':''}>{line ? <><PixelIcon id={line.item.split('|')[0]}/><span><b>{unitName(game,line.item)}</b><small>{line.amount} dans cette caisse</small></span><button type="button" aria-label={`Retirer ${unitName(game,line.item)}`} onClick={() => dispatch('valleyLoad',{item:line.item,amount:0})}>×</button></> : <span>Emplacement libre</span>}</div>; })}
+  const pages = Math.max(1, Math.ceil(stock.length / PER_PAGE));
+  const shownPage = Math.min(page, pages - 1);
+
+  if (!valleyUnlocked(game))
+    return (
+      <div className="carnet-stack valley-page">
+        <CarnetBanner id="vallee" />
+        <div className="carnet-empty">
+          <PixelIcon id="valley" />
+          <h4>La caravane arrive au niveau {UNLOCKS.caravan}.</h4>
+          <p>Continuez à cultiver : les deux routes resteront ouvertes, sans date limite.</p>
+        </div>
       </div>
-      {stock.length ? <><div className="valley-section-title"><h4>Réserve disponible</h4><button type="button" onClick={() => setShowAll(!showAll)}>{showAll ? 'Voir moins' : `Tout voir (${stock.length})`}</button></div>
-      <div className="valley-stock">{stock.slice(0,showAll?stock.length:8).map(([item, owned]) => {
-        const loaded=valley.cargo.find((line)=>line.item===item)?.amount||0;
-        const max=Math.min(owned,cargoLimit(valley,region));
-        const wanted=(REGIONS[region].preference as readonly string[]).includes(item.split('|')[0]);
-        return <div key={item} className="valley-stock-line"><PixelIcon id={item.split('|')[0]}/><span><b>{unitName(game,item)}</b><small>{owned} possédé{owned>1?'s':''}{wanted?' · recherché':''}{item.includes('|l')?' · spécialité':''}</small></span><button type="button" disabled={loaded<=0} onClick={() => dispatch('valleyLoad',{item,amount:loaded-1})} aria-label={`Retirer une unité de ${unitName(game,item)}`}>−</button><b aria-label={`${loaded} chargé`}>{loaded}</b><button type="button" disabled={loaded>=max || (!loaded && valley.cargo.length>=valleyCapacity(valley))} onClick={() => dispatch('valleyLoad',{item,amount:loaded+1})} aria-label={`Charger une unité de ${unitName(game,item)}`}>+</button></div>;
-      })}</div></> : <p className="valley-empty">Votre réserve est vide. Récoltez puis revenez préparer la caravane.</p>}
-      <div className="valley-depart"><div><strong>Retour garanti dans {duration(preview.seconds)}</strong><p>{preview.units} produit{preview.units>1?'s':''} consommé{preview.units>1?'s':''} · {preview.preference}</p><p>{preview.combination || `${tourMinimum(tour.id) === 2 ? 'Deux' : tourMinimum(tour.id)} produits minimum. Associez des récoltes ou un plat pour augmenter la récompense.`}</p><div className="valley-preview"><b>{preview.coins} pièces</b><b>{preview.xp} XP</b><b>{preview.reputation} réputation</b></div><small>Vente immédiate estimée : {preview.directValue} pièces. La réputation ouvre des recettes et des capacités.</small></div><button className="valley-primary" type="button" disabled={preview.units < tourMinimum(tour.id)} onClick={() => dispatch('valleyDepart')}>Envoyer la caravane</button></div>
-    </>}
-    <div className="valley-progress"><section><h4>Relais de la vallée {valley.projectDone && '· construit'}</h4><p>Chaque livraison compte : récoltes, plats et spécialités. Les assortiments apportent plus de matériaux au relais.</p><div className="valley-travel-bar"><i style={{width:`${Math.min(100,valley.projectPoints/VALLEY_PROJECT_TARGET*100)}%`}}/></div><small>{valley.projectPoints}/{VALLEY_PROJECT_TARGET} matériaux · récompense : troisième emplacement de caravane et relais visible sur la ferme.</small></section><section><h4>Paliers régionaux</h4><p>2 réputation : recette locale et graines · 5 : caisses de 3 produits (multipliées par la tournée) · 8 : graines offertes aux retours suivants.</p>{valley.famousSignature && <p className="valley-signature">Sur l’avis de la vallée : « {valley.famousSignature}, la spécialité de Rosalie »</p>}</section></div>
-  </div>;
+    );
+
+  return (
+    <div className="carnet-stack valley-page">
+      <CarnetBanner id="vallee">
+        {!trip && (
+        <fieldset className="carnet-banner-choices">
+          <legend className="sr-only">Destination de la caravane</legend>
+          {(['moulins', 'vergers'] as RegionId[]).map((id) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={id === region}
+              title={`${REGIONS[id].note} · réputation ${valley.reputations[id]} · ${valley.shipments[id]} trajet${valley.shipments[id] > 1 ? 's' : ''}`}
+              onClick={() => dispatch('valleySelect', { region: id })}
+            >
+              <PixelIcon id={REGION_ICONS[id]} />
+              <span>{REGIONS[id].name}</span>
+              {id === region && <Glyph id="coche" />}
+            </button>
+          ))}
+        </fieldset>
+        )}
+      </CarnetBanner>
+      {trip ? (
+        <div className="carnet-split">
+          <section className="carnet-detail" aria-labelledby="valley-trip-title" aria-live="polite">
+            <header className="carnet-detail-head">
+              <span className="carnet-detail-art" aria-hidden="true">
+                <PixelIcon id="valley" />
+              </span>
+              <div>
+                <h4 id="valley-trip-title">{ready ? 'La caravane est revenue !' : `En route vers ${REGIONS[trip.region].name}`}</h4>
+                <p className="carnet-detail-sub">{ready ? 'Récompense prête à recevoir' : `Retour dans ${duration(remaining)}`}</p>
+              </div>
+            </header>
+            <CarnetProgress className="carnet-gauge-wide" value={now - trip.departedAt} max={trip.returnAt - trip.departedAt} label="Trajet de la caravane" valueText={ready ? 'Caravane revenue' : `Retour dans ${duration(remaining)}`} />
+            <h5 className="carnet-rule">Dans la caravane</h5>
+            <ul className="carnet-ingredients">
+              {trip.cargo.map((line) => (
+                <li key={line.item}>
+                  <PixelIcon id={line.item.split('|')[0]} />
+                  <span>
+                    {unitName(game, line.item)} · {line.amount}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="carnet-note">
+              {trip.preference}
+              {trip.combination ? ` · ${trip.combination}` : ''}
+            </p>
+          </section>
+          <section className="carnet-detail" aria-labelledby="valley-claim-title">
+            <h5 className="carnet-rule" id="valley-claim-title">Récompenses</h5>
+            <CarnetRewards coins={trip.coins} xp={trip.xp} extra={[{ icon: 'lettre', label: `+${trip.reputation} réputation` }]} />
+            <div className="carnet-detail-actions">
+              <button type="button" className="carnet-primary" disabled={!ready} onClick={() => dispatch('valleyClaim')}>
+                <PixelIcon id="valley" />
+                {ready ? 'Accueillir la caravane' : `Retour dans ${duration(remaining)}`}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : (
+        <div className="carnet-split">
+          <div className="carnet-list-column valley-load">
+            <h5 className="carnet-rule">
+              Dans la caravane
+              <small>
+                {valley.cargo.length}/{valleyCapacity(valley)} caisses · {cargoLimit(valley, region)} par caisse
+              </small>
+            </h5>
+            <ul className="valley-crates" style={{ '--crates': valleyCapacity(valley) } as CSSProperties}>
+              {Array.from({ length: valleyCapacity(valley) }, (_, i) => {
+                const line = valley.cargo[i];
+                return (
+                  <li key={i} data-empty={!line || undefined}>
+                    {line ? (
+                      <>
+                        <PixelIcon id={line.item.split('|')[0]} />
+                        <span className="carnet-stepper-label">
+                          <b>{unitName(game, line.item)}</b>
+                          <small>×{line.amount}</small>
+                        </span>
+                        <button type="button" className="carnet-icon-button" aria-label={`Retirer ${unitName(game, line.item)}`} onClick={() => dispatch('valleyLoad', { item: line.item, amount: 0 })}>
+                          <Glyph id="croix" />
+                        </button>
+                      </>
+                    ) : (
+                      <small>Caisse libre</small>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            <h5 className="carnet-rule">Réserve disponible</h5>
+            {stock.length ? (
+              <ul className="carnet-list valley-stock">
+                {stock.slice(shownPage * PER_PAGE, (shownPage + 1) * PER_PAGE).map(([item, owned]) => {
+                  const loaded = valley.cargo.find((line) => line.item === item)?.amount || 0;
+                  const max = Math.min(owned, cargoLimit(valley, region));
+                  const wanted = preferred.includes(item.split('|')[0]);
+                  return (
+                    <li key={item} className="carnet-stepper" data-wanted={wanted || undefined}>
+                      <PixelIcon id={item.split('|')[0]} />
+                      <span className="carnet-stepper-label">
+                        <b>{unitName(game, item)}</b>
+                        <small>
+                          ×{owned}
+                          {wanted ? ' · recherché' : ''}
+                          {item.includes('|l') ? ' · spécialité' : ''}
+                        </small>
+                      </span>
+                      <span className="carnet-stepper-controls">
+                        <button type="button" disabled={loaded <= 0} onClick={() => dispatch('valleyLoad', { item, amount: loaded - 1 })} aria-label={`Retirer une unité de ${unitName(game, item)}`}>
+                          <Glyph id="moins" />
+                        </button>
+                        <output aria-label={`${loaded} chargé`}>{loaded}</output>
+                        <button
+                          type="button"
+                          disabled={loaded >= max || (!loaded && valley.cargo.length >= valleyCapacity(valley))}
+                          onClick={() => dispatch('valleyLoad', { item, amount: loaded + 1 })}
+                          aria-label={`Charger une unité de ${unitName(game, item)}`}
+                        >
+                          <Glyph id="plus" />
+                        </button>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="carnet-list-empty">Votre réserve est vide. Récoltez puis revenez préparer la caravane.</p>
+            )}
+            <CarnetPager page={shownPage} pages={pages} label="Pages de la réserve" onPage={setPage} />
+            <section className="carnet-band carnet-relay" aria-labelledby="valley-relay-title">
+              <PixelIcon id="plan" />
+              <span className="carnet-band-text">
+                <b id="valley-relay-title">Relais de la vallée{valley.projectDone ? ' · construit' : ''}</b>
+                <small>
+                  {valley.projectDone
+                    ? 'Troisième caisse de caravane et relais visible sur la ferme.'
+                    : 'Chaque livraison apporte des matériaux ; les assortiments en apportent plus.'}
+                  {valley.famousSignature ? ` · « ${valley.famousSignature}, la spécialité de Rosalie »` : ''}
+                </small>
+              </span>
+              <span className="carnet-relay-gauge">
+                <small>
+                  {valley.projectDone ? VALLEY_PROJECT_TARGET : Math.min(valley.projectPoints, VALLEY_PROJECT_TARGET)}
+                  {' '}/{' '}
+                  {VALLEY_PROJECT_TARGET} matériaux
+                </small>
+                <CarnetSegments value={valley.projectDone ? VALLEY_PROJECT_TARGET : valley.projectPoints} max={VALLEY_PROJECT_TARGET} segments={4} />
+              </span>
+            </section>
+          </div>
+          <section className="carnet-detail" aria-labelledby="valley-tour-title">
+            <header className="carnet-detail-head">
+              <span className="carnet-detail-art" aria-hidden="true">
+                <PixelIcon id="valley" />
+              </span>
+              <div>
+                <h4 id="valley-tour-title">{tour.name}</h4>
+                <p className="carnet-detail-sub">Retour garanti dans {duration(preview.seconds)}</p>
+              </div>
+            </header>
+            <fieldset className="carnet-segmented">
+              <legend className="sr-only">Durée de la tournée</legend>
+              {VALLEY_TOURS.map((entry) => {
+                const locked = entry.level > level(game);
+                return (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    aria-pressed={entry.id === tour.id}
+                    disabled={locked}
+                    title={locked ? `S’ouvre au niveau ${entry.level}` : entry.id === 'court' ? 'Tarif de base' : `Caisses ×${entry.crate} · +${Math.round((entry.reward - 1) * 100)} %`}
+                    onClick={() => dispatch('valleyTour', { id: entry.id })}
+                  >
+                    {locked ? `${entry.short} · niv.\u00a0${entry.level}` : entry.short}
+                  </button>
+                );
+              })}
+            </fieldset>
+            <p className="carnet-band carnet-band-info">
+              <PixelIcon id={REGION_ICONS[region]} />
+              <span>
+                <b>{REGIONS[region].voice}</b> · « {REGIONS[region].greeting} »
+                <small>
+                  Sur l’avis : {request.length ? request.map((id) => crop(id)?.name || recipe(id)?.name || id).join(' · ') : 'tous les produits de la ferme sont bienvenus'}.
+                </small>
+              </span>
+            </p>
+            <p className="carnet-note">
+              {preview.units} produit{preview.units > 1 ? 's' : ''} chargé{preview.units > 1 ? 's' : ''} · {preview.preference}
+              {preview.combination ? ` · ${preview.combination}` : ` · ${tourMinimum(tour.id)} produits minimum`}
+            </p>
+            <h5 className="carnet-rule">Récompenses estimées</h5>
+            <CarnetRewards coins={preview.coins} xp={preview.xp} extra={[{ icon: 'lettre', label: `+${preview.reputation} réputation` }]} />
+            <div className="carnet-detail-actions">
+              <button type="button" className="carnet-primary" disabled={preview.units < tourMinimum(tour.id)} onClick={() => dispatch('valleyDepart')}>
+                <PixelIcon id="valley" />
+                Envoyer la caravane
+              </button>
+            </div>
+            <p className="carnet-note carnet-center">
+              Vente immédiate estimée : {preview.directValue} pièces · réputation {valley.reputations[region]} (paliers 2, 5 et 8 : recette locale et graines, caisses de 3, graines offertes).
+            </p>
+          </section>
+        </div>
+      )}
+      {trip && (
+        <section className="carnet-band carnet-relay" aria-labelledby="valley-relay-title">
+          <PixelIcon id="plan" />
+          <span className="carnet-band-text">
+            <b id="valley-relay-title">Relais de la vallée{valley.projectDone ? ' · construit' : ''}</b>
+            <small>
+              {valley.projectDone
+                ? 'Troisième caisse de caravane et relais visible sur la ferme.'
+                : 'Chaque livraison apporte des matériaux ; les assortiments en apportent plus.'}
+              {valley.famousSignature ? ` · « ${valley.famousSignature}, la spécialité de Rosalie »` : ''}
+            </small>
+          </span>
+          <span className="carnet-relay-gauge">
+            <small>
+              {valley.projectDone ? VALLEY_PROJECT_TARGET : Math.min(valley.projectPoints, VALLEY_PROJECT_TARGET)}
+              {' '}/{' '}
+              {VALLEY_PROJECT_TARGET} matériaux
+            </small>
+            <CarnetSegments value={valley.projectDone ? VALLEY_PROJECT_TARGET : valley.projectPoints} max={VALLEY_PROJECT_TARGET} segments={4} />
+          </span>
+        </section>
+      )}
+    </div>
+  );
 }

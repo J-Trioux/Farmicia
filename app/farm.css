@@ -823,35 +823,17 @@
   color: white;
 }
 
-.notebook-dialog,
 .paper-dialog {
   border: 2px solid #a58b61 !important;
   border-radius: 10px !important;
   box-shadow: 0 16px 70px #16281766 !important;
   background: #fff9e7 !important;
 }
-.notebook-dialog > *,
 .paper-dialog > * {
   min-width: 0;
 }
-.notebook-tab-list {
-  background: #ece4c9 !important;
-  border-radius: 6px !important;
-}
-.notebook-tab-list [data-slot='tabs-trigger'] {
-  color: #4b5037 !important;
-  background: #f5efd9 !important;
-  border: 0 !important;
-  border-radius: 5px !important;
-  font-size: 14px !important;
-}
-.notebook-tab-list [data-active] {
-  background: #dbe6bd !important;
-  color: #2e5128 !important;
-}
 .upgrade-grid p,
-.seed-shop p,
-.goal-list p {
+.seed-shop p {
   font-size: 14px;
 }
 .seed-shop article,
@@ -860,12 +842,10 @@
   border-radius: 7px;
   box-shadow: 0 2px 2px #765a2222;
 }
-.notebook-dialog small,
 .paper-dialog small {
   font-size: 13px;
 }
 .upgrade-grid button,
-.goal-list button,
 .seed-shop button,
 .primary-button {
   font-size: 14px;
@@ -1116,23 +1096,14 @@
     font-size: 12px;
   }
   
-  .notebook-dialog,
   .paper-dialog {
     width: calc(100vw - 16px) !important;
     max-height: calc(100dvh - 24px);
     padding: 18px 12px !important;
   }
-  .notebook-tab-list {
-    max-width: 100%;
-    overflow-x: auto;
-  }
   .upgrade-grid,
   .seed-shop {
     grid-template-columns: 1fr;
-  }
-  .collection-stats,
-  .collection-grid {
-    grid-template-columns: repeat(2, 1fr);
   }
   
   

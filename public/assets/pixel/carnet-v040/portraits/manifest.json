@@ -1,0 +1,258 @@
+{
+  "created": "2026-10-08",
+  "generator": "built-in ImageGen + edit",
+  "initialManifest": "assets/carnet-v040-2026-10-08/portraits/manifest.json",
+  "revisionManifest": "assets/carnet-v040-2026-10-08/portraits/revision-yeux/manifest.json",
+  "rosalieIdenticalDuringRevision": true,
+  "processing": {
+    "native": 96,
+    "hd": 384,
+    "nearestScale": 4,
+    "binaryAlpha": true,
+    "pngCompressionLevel": 0,
+    "pngAdaptiveFiltering": false,
+    "pngPalette": false
+  },
+  "portraits": [
+    {
+      "index": 0,
+      "name": "rosalie",
+      "path": "/assets/pixel/carnet-v040/portraits/rosalie.png",
+      "width": 384,
+      "height": 384,
+      "native_resolution": [
+        96,
+        96
+      ],
+      "iris": "vert Rosalie inchangé",
+      "hair": "conservé",
+      "fileSha256": "d3e2f33b8e6d458670415838fe01ba7f45a691fde39a09971d1617ba689f346f",
+      "nativeRgbaSha256": "148da3cf400ff55fc68b0e2fc2cada5b529daa34f0f0cdcdb4cb6606f3fbcfa6",
+      "quality": {
+        "path": "public/assets/pixel/carnet-v040/portraits/rosalie.png",
+        "width": 384,
+        "height": 384,
+        "bitDepth": 8,
+        "colorType": "RGBA",
+        "storedDeflateBlocks": 18,
+        "idatCompression": "stored DEFLATE blocks only (BTYPE=0)",
+        "compressionLevel": 0,
+        "paletteReduction": false,
+        "pngFilter": "none",
+        "verifiedNoCompression": true,
+        "nativeSize": 96,
+        "scale": 4,
+        "binaryAlpha": true,
+        "exactPixelGrid": true,
+        "visibleColors": 65,
+        "rgbaSha256": "5e4d9a62ceb5542003bf70bf54931312bac44cda0492141f7be68ae479f80cc5",
+        "nativeBounds": [
+          10,
+          12,
+          85,
+          88
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "name": "lucie",
+      "path": "/assets/pixel/carnet-v040/portraits/lucie.png",
+      "width": 384,
+      "height": 384,
+      "native_resolution": [
+        96,
+        96
+      ],
+      "iris": "ambre doré",
+      "hair": "conservé",
+      "fileSha256": "16000ac564ac758f08e2460bdf880ad3c63d6f8a335d4c5aeb3b9e1d530b250d",
+      "nativeRgbaSha256": "aead1e757f9dca2feac8b546530aaa5c1bb7467cc8ac5be42fbe4cbf5cda9e71",
+      "quality": {
+        "path": "public/assets/pixel/carnet-v040/portraits/lucie.png",
+        "width": 384,
+        "height": 384,
+        "bitDepth": 8,
+        "colorType": "RGBA",
+        "storedDeflateBlocks": 18,
+        "idatCompression": "stored DEFLATE blocks only (BTYPE=0)",
+        "compressionLevel": 0,
+        "paletteReduction": false,
+        "pngFilter": "none",
+        "verifiedNoCompression": true,
+        "nativeSize": 96,
+        "scale": 4,
+        "binaryAlpha": true,
+        "exactPixelGrid": true,
+        "visibleColors": 24,
+        "rgbaSha256": "f2063a0053139b9991946238bf071635f38f408b0d99a3faa444ca1cd2d49fb0",
+        "nativeBounds": [
+          15,
+          10,
+          81,
+          88
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "name": "marcel",
+      "path": "/assets/pixel/carnet-v040/portraits/marcel.png",
+      "width": 384,
+      "height": 384,
+      "native_resolution": [
+        96,
+        96
+      ],
+      "iris": "vert olive",
+      "hair": "conservé",
+      "fileSha256": "1df1df151abe00c205d02d33cf2cea75ff8c8c4dcb5b57f4bc51f6ca4a9cfbba",
+      "nativeRgbaSha256": "5e3e21835b033153f714e33ed6ba1d9c5645c58187e18d43aab713b3de32ea7d",
+      "quality": {
+        "path": "public/assets/pixel/carnet-v040/portraits/marcel.png",
+        "width": 384,
+        "height": 384,
+        "bitDepth": 8,
+        "colorType": "RGBA",
+        "storedDeflateBlocks": 18,
+        "idatCompression": "stored DEFLATE blocks only (BTYPE=0)",
+        "compressionLevel": 0,
+        "paletteReduction": false,
+        "pngFilter": "none",
+        "verifiedNoCompression": true,
+        "nativeSize": 96,
+        "scale": 4,
+        "binaryAlpha": true,
+        "exactPixelGrid": true,
+        "visibleColors": 25,
+        "rgbaSha256": "d95a945d204bc31dea99dcddda367bef5ba49988ea947ed31fa5dc719ea3e763",
+        "nativeBounds": [
+          9,
+          12,
+          86,
+          88
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "name": "jeanne",
+      "path": "/assets/pixel/carnet-v040/portraits/jeanne.png",
+      "width": 384,
+      "height": 384,
+      "native_resolution": [
+        96,
+        96
+      ],
+      "iris": "gris violet",
+      "hair": "conservé",
+      "fileSha256": "0fc28bbf6cff00fa6bae78847a472e61bc81ee3d70354595216ff37d3522d6aa",
+      "nativeRgbaSha256": "1df32b12fe651932bacfb339ecfbf36441832c230a3baad9baf788794f1c2178",
+      "quality": {
+        "path": "public/assets/pixel/carnet-v040/portraits/jeanne.png",
+        "width": 384,
+        "height": 384,
+        "bitDepth": 8,
+        "colorType": "RGBA",
+        "storedDeflateBlocks": 18,
+        "idatCompression": "stored DEFLATE blocks only (BTYPE=0)",
+        "compressionLevel": 0,
+        "paletteReduction": false,
+        "pngFilter": "none",
+        "verifiedNoCompression": true,
+        "nativeSize": 96,
+        "scale": 4,
+        "binaryAlpha": true,
+        "exactPixelGrid": true,
+        "visibleColors": 28,
+        "rgbaSha256": "69a82ca49a791deed43fedf9b45ecc6c696d4bb41c2e30ffd77bbcb26534d976",
+        "nativeBounds": [
+          13,
+          8,
+          82,
+          88
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "name": "clara",
+      "path": "/assets/pixel/carnet-v040/portraits/clara.png",
+      "width": 384,
+      "height": 384,
+      "native_resolution": [
+        96,
+        96
+      ],
+      "iris": "cuivre orangé",
+      "hair": "rouge flamme vif",
+      "fileSha256": "ac9279eeabc79b4bd53ffd2ccb79927266838112260f146bcac1aca261f6e071",
+      "nativeRgbaSha256": "d9f8faad959339ab0c8711c95f2c98395b096716c593f9cb341c6d81409ffa86",
+      "quality": {
+        "path": "public/assets/pixel/carnet-v040/portraits/clara.png",
+        "width": 384,
+        "height": 384,
+        "bitDepth": 8,
+        "colorType": "RGBA",
+        "storedDeflateBlocks": 18,
+        "idatCompression": "stored DEFLATE blocks only (BTYPE=0)",
+        "compressionLevel": 0,
+        "paletteReduction": false,
+        "pngFilter": "none",
+        "verifiedNoCompression": true,
+        "nativeSize": 96,
+        "scale": 4,
+        "binaryAlpha": true,
+        "exactPixelGrid": true,
+        "visibleColors": 24,
+        "rgbaSha256": "8e0a87bd8ca0c1a75d114dcd3890e75c8800d1aebc8b8d37ee7c29a411fcb15b",
+        "nativeBounds": [
+          8,
+          9,
+          87,
+          88
+        ]
+      }
+    },
+    {
+      "index": 5,
+      "name": "emile",
+      "path": "/assets/pixel/carnet-v040/portraits/emile.png",
+      "width": 384,
+      "height": 384,
+      "native_resolution": [
+        96,
+        96
+      ],
+      "iris": "bleu minuit",
+      "hair": "conservé",
+      "fileSha256": "956ff582ee855f97046fe491d51efa18adf4a9c595c172c124c669ad4a785096",
+      "nativeRgbaSha256": "8f76772cea9b1d4036096cdfc46979aef8eaaed97af24ad3a861e2e897946180",
+      "quality": {
+        "path": "public/assets/pixel/carnet-v040/portraits/emile.png",
+        "width": 384,
+        "height": 384,
+        "bitDepth": 8,
+        "colorType": "RGBA",
+        "storedDeflateBlocks": 18,
+        "idatCompression": "stored DEFLATE blocks only (BTYPE=0)",
+        "compressionLevel": 0,
+        "paletteReduction": false,
+        "pngFilter": "none",
+        "verifiedNoCompression": true,
+        "nativeSize": 96,
+        "scale": 4,
+        "binaryAlpha": true,
+        "exactPixelGrid": true,
+        "visibleColors": 25,
+        "rgbaSha256": "e323517fa29d888913aac079a4dfedda6a6de7d1454b709ad60d3135f296c5f9",
+        "nativeBounds": [
+          8,
+          11,
+          88,
+          88
+        ]
+      }
+    }
+  ]
+}

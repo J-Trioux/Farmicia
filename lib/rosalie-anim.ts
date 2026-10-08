@@ -20,10 +20,16 @@ export type RosalieAction =
   | 'celebrate'
   | 'cook'
   | 'eggs'
-  | 'idle-look-left'
-  | 'idle-look-right'
-  | 'idle-back'
-  | 'idle-basket';
+  | RosalieRepos;
+
+/**
+ * 0.23 — Petites animations de repos, jouées une fois quand le joueur ne fait rien
+ * (components/farm/rosalie-repos.ts choisit laquelle et quand).
+ * 0.22.1 avait retiré les anciennes « attitudes » (images de marche figées).
+ */
+export const ROSALIE_REPOS = ['repos-cheveux', 'repos-un-pied', 'repos-etirement', 'repos-chapeau', 'repos-visiere',
+  'repos-fredonne', 'repos-baille', 'repos-froid'] as const;
+export type RosalieRepos = (typeof ROSALIE_REPOS)[number];
 
 /** Action du jeu → animation. Sans animation dédiée : Rosalie reste au repos. */
 export const ACTION_CLIP: Record<RosalieAction, string> = {
@@ -35,10 +41,7 @@ export const ACTION_CLIP: Record<RosalieAction, string> = {
   harvest: 'harvest',
   water: 'water',
   plant: 'plant',
-  'idle-look-left': 'look-left',
-  'idle-look-right': 'look-right',
-  'idle-back': 'back',
-  'idle-basket': 'idle',
+  ...(Object.fromEntries(ROSALIE_REPOS.map((id) => [id, id])) as Record<RosalieRepos, string>),
   // 1.0 : animations livrées par Astra.
   hoe: 'hoe',
   cook: 'cook',
@@ -82,7 +85,7 @@ export const CUE_EFFECT: Record<string, string | null> = {
   'harvest-pop': 'harvest',
 };
 
-/** Position de fond (en %) d’une image de l’atlas (8 × 8). */
+/** Position de fond (en %) d’une image de l’atlas (8 colonnes × ROSALIE_FRAME.rows). */
 export function framePosition([col, row]: [number, number]) {
   const x = (col / (ROSALIE_FRAME.columns - 1)) * 100;
   const y = (row / (ROSALIE_FRAME.rows - 1)) * 100;

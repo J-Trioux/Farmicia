@@ -6,7 +6,7 @@
  */
 import { useRef, useState, type CSSProperties } from 'react';
 import { type AskConfirm } from '@/components/game-confirm';
-import { PixelIcon } from '@/components/farm/sprites';
+import { CarnetIcon as PixelIcon } from '@/components/notebook/carnet-icon';
 import { crop, eatableDish, effectMinutes, surplus, itemLabel, marketBonus, stallEligible, type ActionArgument, type Game } from '@/lib/game';
 import { useGameClock } from '@/hooks/use-game-clock';
 import { groupBasket, type BasketEntry } from '@/lib/farm-ui';

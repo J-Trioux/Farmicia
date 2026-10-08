@@ -18,6 +18,7 @@ import {
   growTimeBreakdown,
   GOALS,
   goalProgress,
+  goalVisible,
   orderBoard,
   orderAvailable,
   EMBELLISHMENTS,
@@ -35,6 +36,9 @@ import {
   isFestivalDish,
   recipe,
   recipeLock,
+  cookTime,
+  orchardFruit,
+  propagationCost,
   type ProjectStep,
   type VillageProject,
   OUTCOMES,
@@ -516,7 +520,7 @@ export function notebookBadges(g: Game, now: number) {
       const stage = embellishmentStage(g, entry.id);
       return stage < 3 && level(g) >= entry.levels[stage as 0 | 1 | 2] && g.coins >= entry.costs[stage as 0 | 1 | 2];
     }).length,
-    goals: GOALS.filter((goal) => !g.claimed.includes(goal.id) && goalProgress(g, goal) >= goal.target).length,
+    goals: GOALS.filter((goal) => !g.claimed.includes(goal.id) && goalVisible(g, goal) && goalProgress(g, goal) >= goal.target).length,
     recipes:
       (readyDishes(g, now) > 0 ? 1 : 0) +
       (g.hens !== null && g.hens <= now ? 1 : 0) +
@@ -748,3 +752,46 @@ export function seasonChip(g: Game) {
 }
 export const inSeason = (g: Game, id: string) =>
   (seasonFor(g.season.index).crops as readonly string[]).includes(id.split('|')[0]);
+
+/**
+ * 0.32.3 : ce que la récompense d’un projet rapporte, en chiffres concrets pour
+ * cette partie (prix et durées calculés avec et sans la récompense).
+ */
+export function projectRewardValue(g: Game, project: VillageProject, now: number): string {
+  const withIt: Game = { ...g, projects: { ...g.projects, done: [...new Set([...g.projects.done, project.id])] } };
+  const without: Game = { ...g, projects: { ...g.projects, done: g.projects.done.filter((id) => id !== project.id) } };
+  const n = (value: number) => Math.round(value).toLocaleString('fr-FR').replace(/\s/g, '\u202f');
+  const best = CROPS.filter((c) => c.level <= Math.max(level(g), project.level)).sort((a, b) => b.level - a.level)[0] || CROPS[0];
+  switch (project.reward) {
+    case 'etal': {
+      const key = best.id + '|belle';
+      return `${best.name} de belle qualité\u00a0: ${n(price(withIt, key, now))} pièces au lieu de ${n(price(without, key, now))}, plats compris.`;
+    }
+    case 'silo':
+      return 'Une commande simple de 100 pièces en rapportera 120\u202f; 4 œufs pour 2 blés au lieu de 3.';
+    case 'four': {
+      const r = recipe('pain');
+      return r ? `Pain de campagne\u00a0: ${n(cookTime(withIt, r, now))} s au lieu de ${n(cookTime(without, r, now))} s\u202f; deux fois moins de plats rustiques.` : '';
+    }
+    case 'verger': {
+      const fruit = orchardFruit(withIt);
+      return `Environ ${n(price(withIt, fruit + '|belle', now) * 6)} pièces de fruits par heure, sans semer ni arroser.`;
+    }
+    case 'galette':
+    case 'clafoutis':
+    case 'veloute':
+    case 'pressoir': {
+      const id = project.reward === 'pressoir' ? 'jus' : project.reward;
+      const r = recipe(id);
+      return r ? `${r.name}\u00a0: ${n(price(withIt, id + '|reussi', now))} pièces la portion réussie.` : '';
+    }
+    case 'pepiniere': {
+      const target = g.lineages[0]?.crop || best.id;
+      const a = propagationCost(withIt, target);
+      const b = propagationCost(without, target);
+      return `Multiplier une lignée de ${crop(target).name.toLowerCase()}\u00a0: ${a.seeds} graines et ${n(a.coins)} pièces au lieu de ${b.seeds} et ${n(b.coins)}.`;
+    }
+    default:
+      return '';
+  }
+}

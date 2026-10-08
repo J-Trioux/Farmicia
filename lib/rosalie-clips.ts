@@ -3,9 +3,9 @@
  * Fichier généré par scripts/rosalie-clips.mjs depuis
  * assets/livraison-rosalie-v100/manifest.json : ne pas modifier à la main.
  */
-/** Atlas haute définition (scripts/prepare-rosalie-hd.py, puis integrer-assets-1.0.py) : 8 × 12 images de 160 × 192. */
+/** Atlas haute définition (scripts/prepare-rosalie-hd.py, integrer-assets-1.0.py, puis integrer-rosalie-repos.py) : 8 × 20 images de 160 × 192. */
 export const ROSALIE_ATLAS = '/assets/pixel/rosalie-v100/rosalie-atlas-hd.png';
-export const ROSALIE_FRAME = { w: 80, h: 96, pivot: [40, 88], columns: 8, rows: 12 } as const;
+export const ROSALIE_FRAME = { w: 80, h: 96, pivot: [40, 88], columns: 8, rows: 20 } as const;
 export type RosalieCue = { at: number; type: string; offset: [number, number] };
 export type RosalieClip = {
   /** colonne et rangée de chaque image dans l’atlas */
@@ -31,6 +31,14 @@ export const ROSALIE_CLIPS: Record<string, RosalieClip> = {
   'cook': {"frames":[[0,9],[1,9],[2,9],[3,9],[4,9],[5,9],[6,9],[7,9]],"durations":[100,100,100,100,100,100,100,100],"loop":false,"reducedFrame":4,"cues":[]},
   'eggs': {"frames":[[0,10],[1,10],[2,10],[3,10],[4,10],[5,10],[6,10],[7,10]],"durations":[100,100,100,100,100,100,100,100],"loop":false,"reducedFrame":3,"cues":[]},
   'celebrate': {"frames":[[0,11],[1,11],[2,11],[3,11],[4,11],[5,11],[6,11],[7,11]],"durations":[100,100,100,100,100,100,100,100],"loop":false,"reducedFrame":3,"cues":[]},
+  'repos-cheveux': {"frames":[[0,12],[1,12],[2,12],[3,12],[4,12],[5,12],[6,12],[7,12]],"durations":[300,140,160,420,180,220,160,300],"loop":false,"reducedFrame":0,"cues":[]},
+  'repos-un-pied': {"frames":[[0,13],[1,13],[2,13],[3,13],[4,13],[5,13],[6,13],[7,13]],"durations":[300,160,200,260,260,200,160,300],"loop":false,"reducedFrame":0,"cues":[]},
+  'repos-etirement': {"frames":[[0,14],[1,14],[2,14],[3,14],[4,14],[5,14],[6,14],[7,14]],"durations":[300,160,180,420,260,200,180,300],"loop":false,"reducedFrame":0,"cues":[]},
+  'repos-chapeau': {"frames":[[0,15],[1,15],[2,15],[3,15],[4,15],[5,15],[6,15],[7,15]],"durations":[300,150,180,260,220,220,160,300],"loop":false,"reducedFrame":0,"cues":[]},
+  'repos-visiere': {"frames":[[0,16],[1,16],[2,16],[3,16],[4,16],[5,16],[6,16],[7,16]],"durations":[300,160,260,360,360,220,160,300],"loop":false,"reducedFrame":0,"cues":[]},
+  'repos-fredonne': {"frames":[[0,17],[1,17],[2,17],[3,17],[4,17],[5,17],[6,17],[7,17]],"durations":[300,180,280,220,280,220,180,300],"loop":false,"reducedFrame":0,"cues":[]},
+  'repos-baille': {"frames":[[0,18],[1,18],[2,18],[3,18],[4,18],[5,18],[6,18],[7,18]],"durations":[300,160,240,420,200,160,260,300],"loop":false,"reducedFrame":0,"cues":[]},
+  'repos-froid': {"frames":[[0,19],[1,19],[2,19],[3,19],[4,19],[5,19],[6,19],[7,19]],"durations":[300,160,140,140,360,140,160,300],"loop":false,"reducedFrame":0,"cues":[]},
 };
 export type RosalieEffect = { image: string; frameSize: [number, number]; frames: number; durations: number[]; anchor: [number, number] };
 export const ROSALIE_EFFECTS: Record<string, RosalieEffect> = {

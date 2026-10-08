@@ -230,8 +230,14 @@ export class AmbienceEngine {
     for (let i = 0; i < count; i++) {
       const p = this.pool.spawn(kind);
       if (!p) return;
-      const a = (i / count) * Math.PI * 2 + Math.random() * 0.6;
-      const speed = kind === 'sparkle' ? 38 : kind === 'dust' ? 10 : 22;
+      // 0.32.9 : les éclats d’une récolte exceptionnelle jaillissent vers le
+      // haut en gerbe irrégulière (angle et vitesse au hasard), au lieu de
+      // dessiner un anneau autour de la plante.
+      const a =
+        kind === 'sparkle'
+          ? -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.7
+          : (i / count) * Math.PI * 2 + Math.random() * 0.6;
+      const speed = kind === 'sparkle' ? 24 + Math.random() * 22 : kind === 'dust' ? 10 : 22;
       p.x = x + (Math.random() - 0.5) * 3;
       p.y = y;
       p.vx = Math.cos(a) * speed;
@@ -330,7 +336,7 @@ export class AmbienceEngine {
     this.slowSeconds = this.fps < LITE_FPS ? this.slowSeconds + 1 : 0;
     if (this.slowSeconds < LITE_SECONDS) return;
     root.setAttribute('data-map-lite', '');
-    console.info(`Les jardins de Rosalie : ${this.fps} images par seconde, décors animés de la carte mis en pause.`);
+    console.info(`Farmicia : ${this.fps} images par seconde, décors animés de la carte mis en pause.`);
   }
 
   /** Partie visible de la carte, en pixels natifs. */

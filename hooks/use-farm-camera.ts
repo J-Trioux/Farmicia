@@ -47,8 +47,19 @@ const RATIO = WORLD_W / WORLD_H;
 const DESKTOP = '(min-width: 901px)';
 /** Au-delà de ce déplacement du pointeur (px), c’est un glissé et non un clic. */
 const TAP_SLOP = 6;
-/** Rosalie reste dans ce cadre central (fraction de la vue, de chaque côté du centre). */
-const DEAD_ZONE = 0.17;
+/**
+ * 0.32.11 — Caméra moins agressive (demande de l’auteur : « si Rosalie est sur
+ * l’écran pas de redimensionnement, le décalement gêne quand on veut planter »).
+ * Tant que Rosalie est dans le cadre utile de la vue (hors du bandeau du haut,
+ * de la barre d’actions et d’une marge sur les bords), la caméra ne bouge pas :
+ * ni zoom, ni recadrage. Elle ne glisse que pour l’empêcher de sortir du cadre.
+ */
+/** Marge des bords gauche et droit (fraction de la largeur de la vue, 40 px au moins). */
+const EDGE_X = 0.06;
+/** Marge sous le bandeau du haut et au-dessus de la barre d’actions (px). */
+const EDGE_Y = 14;
+/** Hauteur de Rosalie au-dessus de ses pieds (px de grille) : sa tête reste visible. */
+const HEAD = 46;
 
 /** Joue `apply(e)` à chaque image pendant `ms`, e allant de 0 à 1 en douceur. */
 function tween(ms: number, apply: (e: number) => void, handle: { current: number }) {
@@ -156,6 +167,52 @@ export function useFarmCamera({ target, onTap, reduced }: CameraOptions) {
     return { x: r.left + (r.width * target.current.x) / 100, y: r.top + (r.height * target.current.y) / 100 };
   }, [target]);
 
+  /**
+   * Cadre utile de la vue (px, relatifs à la zone qui défile) : la carte
+   * visible moins le bandeau du haut et la barre d’actions, qui la recouvrent,
+   * et une marge sur les bords. Bandeau et barre sont remesurés deux fois par seconde.
+   */
+  const covers = useRef({ top: 0, bottom: 0, at: -Infinity });
+  const viewBounds = useCallback(() => {
+    const el = scroller.current;
+    const farm = el?.firstElementChild as HTMLElement | null;
+    if (!el || !farm) return null;
+    const now = performance.now();
+    if (now - covers.current.at > 500) {
+      const box = el.getBoundingClientRect();
+      const hud = document.querySelector('.pixel-hud')?.getBoundingClientRect();
+      const dock = document.querySelector('.action-dock')?.getBoundingClientRect();
+      covers.current = {
+        top: hud && hud.height && hud.top < box.top + box.height / 2 ? Math.max(0, hud.bottom - box.top) : 0,
+        bottom: dock && dock.height && dock.bottom > box.top + box.height / 2 ? Math.max(0, box.bottom - dock.top) : 0,
+        at: now,
+      };
+    }
+    const w = el.clientWidth;
+    const h = el.clientHeight;
+    const mx = Math.max(40, w * EDGE_X);
+    const head = (HEAD / WORLD_W) * farm.offsetWidth;
+    return {
+      el,
+      farm,
+      left: mx,
+      right: w - mx,
+      top: Math.min(covers.current.top + head + EDGE_Y, h / 2),
+      bottom: Math.max(h - covers.current.bottom - EDGE_Y, h / 2),
+    };
+  }, []);
+  /** Ce point de la carte (en %) est-il dans le cadre utile de la vue ? */
+  const sees = useCallback(
+    (p: Point) => {
+      const v = viewBounds();
+      if (!v) return true;
+      const x = (p.x / 100) * v.farm.offsetWidth - v.el.scrollLeft;
+      const y = (p.y / 100) * v.farm.offsetHeight - v.el.scrollTop;
+      return x >= v.left && x <= v.right && y >= v.top && y <= v.bottom;
+    },
+    [viewBounds],
+  );
+
   const stopFlight = useCallback(() => {
     cancelAnimationFrame(flight.current);
     flight.current = 0;
@@ -229,44 +286,48 @@ export function useFarmCamera({ target, onTap, reduced }: CameraOptions) {
   );
 
   /**
-   * Reprend le suivi de Rosalie. Si la vue est plus large que l’échelle 1:1, ou
-   * si Rosalie est loin du centre, la caméra la rejoint en douceur.
+   * Reprend le suivi de Rosalie. 0.32.11 : si elle est à l’écran, la vue ne
+   * bouge pas (ni zoom ni recadrage) ; sinon la caméra la rejoint en douceur,
+   * au zoom actuel. `recenter` (bouton « Recentrer sur Rosalie ») la remet au
+   * centre, à l’échelle 1:1 au moins.
    */
-  const follow = useCallback(() => {
-    const wasFollowing = following.current;
-    following.current = true;
-    if (!fitRef.current || flight.current) return;
-    if (zoomRef.current < FOLLOW_ZOOM - 0.001) fly({ zoom: FOLLOW_ZOOM, center: target.current });
-    else if (!wasFollowing) fly({ center: target.current });
-  }, [fly, target]);
+  const follow = useCallback(
+    (recenter = false) => {
+      following.current = true;
+      if (!fitRef.current || flight.current) return;
+      if (recenter) fly({ zoom: zoomRef.current < FOLLOW_ZOOM - 0.001 ? FOLLOW_ZOOM : undefined, center: target.current });
+      else if (!sees(target.current)) fly({ center: target.current });
+    },
+    [fly, sees, target],
+  );
   const unfollow = useCallback(() => {
     following.current = false;
   }, []);
 
-  // Suivi : à chaque image, si Rosalie sort du cadre central, la vue glisse
-  // juste assez pour l’y ramener (d’un coup en mouvement réduit).
+  // Suivi : à chaque image, 0.32.11 : la vue ne bouge que si Rosalie entre
+  // dans la marge des bords (ou passe sous le bandeau ou la barre d’actions),
+  // et juste assez pour l’y garder (d’un coup en mouvement réduit).
   useEffect(() => {
     let frame = 0;
     const tick = () => {
       frame = requestAnimationFrame(tick);
-      const el = scroller.current;
-      const farm = el?.firstElementChild as HTMLElement | null;
-      if (!el || !farm || !fitRef.current || !following.current || dragging.current || pending.current || flight.current) return;
-      const x = (target.current.x / 100) * farm.offsetWidth - el.scrollLeft - el.clientWidth / 2;
-      const y = (target.current.y / 100) * farm.offsetHeight - el.scrollTop - el.clientHeight / 2;
-      const zx = el.clientWidth * DEAD_ZONE;
-      const zy = el.clientHeight * DEAD_ZONE;
-      const dx = x > zx ? x - zx : x < -zx ? x + zx : 0;
-      const dy = y > zy ? y - zy : y < -zy ? y + zy : 0;
+      if (!fitRef.current || !following.current || dragging.current || pending.current || flight.current) return;
+      const v = viewBounds();
+      if (!v) return;
+      const { el, farm } = v;
+      const x = (target.current.x / 100) * farm.offsetWidth - el.scrollLeft;
+      const y = (target.current.y / 100) * farm.offsetHeight - el.scrollTop;
+      const dx = x < v.left ? x - v.left : x > v.right ? x - v.right : 0;
+      const dy = y < v.top ? y - v.top : y > v.bottom ? y - v.bottom : 0;
       if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
-      // 0.17.3 : rattrapage plus doux (8 % de l’écart par image).
-      const k = reducedRef.current ? 1 : 0.08;
+      // Rattrapage doux : 12 % de l’écart par image.
+      const k = reducedRef.current ? 1 : 0.12;
       el.scrollLeft += Math.abs(dx) < 2 ? dx : dx * k;
       el.scrollTop += Math.abs(dy) < 2 ? dy : dy * k;
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [target]);
+  }, [target, viewBounds]);
 
   useLayoutEffect(() => {
     const el = scroller.current;
@@ -412,6 +473,8 @@ export function useFarmCamera({ target, onTap, reduced }: CameraOptions) {
     follow,
     unfollow,
     fly,
+    /** 0.32.11 : ce point de la carte (en %) est-il dans le cadre utile de la vue ? */
+    sees,
     /** 0.20 : la caméra suit-elle Rosalie (pour la remettre comme avant une mise en scène) ? */
     isFollowing: () => following.current,
     /** 0.20 : zoom actuel, sans attendre le rendu. */

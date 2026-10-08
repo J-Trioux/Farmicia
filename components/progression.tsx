@@ -1,28 +1,13 @@
 'use client';
 import { useGameClock } from '@/hooks/use-game-clock';
 import { useState } from 'react';
-import { ALLANT_BASE, allant, allantPercent, allantSources, gardenCrossing } from '@/lib/allant';
 import {
   CROPS,
   RECIPES,
   OUTCOMES,
-  SPECIALIZATIONS,
-  QUESTS,
-  VILLAGERS,
-  LINKS,
-  SKILL_PATHS,
-  skillRank,
-  skillProgress,
-  orderBoard,
-  HEART_STEPS,
-  cropMasterySteps,
-  cropFamily,
-  CROP_FAMILY_NAMES,
-  specializationDescription,
   cropMastery,
   recipeMastery,
   recipeLock,
-  growTime,
   duration,
   defaultIngredients,
   ingredientKeys,
@@ -34,17 +19,13 @@ import {
   freeStove,
   stoveCount,
   DISH_EFFECTS,
-  giftPoints,
   ingredientQuality,
-  fulfillment,
-  masteryGain,
   itemName,
   type ActionArgument,
   type Game,
   type Recipe,
-  type CropFamily,
 } from '@/lib/game';
-import { PixelIcon, VillagerPortrait } from '@/components/farm/sprites';
+import { ContextualPixelIcon as PixelIcon } from '@/components/notebook/carnet-icon';
 import type { AskConfirm } from '@/components/game-confirm';
 type Props = {
   g: Game;
@@ -52,97 +33,8 @@ type Props = {
   now?: number;
 };
 /** 0.9.5 : l’Allant de Rosalie, ses sources et ce qu’il change. */
-function AllantCard({ g, now: snapshotNow }: { g: Game; now?: number }) {
-  const now = useGameClock() || snapshotNow;
-  const speed = allant(g, now);
-  const sources = allantSources(g, now);
-  const percent = allantPercent(speed).toFixed(1).replace('.', ',');
-  const crossing = gardenCrossing(speed).toFixed(1).replace('.', ',');
-  return <section className="allant-card" aria-labelledby="allant-title">
-    <div className="allant-head">
-      <h4 id="allant-title">L’allant de Rosalie</h4>
-      <b>{percent} %/s</b>
-      <small>traverse le potager en {crossing} s</small>
-    </div>
-    <ul>
-      {sources.map((source) => <li key={source.id} data-active={source.factor > 1 || source.id === 'base' || undefined}>
-        <span>{source.label}</span>
-        <b>{source.id === 'base' ? `${allantPercent(ALLANT_BASE).toFixed(0)} %/s` : source.factor > 1 ? `+${Math.round((source.factor - 1) * 100)} %` : '—'}</b>
-      </li>)}
-    </ul>
-    <small>Le niveau, les Sentiers de gravier, l’habitude du potager (150, 600 puis 1 500 récoltes) et le jus des vendanges (Second souffle) la rendent plus vive.</small>
-  </section>;
-}
 
-export function CultureJournal({ g, dispatch, now: snapshotNow }: Props & { now?: number }) {
-  const now = useGameClock() || snapshotNow;
-  const families = ['primeurs', 'grains', 'legumes', 'fruits'] as const;
-  const [family, setFamily] = useState<CropFamily>('primeurs');
-  return <div className="mastery-album">
-    <header><h3>L’album des cultures</h3><p>La récolte ouvre les rangs ; cuisine et livraisons ajoutent quelques points. Chaque famille donne un savoir-faire différent.</p></header>
-    <AllantCard g={g} now={now} />
-    <div className="mastery-family-nav" aria-label="Familles de cultures">{families.map((item) => <button key={item} type="button" aria-pressed={family === item} onClick={() => setFamily(item)}><b>{CROP_FAMILY_NAMES[item]}</b><small>{CROPS.filter((crop) => cropFamily(crop.id) === item).length} cultures · {CROPS.filter((crop) => cropFamily(crop.id) === item).reduce((sum, crop) => sum + Math.max(0, cropMastery(g, crop.id)-1),0)} rangs gagnés</small></button>)}</div>
-    {families.filter((item) => item === family).map((family) => <section key={family} className="mastery-family">
-      <h4>{CROP_FAMILY_NAMES[family]}</h4>
-      <div className="mastery-pages">{CROPS.filter((crop) => cropFamily(crop.id) === family).map((c) => {
-        const rank = cropMastery(g, c.id);
-        const xp = g.cropXP[c.id] || 0;
-        const steps = cropMasterySteps(c.id);
-        const next = steps[Math.min(rank, 4)];
-        const chosen = g.specializations[c.id];
-        return <article className="mastery-entry" key={c.id}>
-          <div className="mastery-entry-heading"><PixelIcon id={c.id} className="catalog-icon" />
-            <div><h5>{c.name}</h5><small>{g.collection[c.id] || 0} récoltes · prochain semis {duration(growTime(g, c.id))}</small></div>
-            <b>Rang {rank}/5</b></div>
-          <progress aria-label={'Maîtrise de ' + c.name}
-            value={rank === 5 ? 1 : xp - steps[rank - 1]}
-            max={rank === 5 ? 1 : next - steps[rank - 1]} />
-          <small>{rank === 5 ? 'Maîtrise accomplie' : xp + ' / ' + next + ' points · +' + masteryGain(c.id) + ' par récolte'}</small>
-          <p className="mastery-next">{rank < 2 ? 'Prochain rang : croissance plus rapide.'
-            : rank === 2 ? 'Prochain rang : choisissez un savoir-faire.'
-            : rank === 3 ? 'Prochain rang : plus de belles récoltes.'
-            : rank === 4 ? 'Prochain rang : graines signature.'
-            : 'Graines signature actives.'}</p>
-          {rank >= 3 && <details className="mastery-choice-details" open={!chosen}><summary>{chosen ? `Savoir-faire choisi : ${SPECIALIZATIONS.find((entry) => entry.id === chosen)?.name} · modifier` : 'Choisir le savoir-faire de cette culture'}</summary><div className="mastery-choices">
-            {SPECIALIZATIONS.map((choice) => <button key={choice.id}
-              aria-pressed={chosen === choice.id}
-              disabled={chosen === choice.id || (!!chosen && g.coins < 25)}
-              onClick={() => dispatch('specialize', { crop: c.id, specialization: choice.id })}>
-              <b>{choice.name}{chosen === choice.id ? ' ✓' : ''}</b>
-              <small>{specializationDescription(c.id, choice.id)}</small>
-            </button>)}
-            <small>{chosen ? 'Changer de savoir-faire : 25 pièces.' : 'Premier choix gratuit.'}</small>
-          </div></details>}
-        </article>;
-      })}</div>
-    </section>)}
-  </div>;
-}
 
-export function SkillsPanel({ g, dispatch }: Props) {
-  return <div className="skills-book">
-    <header><h3>Les gestes de Rosalie</h3><p>Découvrez des cultures, cuisinez des recettes différentes et livrez des offres variées. Une même action répétée ne fait pas monter ces voies.</p></header>
-    <div className="skill-paths">{SKILL_PATHS.map((path) => {
-      const rank = skillRank(g, path.id);
-      const count = skillProgress(g, path.id);
-      const selected = g.skillChoices[path.id];
-      return <article key={path.id} className="skill-path">
-        <small className="skill-stamp">Savoir-faire {rank}/3</small>
-        <h4>{path.title}</h4><p>{path.hint}</p>
-        <progress value={Math.min(count,6)} max={6} aria-label={path.title + ' : ' + count + ' découvertes'} />
-        <small>{count} découverte{count > 1 ? 's' : ''} · choix à 3 · album complet à 6</small>
-        <div className="skill-choices">{path.choices.map((choice) =>
-          <button key={choice.id} aria-pressed={selected === choice.id}
-            disabled={rank < 2 || selected === choice.id || (!!selected && g.coins < 50)}
-            onClick={() => dispatch('skillChoice', { path: path.id, choice: choice.id })}>
-            <b>{choice.name}{selected === choice.id ? ' ✓' : ''}</b><span>{choice.desc}</span>
-          </button>)}</div>
-        <small>{rank < 2 ? 'Encore ' + Math.max(0,3-count) + ' découverte(s) pour choisir.'
-          : selected ? 'Changer de voie : 50 pièces.' : 'Premier choix gratuit.'}</small>
-      </article>;
-    })}</div>
-  </div>;
-}
 
 /**
  * 0.17.5 : lancer une recette (fiche ou carte de la cuisine). Une belle
@@ -170,7 +62,7 @@ export function startCooking(
   }, submit);
   else submit();
 }
-export function RecipeCard({ g, dispatch, r, now: snapshotNow, askConfirm, freeSlots }: Props & { r: Recipe; askConfirm: AskConfirm; freeSlots?: number }) {
+export function RecipeCard({ g, dispatch, r, now: snapshotNow, askConfirm, freeSlots, openOptions = false }: Props & { r: Recipe; askConfirm: AskConfirm; freeSlots?: number; /** 0.24 : choix des récoltes déjà ouverts (Atelier du carnet). */ openOptions?: boolean }) {
   const now = useGameClock() || snapshotNow;
   const [selection, setSelection] = useState<string[] | null>(null);
   // 0.9.9 : grande marmite, deux portions d’un coup.
@@ -271,7 +163,7 @@ export function RecipeCard({ g, dispatch, r, now: snapshotNow, askConfirm, freeS
           ))}
         </div>
       </div>
-      <details className="recipe-options">
+      <details className="recipe-options" open={openOptions}>
         <summary>Choisir d’autres récoltes et voir toutes les chances</summary>
         <div className="recipe-options-body">
           <fieldset className="ingredient-selection">
@@ -318,70 +210,4 @@ export function RecipeCard({ g, dispatch, r, now: snapshotNow, askConfirm, freeS
       </details>
     </article>
   );
-}
-export function FriendBook({ g, dispatch, askConfirm }: Props & { askConfirm: AskConfirm }) {
-  const [friendId, setFriendId] = useState(VILLAGERS[0].id);
-  const [choices, setChoices] = useState<Record<string, string>>({});
-  const stock = Object.keys(g.stock).filter((key) => g.stock[key] > 0);
-  const personal = orderBoard(g).find((offer) => offer.kind === 'personal');
-  return <div className="village-links">
-    <header><h3>Les voisins de Rosalie</h3><p>Leurs commandes font grandir la relation sans délai. Les cadeaux sont utiles pour découvrir un goût ; varier les produits plaît davantage.</p></header>
-    <div className="friend-roster" aria-label="Choisir un villageois">{VILLAGERS.map((v,index) => <button key={v.id} type="button" aria-pressed={friendId===v.id} onClick={() => setFriendId(v.id)}><VillagerPortrait index={index+1}/><span><b>{v.name}</b><small>{g.relations[v.id]||0}/5 ♥</small></span></button>)}</div>
-    {VILLAGERS.map((v, index) => {
-      if (v.id !== friendId) return null;
-      const link = LINKS.find((entry) => entry.id === v.id);
-      const q = QUESTS.find((entry) => entry.id === v.id)!;
-      const hearts = g.relations[v.id] || 0;
-      const points = g.friendship[v.id] || 0;
-      const nextHeart = HEART_STEPS[Math.min(5, hearts + 1)];
-      const completed = g.quests.includes(v.id);
-      const delivery = fulfillment(g.stock, q.item, q.amount);
-      const selected = stock.includes(choices[v.id]) ? choices[v.id]
-        : stock.find((key) => v.likes.includes(key.split('|')[0])) || stock[0] || '';
-      const repeat = g.giftHistory.includes(v.id + ':' + selected.split('|')[0]);
-      const rewardIndex = hearts < 1 ? 0 : hearts < 3 ? 1 : 2;
-      return <article className="village-link" key={v.id} data-featured={!!link || undefined}>
-        <VillagerPortrait index={index + 1} />
-        <div className="link-main"><div className="link-heading"><h4>{v.name}</h4><small>{v.role} · {link?.trait || 'La pâtissière du village'}</small></div>
-          <p className="link-quote">« {link?.quote || 'Une belle assiette se partage toujours.'} »</p>
-          <div className="link-hearts" aria-label={hearts + ' cœurs sur 5'}>{'♥'.repeat(hearts)}{'♡'.repeat(5-hearts)}
-            <small>{hearts === 5 ? 'Amitié accomplie' : points + '/' + nextHeart + ' amitié · prochain cœur'}</small></div>
-          <p className="link-next"><b>{hearts >= 5 ? 'Avantage acquis :' : 'À venir :'}</b> {q.tiers[rewardIndex]}
-            {link && <span> · Spécialité : {link.specialty}</span>}</p>
-          {personal?.villagerId === v.id && <div className="link-order">
-            Commande personnelle affichée au panneau : {personal.amount} × {itemName(personal.crop)} · +{personal.xp} XP · +amitié.
-          </div>}
-          <div className="link-details"><h5>Échanger avec {v.name} · goûts, quête et souvenirs</h5>
-            <p>Elle ou il apprécie : {v.likes.map((id) => itemName(id)).join(', ')}. Première découverte : points normaux ; produit répété : +1.</p>
-            <div className="link-gift"><select aria-label={'Produit à offrir à ' + v.name} value={selected}
-              onChange={(event) => setChoices({ ...choices, [v.id]: event.target.value })}>
-              {!stock.length && <option value="">Panier vide</option>}
-              {stock.map((key) => <option key={key} value={key}>{itemName(key)} ×{g.stock[key]}</option>)}
-            </select><button disabled={!selected || hearts === 5}
-              onClick={() => dispatch('gift', { villager: v.id, item: selected })}>
-              Offrir · +{repeat ? 1 : selected ? giftPoints(v.likes, selected) : 0} amitié
-            </button></div>
-            <div className="link-quest"><b>{q.title}</b><span>{q.amount} × {itemName(q.item)} · {completed ? 'accomplie' : delivery.possible ? 'prête' : 'à réunir'}</span>
-              <button disabled={completed || hearts < 2 || !delivery.possible}
-                onClick={() => {
-                  const submit = () => dispatch('quest', { id: v.id, confirmSuperior: delivery.usesSuperior });
-                  if (delivery.usesSuperior) askConfirm({
-                    title: `Livrer la quête de ${v.name} ?`,
-                    description: 'Cette quête accepte une qualité plus simple. Vérifiez le produit choisi.',
-                    items: Object.entries(delivery.used).map(([id, amount]) => `${amount} × ${itemLabel(g, id)}`),
-                    confirmLabel: 'Livrer la quête',
-                  }, submit);
-                  else submit();
-                }}>{completed ? 'Livrée ✓' : 'Livrer · +' + q.reward + ' pièces'}</button></div>
-            {[3,5].map((milestone) => hearts >= milestone && <div className="link-memory" key={milestone}>
-              <span>Souvenir des {milestone} cœurs</span>
-              <button disabled={g.seenScenes.includes(v.id + '-' + milestone)}
-                onClick={() => dispatch('scene', { scene: v.id + '-' + milestone })}>
-                {g.seenScenes.includes(v.id + '-' + milestone) ? 'Conservé ✓' : 'Conserver'}
-              </button></div>)}
-          </div>
-        </div>
-      </article>;
-    })}
-  </div>;
 }

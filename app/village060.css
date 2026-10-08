@@ -1,33 +1,11 @@
 /* Build 0.6.0 — panneaux distincts, décors et suivi discret. */
-.village-board,.upgrade-catalogue,.mastery-album,.goal-book{color:#35291d}
-.village-board{padding:18px;border:8px solid #704527;background:repeating-linear-gradient(0deg,#a46f3f 0 12px,#8d592f 13px 17px);box-shadow:inset 0 0 0 3px #d4a268,6px 7px #39271955}
-.village-board-heading{display:flex;align-items:center;gap:15px;padding:14px 20px;background:#f5e9bd;border:3px solid #6c4329;box-shadow:3px 4px #4c2e1c5e}
-.village-board-heading h3,.upgrade-catalogue h3,.mastery-album h3,.goal-book h3{font-family:Georgia,serif;font-size:25px;line-height:1.1;margin:2px 0 5px}
-.village-board-heading p,.upgrade-catalogue header p,.mastery-album header p,.goal-book header p{margin:0;color:#67543c;font-size:14px}
-.board-pin{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border-radius:50%;background:#a9552e;color:#ffdc83;font-size:25px;box-shadow:inset 0 0 0 3px #e5a35b,2px 3px #522c1c}
-.village-offers{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;padding:17px 0}
-.village-offer{min-width:0;display:flex;flex-direction:column;padding:15px;background:#fff5d3;border:3px solid #c29358;box-shadow:3px 4px #3f2a1c88;transform:rotate(-.3deg)}
-.village-offer:nth-child(even){transform:rotate(.4deg)}
-.village-offer>header{display:flex;gap:8px;align-items:center;border-bottom:2px dashed #c4a06d;padding-bottom:10px}
-.village-offer>header>div{min-width:0;flex:1}
-.village-offer h4{font-family:Georgia,serif;font-size:17px;margin:1px 0;line-height:1.12}
-.village-offer header p,.village-offer header small{margin:0;color:#725a3c;font-size:12px}
-.offer-number{background:#67462e;color:#fff0cb;padding:3px 5px;font-size:11px;font-weight:bold;white-space:nowrap}
-.offer-lines{list-style:none;margin:11px 0;padding:0;display:grid;gap:6px;flex:1}
-.offer-lines li{display:flex;justify-content:space-between;gap:5px;flex-wrap:wrap;border-bottom:1px solid #e2cca1;padding:3px 0;font-size:13px}
-.offer-lines li b{color:#a0422b;white-space:nowrap}
-.offer-lines li[data-ready] b{color:#395e2d}
-.offer-lines li small{flex-basis:100%;color:#70513e}
-.offer-reward{display:flex;gap:10px;align-items:baseline;margin:5px 0 10px;color:#3e6136}
-.offer-reward span{font-size:12px;color:#69512d}
-.offer-note,.offer-project-note{margin:0 0 7px;font-size:12px;color:#73553d}
-.village-offer button,.upgrade-card button,.goal-card button{min-height:38px;border:2px solid #304e2e;background:#42653a;color:#fff8dd;font-weight:700;padding:6px 11px}
-.village-offer button:hover:not(:disabled),.upgrade-card button:hover:not(:disabled),.goal-card button:hover:not(:disabled){filter:brightness(1.13)}
-.village-offer button:disabled,.upgrade-card button:disabled{background:#b1a080;border-color:#8f7957;color:#423a2d;opacity:1}
-.village-market-note{display:flex;align-items:center;gap:12px;padding:11px 14px;background:#f0ddad;border:2px solid #653f28}
-.village-market-note div{display:flex;gap:7px;align-items:baseline;flex-wrap:wrap;font-size:13px}
-.village-market-note small{font-size:12px}
-.upgrade-catalogue>header,.mastery-album>header,.goal-book>header{padding:14px 17px;margin-bottom:12px;background:#f4e6c0;border-left:6px solid #795136}
+.upgrade-catalogue{color:#35291d}
+.upgrade-catalogue h3{font-family:Georgia,serif;font-size:25px;line-height:1.1;margin:2px 0 5px}
+.upgrade-catalogue header p{margin:0;color:#67543c;font-size:14px}
+.upgrade-card button{min-height:38px;border:2px solid #304e2e;background:#42653a;color:#fff8dd;font-weight:700;padding:6px 11px}
+.upgrade-card button:hover:not(:disabled){filter:brightness(1.13)}
+.upgrade-card button:disabled{background:#b1a080;border-color:#8f7957;color:#423a2d;opacity:1}
+.upgrade-catalogue>header{padding:14px 17px;margin-bottom:12px;background:#f4e6c0;border-left:6px solid #795136}
 .upgrade-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 .upgrade-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;min-height:220px;padding:14px;background:#fff8dc;border:3px solid #b89668;box-shadow:3px 3px #6e4c352e}
 .upgrade-card.state-available{border-color:#729748;background:#fbf8da}
@@ -41,41 +19,6 @@
 .upgrade-steps span{height:10px;background:#dac8a6;border:1px solid #977c53}
 .upgrade-steps span[data-done]{background:#638b45;border-color:#3e5d2c}
 .upgrade-steps small{grid-column:1/-1;font-size:11px}
-.mastery-family{margin:14px 0;border:2px solid #b69767;background:#f8edcf}
-.mastery-family>h4{margin:0;padding:9px 13px;background:#745135;color:#fff2cc;font-family:Georgia,serif;font-size:17px}
-.mastery-pages{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:9px;padding:10px}
-.mastery-entry{padding:10px;background:#fffae7;border:1px solid #d5bd8e}
-.mastery-entry-heading{display:flex;align-items:center;gap:8px}
-.mastery-entry-heading>div{flex:1;min-width:0}
-.mastery-entry-heading h5{font-family:Georgia,serif;font-size:16px;margin:0}
-.mastery-entry-heading small,.mastery-entry>small{font-size:11px;color:#69563d}
-.mastery-entry-heading>b{white-space:nowrap;color:#3b6137;font-size:12px}
-.mastery-entry progress,.goal-card progress{width:100%;height:8px;accent-color:#5c853a;margin-top:7px}
-.mastery-next{margin:7px 0;font-size:12px;font-weight:700;color:#5a4c35}
-.mastery-choices{display:grid;gap:4px;padding-top:6px;border-top:1px dashed #bba275}
-.mastery-choices button{display:flex;align-items:center;gap:6px;text-align:left;border:1px solid #baa47e;background:#f1e6c5;padding:5px;color:#3b3226}
-.mastery-choices button[aria-pressed=true]{background:#d7e6ba;border-color:#568146}
-.mastery-choices button b{min-width:74px;font-size:11px}
-.mastery-choices button small{font-size:11px}
-.mastery-choices>small{font-size:11px;color:#6b5945}
-.goal-book>section{margin:10px 0 18px}
-.goal-book section>h4{font-family:Georgia,serif;font-size:19px;margin:0 0 7px}
-.goal-book section>h4 b{font-family:Arial,sans-serif;background:#67472e;color:#fff4cf;border-radius:50%;font-size:12px;padding:3px 7px}
-.goal-list{padding:0;gap:7px}
-.goal-list .goal-card{background:#fff9e6;border:2px solid #c2a176;align-items:center;min-height:95px}
-.goal-list .goal-card.goal-ready{background:#eff3ce;border-color:#66873d}
-.goal-card h4{margin:1px 0;font-family:Georgia,serif;font-size:17px}
-.goal-card .goal-category{margin:0;color:#806145;letter-spacing:.06em;text-transform:uppercase;font-size: 11px;font-weight:bold}
-.goal-card p{margin:0 0 5px;font-size:13px}
-.goal-card progress{width:min(380px,100%);display:block;margin:4px 0}
-.goal-card>div>small:last-child{display:block;margin:2px 0;font-size:11px;color:#5a503d}
-.goal-card button{min-width:100px}
-.goal-card .goal-track{background:#eadbb6;color:#46382a;border-color:#a88d62}
-.goal-card .goal-track[aria-pressed=true]{background:#d9e7ba;border-color:#5d7c3d}
-.goal-archive{margin-top:16px;border-top:2px dashed #9d825e;padding-top:10px}
-.goal-archive summary{cursor:pointer;font-weight:700;color:#675038}
-.goal-archive .goal-card{opacity:.78}
-.goal-claimed{white-space:nowrap;font-size:12px;color:#4e6d3b}
 .farm-goal-ribbon{position:fixed;z-index:31;left:50%;bottom:112px;transform:translateX(-50%);display:flex;gap:5px;max-width:80vw;pointer-events:none}
 .farm-goal-ribbon button{pointer-events:auto;display:flex;align-items:center;gap:7px;border:1px solid #9a8256;background:#293d30ec;color:#f9edcc;border-radius:4px;padding:5px 9px;box-shadow:1px 2px #191c14a8;font-size:11px;white-space:nowrap}
 .farm-goal-ribbon b{color:#ffe293}
@@ -83,5 +26,5 @@
 .bulk-job-status span{grid-column:1/-1}
 .bulk-job-status progress{width:100%;height:7px;accent-color:#b7d475}
 .bulk-job-status button{font-size:11px;padding:3px 5px;border:1px solid #dbbe8b;background:#485f3f;color:#fff8db}
-@media(max-width:700px){.village-offers,.upgrade-grid,.mastery-pages{grid-template-columns:1fr}.farm-goal-ribbon{max-width:94vw;overflow:auto;bottom:103px}.farm-goal-ribbon button span{max-width:95px;overflow:hidden;text-overflow:ellipsis}.goal-card{flex-wrap:wrap}}
+@media(max-width:700px){.upgrade-grid{grid-template-columns:1fr}.farm-goal-ribbon{max-width:94vw;overflow:auto;bottom:103px}.farm-goal-ribbon button span{max-width:95px;overflow:hidden;text-overflow:ellipsis}}
 

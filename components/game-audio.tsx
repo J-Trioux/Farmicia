@@ -57,7 +57,7 @@ export function GameAudio({ game, dialogOpen }: { game: Game; dialogOpen: boolea
       const target = event.target as Element | null;
       const control = target?.closest?.('button, [role="tab"], summary, a[href]');
       if (!control || control.closest('.pixel-farm') || (control as HTMLButtonElement).disabled) return;
-      const page = control.matches('[role="tab"], .book-chapter-choice, .chapter-page, .notebook-tab, summary');
+      const page = control.matches('[role="tab"], .carnet-chapter-head, .carnet-link, .carnet-tab, .carnet-cover, summary');
       gameAudio.play(page ? 'ui-page' : 'ui-clic', { rate: 0.96 + Math.random() * 0.08 });
     };
     document.addEventListener('click', click, true);

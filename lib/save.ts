@@ -1,4 +1,4 @@
-import { KEY, CROPS, restore, type Game } from './game.ts';
+import { KEY, CROPS, START_PLOTS, restore, type Game } from './game.ts';
 import {
   isSupportedSaveVersion,
   SAVE_RELEASE,
@@ -44,7 +44,7 @@ export function acceptRecoveredGame(game: Game) {
   blocked = false;
 }
 export function exportRawSave(raw: string) {
-  downloadSave(raw, 'les-jardins-de-rosalie-secours.json');
+  downloadSave(raw, 'farmicia-secours.json');
 }
 
 export function persistGame(game: Game) {
@@ -58,7 +58,7 @@ export function parseImportedGame(raw: string): Game {
     !parsed ||
     !isSupportedSaveVersion(parsed.version) ||
     !Array.isArray(parsed.plots) ||
-    parsed.plots.length < 6 ||
+    parsed.plots.length < START_PLOTS ||
     !Number.isFinite(parsed.coins) ||
     !Number.isFinite(parsed.xp) ||
     !parsed.seeds ||
@@ -84,7 +84,7 @@ export function parseImportedGame(raw: string): Game {
 }
 
 export function exportGame(game: Game) {
-  downloadSave(JSON.stringify(game, null, 2), `les-jardins-de-rosalie-${SAVE_RELEASE}.json`);
+  downloadSave(JSON.stringify(game, null, 2), `farmicia-${SAVE_RELEASE}.json`);
 }
 function downloadSave(raw: string, filename: string) {
   const blob = new Blob([raw], {

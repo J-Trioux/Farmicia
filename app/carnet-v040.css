@@ -1,0 +1,198 @@
+/* Silhouettes v040 à grille 64 px : PNG isolés, sans fuite de case d'atlas. */
+.carnet .pixel-icon.carnet-pixel-icon {
+  position: relative;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+  transform-origin: center;
+}
+.carnet .carnet-cover-title {
+  align-self: center;
+}
+.carnet .carnet-pixel-icon[data-lineage]::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  width: 8px;
+  height: 8px;
+  background: #e9bb72;
+  box-shadow: 0 0 0 2px #4b314c;
+  clip-path: polygon(25% 0, 75% 0, 75% 25%, 100% 25%, 100% 75%, 75% 75%, 75% 100%, 25% 100%, 25% 75%, 0 75%, 0 25%, 25% 25%);
+}
+.carnet :is(.summary-link, .carnet-chapter-head, .carnet-tab, .carnet-choice):focus-visible .carnet-pixel-icon {
+  animation: carnet-v040-lift 320ms steps(4, end) 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .carnet :is(.summary-link, .carnet-chapter-head, .carnet-tab, .carnet-choice):hover:not(:disabled) .carnet-pixel-icon {
+    animation: carnet-v040-lift 320ms steps(4, end) 1;
+  }
+}
+@keyframes carnet-v040-lift {
+  0%, 100% { transform: translateY(0); }
+  35% { transform: translateY(-4px); }
+  70% { transform: translateY(-2px); }
+}
+
+/* Les six bustes partagent un format carré ; aucun ancien recadrage 6 × 3. */
+.carnet .carnet-roster .carnet-pixel-portrait {
+  width: 96px;
+  height: 96px;
+  border: 0;
+  border-radius: 0;
+}
+.carnet .friend-portrait {
+  display: grid;
+  place-items: center;
+  box-sizing: content-box;
+  width: 192px;
+  height: 192px;
+  border: 2px solid #8d7da4;
+  border-radius: 2px;
+  background: #ebe7f0;
+  box-shadow: inset 0 0 0 4px #f7f4ef, 4px 4px 0 #253451;
+}
+.carnet .friend-portrait .carnet-pixel-portrait {
+  width: 192px;
+  height: 192px;
+  border: 0;
+  border-radius: 0;
+}
+.carnet .carnet-pixel-portrait {
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+}
+.carnet .carnet-roster button[aria-pressed='true'] .carnet-pixel-portrait {
+  animation: carnet-portrait-arrive 280ms steps(4, end) 1;
+}
+@keyframes carnet-portrait-arrive {
+  0% { transform: translateY(4px); }
+  55% { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+
+/* Remplissage réel, relief en pixels, reflet bref à l'ouverture d'une page. */
+.carnet .carnet-progress {
+  position: relative;
+  display: block;
+  height: 16px;
+  min-width: 48px;
+  overflow: hidden;
+  border: 2px solid #455273;
+  border-radius: 0;
+  background: #d9d4e1;
+  box-shadow: inset 0 2px 0 #b9b0c7, 0 2px 0 #ffffffb3;
+}
+.carnet .carnet-progress > i,
+.carnet .carnet-segments > i > em {
+  display: block;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #c0b5e1 0 2px, #8f7bc0 2px 55%, #665795 55% 100%);
+  box-shadow: inset -2px 0 0 #4c416c;
+  transform-origin: left center;
+  transition: width 650ms cubic-bezier(.2, .7, .2, 1);
+  animation: carnet-bar-reveal 850ms cubic-bezier(.2, .7, .2, 1) var(--bar-delay, 0ms) 1 backwards;
+}
+.carnet .carnet-progress > i::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 24px;
+  background: linear-gradient(90deg, transparent 0 25%, #e9e4fb88 25% 50%, #fff7ecbb 50% 75%, transparent 75%);
+  opacity: 0;
+  animation: carnet-bar-glint 1600ms steps(16, end) 850ms 1;
+}
+.carnet .carnet-progress[data-complete] > i {
+  background: linear-gradient(to bottom, #f0d1ab 0 2px, #c38b78 2px 55%, #986782 55% 100%);
+}
+.carnet .carnet-progress[data-complete] {
+  border-color: #93718e;
+}
+.carnet .carnet-segments > i {
+  overflow: hidden;
+  background: #d9d4e1;
+  border: 2px solid #79839c;
+  border-radius: 0;
+  height: 14px;
+}
+.carnet .carnet-hearts i[data-on] {
+  animation: carnet-heart-arrive 320ms steps(4, end) var(--heart-delay, 0ms) 1 backwards;
+}
+.carnet .friend-progress {
+  width: min(100%, 256px);
+}
+.carnet .atelier-stove:has(> .carnet-progress) {
+  position: relative;
+  padding-bottom: 12px;
+}
+.carnet .atelier-stove > .carnet-progress {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 3px;
+  height: 8px;
+  min-width: 0;
+  border-width: 1px;
+}
+@keyframes carnet-bar-reveal {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes carnet-bar-glint {
+  0% { left: 0; opacity: 0; }
+  12% { opacity: .8; }
+  85% { opacity: .8; }
+  100% { left: 100%; opacity: 0; }
+}
+@keyframes carnet-heart-arrive {
+  0% { transform: translateY(3px); opacity: .25; }
+  55% { transform: translateY(-2px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@media (min-width: 1600px) and (min-height: 900px) {
+  .carnet .summary-chapter,
+  .carnet .summary-link,
+  .carnet .carnet-tile {
+    --icon: 64px;
+  }
+  .carnet .carnet-detail-art {
+    --icon: 128px;
+  }
+}
+@media (min-width: 901px) and (max-height: 800px) {
+  .carnet .carnet-roster button {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    justify-items: center;
+    text-align: center;
+    min-width: 0;
+  }
+  .carnet .carnet-roster .carnet-pixel-portrait {
+    grid-row: auto;
+  }
+  .carnet .friend-portrait,
+  .carnet .friend-portrait .carnet-pixel-portrait {
+    width: 96px;
+    height: 96px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carnet .carnet-pixel-icon,
+  .carnet .carnet-pixel-portrait,
+  .carnet .carnet-progress > i,
+  .carnet .carnet-progress > i::after,
+  .carnet .carnet-segments > i > em,
+  .carnet .carnet-hearts i {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+[data-reduce-motion] .carnet :is(.carnet-pixel-icon, .carnet-pixel-portrait, .carnet-progress > i, .carnet-segments > i > em, .carnet-hearts i),
+[data-reduce-motion] .carnet .carnet-progress > i::after {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}

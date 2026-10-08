@@ -1,32 +1,28 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, Settings, Sprout, Volume2, VolumeX } from 'lucide-react';
-import { CultureJournal, SkillsPanel, FriendBook } from '@/components/progression';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Sprout } from 'lucide-react';
 import { FarmMap, type Errand } from '@/components/farm/farm-map';
-import { GuidePanel, TutorialCoach } from '@/components/tutorial';
+import { TutorialCoach } from '@/components/tutorial';
 import { tutorialAdvance, tutorialRead, tutorialReplay, tutorialSetOff, tutorialSkipChapter } from '@/lib/tutorial';
-import { BuffChips, ProjectsPanel } from '@/components/projects';
+import { BuffChips } from '@/components/projects';
 import { GrowTimeTip } from '@/components/grow-time-tip';
 import { CoinCounter, XpBar } from '@/components/hud';
 import { LevelUpScene } from '@/components/level-up';
-import { FestivalTab } from '@/components/festival/festival-tab';
 import { LineagesPanel } from '@/components/lineages';
 import { ValleyPanel } from '@/components/valley';
 import { GameConfirmDialog, type AskConfirm, type PendingConfirm } from '@/components/game-confirm';
 import { PixelIcon, VillagerPortrait } from '@/components/farm/sprites';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { BUILD, CROPS, LEVEL_XP, MAX_LEVEL, GOALS, goalProgress, PROJECTS, RECIPES, readyDishes, upgradeTier, gestureMs, bulkChores, act, crop, duration, gardeOptions, fresh, growTime, level, type ActionArgument, type Game, type VillageProject } from '@/lib/game';
+import { BUILD, CROPS, LEVEL_XP, MAX_LEVEL, GOALS, goalProgress, PROJECTS, projectReward, readyDishes, upgradeTier, gestureMs, bulkChores, act, crop, duration, gardeOptions, fresh, growTime, level, type ActionArgument, type Game, type VillageProject } from '@/lib/game';
 import { actionFeedback, plainMessage, type ActionFeedback } from '@/lib/action-feedback';
-import { weatherFor } from '@/lib/farm-visuals';
 import { useReducedMotion } from '@/hooks/use-game-clock';
 import { reduceMotionFor } from '@/lib/motion';
-import { absenceSummary, awayLabel, canRescue, DOCK_FAVORITES, dockFavorites, toggleFavorite, notebookBadges, inSeason, seasonChip } from '@/lib/farm-ui';
+import { absenceSummary, canRescue, DOCK_FAVORITES, dockFavorites, toggleFavorite, notebookBadges, inSeason, seasonChip } from '@/lib/farm-ui';
 import { exportGame, loadGame, parseImportedGame, persistGame, SaveRecoveryError, protectUnreadableSave, acceptRecoveredGame, saveIsBlocked } from '@/lib/save';
 import { SaveRecoveryDialog } from '@/components/save-recovery';
-import { NOTEBOOK_CHAPTERS, PAGE_KEYS, markPageSeen, newPages, notebookPage, pageKeysHint, revealedPages, settleNotebook, type NotebookPage } from '@/lib/notebook';
+import { PAGE_KEYS, markPageSeen, newPages, notebookPage, revealedPages, settleNotebook, type NotebookPage } from '@/lib/notebook';
 import { OrdersPanel } from '@/components/notebook/orders-panel';
 import { GardeSelect } from '@/components/notebook/seed-card';
 import { SeedShop, ShopPurse } from '@/components/seed-shop';
@@ -34,8 +30,15 @@ import { BasketList } from '@/components/notebook/basket-list';
 import { DialogNotice } from '@/components/notebook/dialog-notice';
 import { UpgradesPanel } from '@/components/notebook/upgrades-panel';
 import { GoalsPanel } from '@/components/notebook/goals-panel';
-import { WorkshopPanel } from '@/components/notebook/workshop-panel';
-import { KitchenDialog } from '@/components/kitchen';
+import { AtelierPage } from '@/components/notebook/atelier-page';
+import { CarnetDialog, SUMMARY } from '@/components/notebook/carnet';
+import { SummaryPage } from '@/components/notebook/summary-page';
+import { GuidePage } from '@/components/notebook/guide-page';
+import { MasteryPage } from '@/components/notebook/mastery-page';
+import { SkillsPage } from '@/components/notebook/skills-page';
+import { ProjectsPage } from '@/components/notebook/projects-page';
+import { FairsPage } from '@/components/notebook/fairs-page';
+import { FriendsPage } from '@/components/notebook/friends-page';
 import { useLevelCheer } from '@/hooks/use-level-cheer';
 import { CollectionPanel } from '@/components/notebook/collection-panel';
 import { SettingToggle } from '@/components/notebook/setting-toggle';
@@ -43,6 +46,10 @@ import { AudioSettings } from '@/components/audio-settings';
 import { GameAudio, useAudioPrefs } from '@/components/game-audio';
 import { gameAudio } from '@/lib/audio/engine';
 import { cueFor } from '@/lib/audio/cues';
+import { Gazette, clockLabel, type AbsenceInfo } from '@/components/gazette';
+import { askNotificationPermission, useReadyNotifications } from '@/components/ready-notifications';
+import { dailyLabel } from '@/lib/daily';
+import { WEATHER_EFFECTS, weatherEnds, weatherFor } from '@/lib/weather';
 
 const ERRAND_PLACE: Record<Errand['action'], [Errand['place'], Errand['activity']]> = {
   craft: ['atelier', 'cook'],
@@ -50,12 +57,27 @@ const ERRAND_PLACE: Record<Errand['action'], [Errand['place'], Errand['activity'
   hens: ['poulailler', 'eggs'],
   orchard: ['verger', 'harvest'],
 };
-const ERRAND_NOTICE: Record<Errand['action'], string> = {
-  craft: 'Rosalie part à l’atelier mettre la recette sur le feu.',
-  collect: 'Rosalie part à l’atelier sortir les plats.',
-  hens: 'Rosalie part au poulailler.',
-  orchard: 'Rosalie part cueillir au verger.',
-};
+/**
+ * 0.28.1 : gestes dont la réussite se voit sur la carte (halo, Rosalie qui
+ * avance, compteurs du haut) : ils ne laissent plus de message.
+ */
+const ROUTINE_GESTURES = new Set(['plant', 'water', 'harvest', 'bulkStart', 'bulkTick']);
+/**
+ * Moments forts d’un message de récolte : nouvelle maîtrise, étape ou projet
+ * terminé, graine prometteuse. Le reste (« +1 Radis · +2 XP ») est déjà dit
+ * par le halo autour de la plante et par le compteur du haut.
+ */
+function routineHighlights(message: string) {
+  // Une tournée de semis qui s’arrête faute de graines mérite d’être dite.
+  if (message.startsWith('Plus de graines')) return message;
+  const parts = message.split(/\s·\s|\s(?=✨)/);
+  const crop = (parts[0] || '').replace(/^\+\d+\s*/, '').trim();
+  return parts
+    .slice(1)
+    .filter((part) => /Maîtrise \d|étape \d+\/\d+ terminée|accompli|prometteuse/.test(part))
+    .map((part) => (part.startsWith('Maîtrise') && crop ? `${crop} : ${part.toLowerCase()}` : part))
+    .join(' · ');
+}
 
 export default function Home() {
   const [game, setGame] = useState<Game>(() => fresh(0));
@@ -71,13 +93,14 @@ export default function Home() {
   const [gardeChoice, setGardeChoice] = useState(0);
   const gardeRef = useRef(0);
   const [modal, setModal] = useState('');
-  const [notebookTab, setNotebookTab] = useState('projects');
+  const [notebookTab, setNotebookTab] = useState<string>(SUMMARY);
   // 0.13 : un lieu de l’anneau ouvre « Améliorer » sur « Restaurer le domaine ».
   const [upgradeFocus, setUpgradeFocus] = useState(0);
   const [notices, setNotices] = useState<{ id: number; text: string }[]>([]);
   const noticeId = useRef(0);
   const [drawer, setDrawer] = useState<'' | 'seeds' | 'actions' | 'all'>('');
-  const [absence, setAbsence] = useState<ReturnType<typeof absenceSummary>>();
+  // 0.33.0 : la gazette (ciel, demandes du jour, absence) remplace la fenêtre d’absence.
+  const [gazette, setGazette] = useState<{ absence?: AbsenceInfo }>();
   // 0.22 : son et musique (lib/audio/engine.ts), réglés dans les paramètres.
   const audioPrefs = useAudioPrefs();
   const toggleSound = () => gameAudio.setPrefs({ on: !audioPrefs.on });
@@ -96,7 +119,7 @@ export default function Home() {
   const levelUp = levelUps[0];
   const [projectDone, setProjectDone] = useState<VillageProject>();
   // 0.20 : Rosalie fête le niveau sur la carte avant sa fenêtre.
-  const [cheerFor, announceLevel] = useLevelCheer(modal === '' && !projectDone && !absence);
+  const [cheerFor, announceLevel] = useLevelCheer(modal === '' && !projectDone && !gazette);
   const seedDialogTitle = useRef<HTMLHeadingElement>(null);
 
   // File de messages : un message à la fois, au plus deux en attente.
@@ -186,7 +209,10 @@ export default function Home() {
         // La graine choisie au départ est la première du dock.
         setSelectedCrop(dockFavorites(restored)[0]);
         const summary = absenceSummary(restored, time);
-        if (summary.worthShowing) setAbsence(summary);
+        // 0.33.0 : la gazette s’ouvre au premier passage du jour (dès le niveau 2,
+        // après les premiers pas) ou après une longue absence.
+        if (summary.worthShowing || (!restored.daily?.read && level(restored) >= 2))
+          setGazette({ absence: summary.worthShowing ? summary : undefined });
       } catch (error) {
         if (error instanceof SaveRecoveryError) {
           setRecovery(error);
@@ -235,6 +261,14 @@ export default function Home() {
         save(result.g);
         const cue = cueFor(action, before, result.g, result.message);
         if (cue) gameAudio.play(cue.name, { duck: cue.duck });
+        // 0.33.0 : une demande du jour faite se fête d’un message et d’un bruit de pièces.
+        const completed = result.g.daily?.day === before.daily?.day
+          ? result.g.daily?.requests.filter((request, index) => request.done && !before.daily?.requests[index]?.done) ?? []
+          : [];
+        for (const request of completed) {
+          notify(`Demande du jour faite : ${dailyLabel(request, (id) => crop(id).name)} · +${request.coins} pièces · +${request.xp} XP`);
+          gameAudio.play('pieces', { delay: 0.2 });
+        }
       }
       if (result.levelUps?.length) {
         // 0.20 : Rosalie fête le niveau, sauf si une fenêtre de niveau est déjà ouverte.
@@ -251,7 +285,14 @@ export default function Home() {
         setProjectDone(PROJECTS.find((project) => project.id === finished));
       }
       if (action === 'upgrade' && feedback.changed) setModal('');
-      if (action !== 'bulkTick' || !result.g.bulkJob) notify(result.message);
+      // 0.28.1 : un geste de routine réussi (semer, arroser, récolter) se lit
+      // sur la carte ; seuls ses moments forts restent en message.
+      if (action === 'bulkTick' && result.g.bulkJob) return { ...result, feedback };
+      notify(
+        result.g !== before && ROUTINE_GESTURES.has(action)
+          ? routineHighlights(result.message)
+          : result.message,
+      );
       return { ...result, feedback };
     },
     [save, notify, announceLevel],
@@ -266,9 +307,8 @@ export default function Home() {
     const errand: Errand = { key: ++errandKey.current, action, argument, place, activity };
     setErrands((list) => [...list, errand]);
     errandRef.current(errand);
-    notify(ERRAND_NOTICE[action]);
     return undefined;
-  }, [dispatch, notify]);
+  }, [dispatch]);
   const runErrand = useCallback((errand: Errand) => {
     setErrands((list) => list.filter((entry) => entry.key !== errand.key));
     return dispatch(errand.action, errand.argument);
@@ -284,6 +324,20 @@ export default function Home() {
     if (g.upgrades.includes('tools') && !bulkChores(g.bulkJob).includes('harvest') && g.plots.some((plot) => plot && plot.end <= time))
       dispatch('bulkStart', { id: 'harvest' });
   }, [dispatch, sendRosalie]);
+  /** 0.33.0 : fermer la gazette ; elle ne se rouvre plus d’elle-même aujourd’hui. */
+  const closeGazette = useCallback(() => {
+    setGazette(undefined);
+    if (gameRef.current.daily && !gameRef.current.daily.read) dispatch('dailyRead');
+  }, [dispatch]);
+  // 0.33.0 : quand le ciel tourne à la pluie (ou à la neige), il arrose le potager.
+  const sky = weatherFor(game, now || game.created);
+  useEffect(() => {
+    if (!loaded || (sky.pixel !== 'pluie' && sky.pixel !== 'neige')) return;
+    const time = Date.now();
+    if (gameRef.current.plots.some((plot) => plot && !plot.watered && plot.end > time && !(plot.garde && plot.garde > 0))) dispatch('rain');
+  }, [loaded, sky.pixel, dispatch]);
+  // 0.33.0 : notifications du navigateur, si le joueur les a activées.
+  useReadyNotifications(game, loaded && game.settings.notifyReady);
   /** Ce que les panneaux déclenchent : l’atelier, le poulailler et le verger passent par Rosalie. */
   const errandDispatch = useCallback((action: string, argument?: ActionArgument) =>
     action in ERRAND_PLACE
@@ -323,17 +377,10 @@ export default function Home() {
         notify(page.teaser);
         return;
       }
-      // 0.17.5 : l’atelier s’ouvre dans sa propre fenêtre.
-      if (panel === 'recipes') {
-        const seen = markPageSeen(gameRef.current, panel);
-        if (seen !== gameRef.current) save(seen);
-        setModal('kitchen');
-        return;
-      }
       showPage(panel);
       setModal('notebook');
     },
-    [notify, showPage, save],
+    [notify, showPage],
   );
   /** Ouvre le carnet sur une nouvelle page, sinon sur la dernière lue si elle existe. */
   const openNotebook = useCallback(() => {
@@ -343,7 +390,7 @@ export default function Home() {
     const unseen = newPages(g)[0];
     showPage(
       unseen?.value ||
-        (open.some((page) => page.value === notebookTab)
+        (notebookTab === SUMMARY || open.some((page) => page.value === notebookTab)
           ? notebookTab
           : open[0].value),
     );
@@ -393,11 +440,7 @@ export default function Home() {
       showPage(page.value);
       // Le focus suit la page choisie (sinon l’anneau reste sur l’ancienne).
       requestAnimationFrame(() =>
-        document
-          .querySelector<HTMLElement>(
-            '.book-dialog [data-slot="tabs-trigger"][data-active]',
-          )
-          ?.focus(),
+        document.querySelector<HTMLElement>(`.carnet-spine [data-carnet-target="${page.value}"]`)?.focus(),
       );
     }
     window.addEventListener('keydown', key);
@@ -413,7 +456,6 @@ export default function Home() {
     currentLevel === MAX_LEVEL
       ? 100
       : ((game.xp - previousXP) / (nextXP - previousXP)) * 100;
-  const weather = weatherFor(game, now);
   const season = seasonChip(game);
   const ready = game.plots.filter((plot) => plot && plot.end <= now).length;
   const inventory = Object.values(game.stock).reduce(
@@ -430,26 +472,28 @@ export default function Home() {
   const chores = bulkChores(game.bulkJob);
   const bulkActions = [
     game.upgrades.includes('tools') && (ready > 0 || chores.includes('harvest')) &&
-      { action: 'harvest', icon: 'tools', label: 'Récolter', full: 'Parcourir les récoltes', count: ready },
+      { action: 'harvest', icon: 'action-recolter', label: 'Récolter', full: 'Parcourir les récoltes', count: ready },
     game.upgrades.includes('watering-can') &&
-      { action: 'water', icon: 'water', label: 'Arroser', full: 'Arroser les parcelles' },
+      { action: 'water', icon: 'action-arroser', label: 'Arroser', full: 'Arroser les parcelles' },
     game.upgrades.includes('auto') &&
-      { action: 'sow', icon: 'seeds', label: 'Semer', full: 'Semer les parcelles libres' },
+      { action: 'sow', icon: 'action-semer', label: 'Semer', full: 'Semer les parcelles libres' },
   ].filter(Boolean) as {
     action: 'harvest' | 'water' | 'sow'; icon: string; label: string;
     full: string; count?: number;
   }[];
   const pages = useMemo(() => revealedPages(game), [game]);
-  const activeNotebookChapter = NOTEBOOK_CHAPTERS.find((chapter) =>
-    chapter.pages.some((page) => page.value === notebookTab),
-  ) || NOTEBOOK_CHAPTERS[0];
   const unseenPages = newPages(game);
   // Seules les pages visibles comptent dans les pastilles du carnet.
   const badges = useMemo(() => {
     const all = notebookBadges(game, now).badges;
     const visible: typeof all = {};
     for (const page of pages) visible[page.value] = all[page.value];
-    const total = Object.values(visible).reduce((sum, n) => sum + (n || 0), 0);
+    // 0.32.1 : la pastille du dock ne compte que ce qui est prêt (commande, plat,
+    // quête, caravane…). Objectifs et améliorations gardent leur pastille dans le carnet.
+    const total = Object.entries(visible).reduce(
+      (sum, [tab, n]) => (tab === 'goals' || tab === 'upgrades' ? sum : sum + (n || 0)),
+      0,
+    );
     return { badges: visible, total };
   }, [game, now, pages]);
   const [dismissedAnnounce, setDismissedAnnounce] = useState<string[]>([]);
@@ -457,7 +501,7 @@ export default function Home() {
     (page) => !dismissedAnnounce.includes(page.value),
   );
   const dialogOpen =
-    modal !== '' || !!levelUp || !!projectDone || !!absence || resetOpen || recoveryOpen;
+    modal !== '' || !!levelUp || !!projectDone || !!gazette || resetOpen || recoveryOpen;
   // 0.10 : le tutoriel avance avec la partie et avec ce que l’interface montre.
   useEffect(() => {
     if (!loaded) return;
@@ -469,7 +513,7 @@ export default function Home() {
     }, 0);
     return () => clearTimeout(timer);
   }, [loaded, game, modal, notebookTab, save]);
-  const coachHidden = !loaded || !!recovery || !!levelUp || !!projectDone || !!absence || resetOpen || modal === 'settings' || modal === 'home';
+  const coachHidden = !loaded || !!recovery || !!levelUp || !!projectDone || !!gazette || resetOpen || modal === 'settings' || modal === 'home';
   // 0.21 : carte couverte par une fenêtre (fond flouté) : ses décors animés se mettent en pause.
   useEffect(() => { document.documentElement.toggleAttribute('data-map-covered', dialogOpen); }, [dialogOpen]);
   const [wasDialogOpen, setWasDialogOpen] = useState(dialogOpen);
@@ -495,7 +539,7 @@ export default function Home() {
             <Sprout size={22} />
           </span>
           <div>
-            <h1>Les Jardins de Rosalie</h1>
+            <h1>Farmicia</h1>
             <small>{BUILD}</small>
           </div>
         </div>
@@ -539,21 +583,21 @@ export default function Home() {
         />
         <CoinCounter coins={game.coins} reduced={reduceMotion} live={loaded} paused={dialogOpen} />
         </div>
-        {/* 0.17 : les outils du coin haut droit (ciel, saison, bonus, son, réglages). */}
+        {/* 0.17 : les outils du coin haut droit (bonus, son, réglages). */}
         <div className="hud-tools">
-        <div
-          className="hud-weather"
-          data-tip={weather.label}
-          aria-label={weather.label}
-        >
-          <PixelIcon id={weather.pixel} />
-          <small>{weather.label}</small>
-        </div>
-        <div className="hud-weather hud-season" data-season={season.id}
-          data-tip={season.title} aria-label={season.title}>
-          <PixelIcon id={season.icon} />
-          <small>{season.short}</small>
-        </div>
+        {/* 0.28.1 : la saison n’est plus une icône ici (carnet, graineterie).
+            0.33.0 : le ciel revient, il a maintenant un effet de jeu ; un
+            clic ouvre la gazette. Puis les effets de plats actifs. */}
+        {loaded && (
+          <button
+            className="hud-button hud-sky"
+            onClick={() => setGazette({})}
+            aria-label={`${sky.label} : ${WEATHER_EFFECTS[sky.pixel]} Jusqu’à ${clockLabel(weatherEnds(game, now))}. Ouvrir la gazette.`}
+            data-tip={`${sky.label} · ${WEATHER_EFFECTS[sky.pixel]}`}
+          >
+            <PixelIcon id={sky.pixel} />
+          </button>
+        )}
         <BuffChips g={game} now={now} />
         <button
           className="hud-button"
@@ -561,7 +605,7 @@ export default function Home() {
           aria-label={sound ? 'Couper le son' : 'Activer le son'}
           data-tip={sound ? 'Couper le son' : 'Activer le son'}
         >
-          {sound ? <Volume2 size={20} /> : <VolumeX size={20} />}
+          <PixelIcon id={sound ? 'son' : 'son-coupe'} />
         </button>
         <button
           className="hud-button"
@@ -569,7 +613,7 @@ export default function Home() {
           aria-label="Paramètres"
           data-tip="Réglages"
         >
-          <Settings size={20} />
+          <PixelIcon id="engrenage" />
         </button>
         </div>
       </header>
@@ -587,7 +631,16 @@ export default function Home() {
         onErrand={runErrand}
         errandRef={errandRef}
       />
-      {game.trackedGoals.length > 0 && <div className="farm-goal-ribbon" aria-label="Objectifs suivis">
+      {(game.trackedGoals.length > 0 || (game.daily && currentLevel >= 2)) && <div className="farm-goal-ribbon" aria-label="Objectifs suivis">
+        {/* 0.33.0 : les demandes du jour, en tête ; un clic ouvre la gazette. */}
+        {game.daily && currentLevel >= 2 && (() => {
+          const total = game.daily.requests.length;
+          const done = game.daily.requests.filter((request) => request.done).length;
+          return <button className="daily-pill" data-done={done === total || undefined} onClick={() => setGazette({})}
+            aria-label={`Demandes du jour : ${done} sur ${total}. Ouvrir la gazette.`}>
+            <PixelIcon id="lettre" /><span>Demandes du jour</span><b>{done === total ? 'Toutes faites' : `${done}/${total}`}</b>
+          </button>;
+        })()}
         {game.trackedGoals.map((id) => {
           const goal = GOALS.find((entry) => entry.id === id);
           if (!goal || game.claimed.includes(id)) return null;
@@ -799,7 +852,6 @@ export default function Home() {
               aria-controls="bulk-drawer"
               onClick={() => setDrawer(drawer === 'actions' ? '' : 'actions')}
             >
-              <PixelIcon id="tools" />
               <span>Actions</span>
               {ready > 0 && game.upgrades.includes('tools') && <b>{ready}</b>}
             </button>
@@ -847,9 +899,8 @@ export default function Home() {
             }}
             aria-label={`Panier, ${inventory} produits`}
           >
-            <PixelIcon id="basket" />
+            <PixelIcon id="action-panier" />
             <span>Panier</span>
-            {inventory > 0 && <b key={inventory}>{inventory}</b>}
           </button>
           <button
             className="dock-notebook"
@@ -860,7 +911,7 @@ export default function Home() {
             }}
             aria-label={`Ouvrir le carnet${badges.total ? `, ${badges.total} chose${badges.total > 1 ? 's' : ''} à faire` : ''}${unseenPages.length ? `, ${unseenPages.length} nouvelle${unseenPages.length > 1 ? 's' : ''} page${unseenPages.length > 1 ? 's' : ''}` : ''}`}
           >
-            <BookOpen size={21} />
+            <PixelIcon id="action-carnet" />
             <span>Carnet</span>
             {badges.total > 0 && <b key={badges.total} className="todo-badge">{badges.total}</b>}
           </button>
@@ -874,43 +925,6 @@ export default function Home() {
             {notice.text}
           </output>
         )}
-        {feedback?.changed && !dialogOpen && (
-          <div
-            key={`feedback-${feedback.id}`}
-            className="resource-feedback"
-            aria-hidden="true"
-          >
-            {feedback.coins !== 0 && (
-              <span
-                className={`coin-gain ${feedback.coins < 0 ? 'coin-spent' : ''}`}
-              >
-                <PixelIcon id="coin" />
-                {feedback.coins > 0 ? '+' : '−'}
-                {Math.abs(feedback.coins)}
-              </span>
-            )}
-            {feedback.xp > 0 && (
-              <span className="xp-gain">
-                <i aria-hidden="true">★</i>+{feedback.xp} XP
-              </span>
-            )}
-            {feedback.items.slice(0, 3).map((item) => (
-              <span
-                key={item.id}
-                className={`stock-gain quality-${item.quality}`}
-              >
-                <PixelIcon id={item.id} />
-                <b>+{item.amount}</b> {item.name.replace(' · Ordinaire', '')}
-              </span>
-            ))}
-            {feedback.items.length > 3 && (
-              <span className="more-gain">
-                +{feedback.items.length - 3} autre
-                {feedback.items.length - 3 > 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-        )}
       </div>
       {recovery && <output className="save-warning"><button onClick={() => setRecoveryOpen(true)}>Récupérer la sauvegarde protégée</button></output>}
       <SaveRecoveryDialog issue={recovery} open={recoveryOpen} onOpenChange={setRecoveryOpen} onRetry={retryRecovery} onNew={() => finishRecovery(fresh(Date.now()))} />
@@ -921,177 +935,40 @@ export default function Home() {
         </div>
       )}
 
-      <Dialog
+      <CarnetDialog
         open={modal === 'notebook'}
-        onOpenChange={(open) => !open && setModal('')}
+        onClose={() => setModal('')}
+        tab={notebookTab}
+        onPage={showPage}
+        pages={pages}
+        badges={badges.badges}
+        unseen={unseenPages}
+        notice={notice?.text}
+        aside={notebookTab === SUMMARY && (
+          <span className="carnet-season" title={season.title}>
+            <PixelIcon id={season.icon} />
+            {season.short}
+          </span>
+        )}
       >
-        <DialogContent className="notebook-dialog book-dialog">
-          <Tabs
-            className="notebook-tabs"
-            orientation="vertical"
-            value={notebookTab}
-            onValueChange={(value) => showPage(String(value))}
-          >
-            <nav
-              className="book-spine"
-              aria-label="Pages du carnet"
-              data-pages={pages.length}
-            >
-              <header className="book-cover">
-                <PixelIcon id="seeds" />
-                <div>
-                  <DialogTitle>Le carnet</DialogTitle>
-                  <DialogDescription>de la ferme de Rosalie</DialogDescription>
-                </div>
-              </header>
-              <fieldset className="book-chapter-picker">
-                <legend className="sr-only">Chapitres du carnet</legend>
-                {NOTEBOOK_CHAPTERS.map((chapter) => {
-                  const visible = chapter.pages.filter((page) =>
-                    pages.some((open) => open.value === page.value),
-                  );
-                  if (!visible.length) return null;
-                  const todo = visible.reduce(
-                    (sum, page) => sum + (badges.badges[page.value] || 0),
-                    0,
-                  );
-                  const isActive = activeNotebookChapter.id === chapter.id;
-                  const chapterIcon = {
-                    village: 'basket', farm: 'seeds', kitchen: 'pain', memories: 'album',
-                  }[chapter.id] || 'seeds';
-                  return (
-                    <button
-                      key={chapter.id}
-                      type="button"
-                      className="book-chapter-choice"
-                      aria-pressed={isActive}
-                      onClick={() => showPage(visible[0].value)}
-                    >
-                      <PixelIcon id={chapterIcon} />
-                      <span>{chapter.label}</span>
-                      {todo > 0 && <b aria-label={`${todo} à faire`}>{todo}</b>}
-                    </button>
-                  );
-                })}
-              </fieldset>
-              <div className="book-section-label">
-                <span>Pages du chapitre</span>
-                <small>{activeNotebookChapter.pages.filter((page) => pages.some((open) => open.value === page.value)).length}</small>
-              </div>
-              <TabsList className="notebook-tab-list">
-                {NOTEBOOK_CHAPTERS.filter((chapter) => chapter.id === activeNotebookChapter.id).map((chapter) => {
-                  const visible = chapter.pages.filter((page) =>
-                    pages.some((open) => open.value === page.value),
-                  );
-                  return (
-                    <Fragment key={chapter.id}>
-                      {visible.map(({ value, label, icon }) => {
-                        const count = badges.badges[value];
-                        const isNew = unseenPages.some(
-                          (page) => page.value === value,
-                        );
-                        const key =
-                          PAGE_KEYS[pages.findIndex((p) => p.value === value)];
-                        return (
-                          <TabsTrigger
-                            key={value}
-                            value={value}
-                            data-new={isNew || undefined}
-                            aria-label={[
-                              label,
-                              isNew && 'nouvelle page',
-                              count && `${count} à faire`,
-                            ]
-                              .filter(Boolean)
-                              .join(', ')}
-                            aria-keyshortcuts={key?.toUpperCase()}
-                            title={key ? `${label} · touche ${key.toUpperCase()}` : label}
-                          >
-                            <PixelIcon id={icon} />
-                            <span className="book-tab-label">{label}</span>
-                            {isNew && (
-                              <em className="book-tab-new" aria-hidden="true">
-                                Nouveau
-                              </em>
-                            )}
-                            {!!count && (
-                              <b className="todo-badge" aria-hidden="true">
-                                {count}
-                              </b>
-                            )}
-                          </TabsTrigger>
-                        );
-                      })}
-                    </Fragment>
-                  );
-                })}
-              </TabsList>
-              <footer
-                className="book-hints"
-                aria-hidden="true"
-                title="Touches des pages, flèches pour feuilleter, Échap pour fermer"
-              >
-                {pageKeysHint(pages.length).map((hint, index) => (
-                  <Fragment key={hint}>
-                    {index > 0 && ' '}
-                    <kbd>{hint}</kbd>
-                  </Fragment>
-                ))}{' '}
-                · <kbd>↑</kbd>
-                <kbd>↓</kbd> · <kbd>Échap</kbd>
-              </footer>
-            </nav>
-            <section className="book-page">
-              {(() => {
-                const page =
-                  pages.find((p) => p.value === notebookTab) || pages[0];
-                return (
-                  <header className="book-page-head" key={page.value}>
-                    <small>{page.chapter}</small>
-                    <h3>{page.label}</h3>
-                    <p>{page.tagline}</p>
-                  </header>
-                );
-              })()}
-              <DialogNotice notice={notice?.text} />
-              <TabsContent value="projects">
-                <ProjectsPanel g={game} now={now} dispatch={errandDispatch} askConfirm={askConfirm} />
-              </TabsContent>
-              <TabsContent value="festival">
-                <FestivalTab game={game} dispatch={dispatch} />
-              </TabsContent>
-              <TabsContent value="valley">
-                <ValleyPanel game={game} now={now} dispatch={dispatch} />
-              </TabsContent>
-              <TabsContent value="orders">
-                <OrdersPanel game={game} now={now} dispatch={dispatch} askConfirm={askConfirm} />
-              </TabsContent>
-              <TabsContent value="upgrades">
-                <UpgradesPanel key={Math.abs(upgradeFocus)} game={game} dispatch={dispatch} focusRestore={upgradeFocus > 0} />
-              </TabsContent>
-              <TabsContent value="goals">
-                <GoalsPanel game={game} dispatch={dispatch} />
-              </TabsContent>
-              <TabsContent value="lineages">
-                <LineagesPanel game={game} dispatch={dispatch} />
-              </TabsContent>
-              <TabsContent value="mastery">
-                <CultureJournal g={game} dispatch={dispatch} now={now} />
-              </TabsContent>
-              <TabsContent value="skills">
-                <SkillsPanel g={game} dispatch={dispatch} />
-              </TabsContent>
-              <TabsContent value="recipes">
-                <WorkshopPanel game={game} now={now} errands={errands} onEnter={() => setModal('kitchen')} />
-              </TabsContent>
-              <TabsContent value="friends">
-                <FriendBook g={game} dispatch={dispatch} askConfirm={askConfirm} />
-              </TabsContent>
-              <TabsContent value="collection">
-                <CollectionPanel game={game} />
-              </TabsContent>
-              <TabsContent value="guide">
-                <GuidePanel
+        {notebookTab === SUMMARY ? (
+          <SummaryPage game={game} now={now} pages={pages} badges={badges.badges} onPage={showPage} />
+        ) : (
+          ({
+              projects: () => <ProjectsPage game={game} now={now} dispatch={errandDispatch} askConfirm={askConfirm} />,
+              festival: () => <FairsPage game={game} dispatch={dispatch} />,
+              valley: () => <ValleyPanel game={game} now={now} dispatch={dispatch} />,
+              orders: () => <OrdersPanel game={game} now={now} dispatch={dispatch} askConfirm={askConfirm} />,
+              upgrades: () => <UpgradesPanel key={Math.abs(upgradeFocus)} game={game} dispatch={dispatch} focusRestore={upgradeFocus > 0} />,
+              goals: () => <GoalsPanel game={game} dispatch={dispatch} />,
+              lineages: () => <LineagesPanel game={game} dispatch={dispatch} />,
+              mastery: () => <MasteryPage game={game} dispatch={dispatch} now={now} />,
+              skills: () => <SkillsPage game={game} dispatch={dispatch} />,
+              recipes: () => <AtelierPage game={game} now={now} dispatch={errandDispatch} askConfirm={askConfirm} errands={errands} reduced={reduceMotion} />,
+              friends: () => <FriendsPage game={game} dispatch={dispatch} askConfirm={askConfirm} />,
+              collection: () => <CollectionPanel game={game} />,
+              guide: () => (
+                <GuidePage
                   game={game}
                   onReplay={(id) => {
                     save(tutorialReplay(gameRef.current, id));
@@ -1099,11 +976,10 @@ export default function Home() {
                   }}
                   onToggle={(off) => save(tutorialSetOff(gameRef.current, off))}
                 />
-              </TabsContent>
-            </section>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
+              ),
+            } as Record<string, (() => ReactNode) | undefined>)[notebookTab]?.()
+        )}
+      </CarnetDialog>
 
       <Dialog
         open={modal === 'seeds'}
@@ -1147,9 +1023,6 @@ export default function Home() {
           </div>
         </DialogContent>
       </Dialog>
-
-      <KitchenDialog open={modal === 'kitchen'} onClose={() => setModal('')} game={game} now={now}
-        dispatch={errandDispatch} askConfirm={askConfirm} errands={errands} notice={notice?.text} />
 
       <Dialog
         open={modal === 'basket'}
@@ -1208,6 +1081,19 @@ export default function Home() {
                     value: !game.settings.autoBuySeeds,
                   })
                 }
+              />
+              <SettingToggle
+                label="Me prévenir quand c’est prêt"
+                description="Quand l’onglet du jeu est en arrière-plan : une notification du navigateur pour les récoltes prêtes, les œufs, un plat cuit ou le retour de la caravane."
+                active={game.settings.notifyReady}
+                onClick={async () => {
+                  if (game.settings.notifyReady) {
+                    dispatch('setting', { setting: 'notifyReady', value: false });
+                    return;
+                  }
+                  if (await askNotificationPermission()) dispatch('setting', { setting: 'notifyReady', value: true });
+                  else notify('Le navigateur bloque les notifications de ce site : autorisez-les dans ses réglages, puis réessayez.');
+                }}
               />
               <SettingToggle
                 label="Réduire les animations"
@@ -1313,80 +1199,17 @@ export default function Home() {
         />
       )}
 
-      <Dialog
-        open={!!absence}
-        onOpenChange={(open) => !open && setAbsence(undefined)}
-      >
-        <DialogContent className="paper-dialog absence-dialog">
-          <DialogTitle>Pendant votre absence</DialogTitle>
-          <DialogDescription>
-            {absence
-              ? `Absence : ${awayLabel(absence.away)}. La ferme a continué de pousser sans vous.`
-              : ''}
-          </DialogDescription>
-          <div className="dialog-scroll">
-            <ul className="absence-list">
-              {absence &&
-                Object.entries(absence.crops).map(([id, count]) => (
-                  <li key={id}>
-                    <PixelIcon id={id} />
-                    <span>
-                      {crop(id).name} · {count} parcelle{count > 1 ? 's' : ''} à
-                      récolter
-                    </span>
-                  </li>
-                ))}
-              {absence?.eggs && (
-                <li>
-                  <PixelIcon id="oeuf" />
-                  <span>4 œufs frais au poulailler</span>
-                </li>
-              )}
-              {absence?.orchard && (
-                <li>
-                  <PixelIcon id="fruitTree" />
-                  <span>Le verger a donné ses fruits</span>
-                </li>
-              )}
-              {absence?.dish && (
-                <li>
-                  <PixelIcon id={absence.dish} />
-                  <span>
-                    {RECIPES.find((r) => r.id === absence.dish)?.name} est prêt
-                    à l’atelier
-                  </span>
-                </li>
-              )}
-            </ul>
-            {absence && absence.ripe > 0 && !absence.canHarvest && (
-              <p className="absence-hint">
-                Les cultures se cueillent sur la carte : glissez sur les
-                parcelles, ou installez les outils de jardinier pour lancer
-                une cueillette progressive.
-              </p>
-            )}
-          </div>
-          <div className="absence-actions">
-            {absence?.collectable && (
-              <button
-                className="primary-button"
-                onClick={() => {
-                  setAbsence(undefined);
-                  collectOnFoot();
-                }}
-              >
-                {absence.ripe > 0 && absence.canHarvest ? 'Envoyer Rosalie tout récupérer et cueillir' : 'Envoyer Rosalie tout récupérer'}
-              </button>
-            )}
-            <button
-              className="secondary-button"
-              onClick={() => setAbsence(undefined)}
-            >
-              Retour à la ferme
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <Gazette
+        game={game}
+        now={now || game.saved}
+        open={!!gazette}
+        absence={gazette?.absence}
+        onCollect={() => {
+          closeGazette();
+          collectOnFoot();
+        }}
+        onClose={closeGazette}
+      />
 
       <Dialog
         open={!!projectDone}
@@ -1397,7 +1220,7 @@ export default function Home() {
           <DialogTitle>{projectDone?.title}</DialogTitle>
           <DialogDescription>{projectDone?.outro}</DialogDescription>
           <div className="reward-card">
-            <PixelIcon id="quality" />
+            <PixelIcon id="projet-village" />
             <div>
               <b>{projectDone?.rewardName}</b>
               <p>{projectDone?.rewardDesc}</p>
@@ -1407,7 +1230,7 @@ export default function Home() {
             <PixelIcon id="coin" />
             <div>
               <b>
-                +{projectDone?.coins} pièces · +{projectDone?.xp} XP
+                +{projectDone ? projectReward(projectDone).coins : 0} pièces · +{projectDone ? projectReward(projectDone).xp : 0} XP
               </b>
               <p>Un nouveau grand projet vous attend dans le carnet.</p>
             </div>

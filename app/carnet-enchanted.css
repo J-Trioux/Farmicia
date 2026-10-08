@@ -1,0 +1,189 @@
+/* Composition ordinateur : même axe de lecture sur chaque page du carnet. */
+@media (min-width: 901px) {
+  .carnet-dialog {
+    --c-reading-width: 1280px;
+  }
+  .carnet .carnet-head,
+  .carnet .carnet-body,
+  .carnet .carnet-page > .dialog-notice {
+    width: 100%;
+    max-width: var(--c-reading-width);
+    min-width: 0;
+    justify-self: center;
+  }
+  .carnet .carnet-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 0;
+    padding: 0 40px 12px;
+  }
+  .carnet .carnet-head:has(.carnet-head-aside) {
+    padding-inline: 152px;
+  }
+  .carnet-heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .carnet .carnet-medal {
+    flex-shrink: 0;
+  }
+  .carnet .carnet-head-text {
+    text-align: center;
+  }
+  .carnet .carnet-head h3 {
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+  .carnet .carnet-head p {
+    text-wrap: balance;
+  }
+  .carnet .carnet-head-aside {
+    position: absolute;
+    top: 0;
+    right: 0;
+    max-width: 144px;
+  }
+  .carnet .carnet-cover {
+    justify-content: center;
+  }
+  .carnet .carnet-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-inline: auto;
+    padding: 6px;
+  }
+  .carnet .carnet-tab {
+    flex: 0 1 auto;
+    justify-content: center;
+    min-width: 144px;
+    max-width: 100%;
+    min-height: 48px;
+  }
+  .carnet .carnet-tabs .pixel-icon {
+    --icon: 32px;
+  }
+  .carnet .summary-links {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .carnet .summary-chapter {
+    justify-content: center;
+  }
+  .carnet .carnet-body {
+    margin: 0;
+    padding: 0 8px 2px;
+    scrollbar-gutter: stable both-edges;
+  }
+}
+
+/* Ornements discrets, hors des titres et des cibles de clic. */
+.carnet-heading-magic {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+.carnet-effect {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background-repeat: no-repeat;
+  background-image: url('/assets/pixel/carnet-effets/atlas-effets.png');
+  background-size: 400% 300%;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.carnet-effect-sparkle {
+  background-position: 0% 100%;
+  animation: carnet-effect-frames 800ms steps(1, end) 1;
+}
+.carnet-effect-feather {
+  background-position: 0% 0%;
+  animation: carnet-effect-frames 1200ms steps(1, end) 1;
+}
+.carnet-effect-butterfly {
+  position: absolute;
+  bottom: 72px;
+  left: calc(50% + 44px);
+  background-position: 0% 50%;
+  animation: carnet-effect-frames 900ms steps(1, end) 1;
+}
+@container (max-height: 100px) {
+  .carnet-effect-butterfly {
+    display: none;
+  }
+}
+.carnet-heading-magic .carnet-effect-sparkle {
+  animation-fill-mode: forwards;
+}
+.carnet-page > .dialog-notice .dialog-notice-text::before,
+.carnet-page > .dialog-notice .dialog-notice-text::after {
+  background-image: url('/assets/pixel/carnet-effets/atlas-effets.png');
+  background-size: 400% 300%;
+  background-position: 0% 100%;
+  animation: carnet-reward-sparkles 800ms steps(1, end) 1 both;
+}
+.carnet-page > .dialog-notice .dialog-notice-text::after {
+  animation-delay: 90ms;
+}
+.carnet .goal-row[data-state='ready'] .carnet-rewards .pixel-icon[data-icon='etoile'] {
+  animation-iteration-count: 1;
+}
+@keyframes carnet-reward-sparkles {
+  0% { opacity: 0; background-position-x: 0%; }
+  25% { opacity: 1; background-position-x: 33.333333%; }
+  50% { opacity: 1; background-position-x: 66.666667%; }
+  75% { opacity: 1; background-position-x: 100%; }
+  100% { opacity: 0; background-position-x: 100%; }
+}
+@keyframes carnet-effect-frames {
+  0% { background-position-x: 0%; }
+  25% { background-position-x: 33.333333%; }
+  50% { background-position-x: 66.666667%; }
+  75%, 100% { background-position-x: 100%; }
+}
+@media (min-width: 1600px) and (min-height: 900px) {
+  .carnet-heading {
+    gap: 24px;
+  }
+  .carnet-heading-magic {
+    top: 28px;
+    gap: 8px;
+  }
+  .carnet-effect {
+    width: 64px;
+    height: 64px;
+  }
+  .carnet .carnet-tab {
+    min-height: 64px;
+    padding-inline: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carnet-heading-magic,
+  .carnet-effect-butterfly {
+    display: none;
+  }
+  .carnet-page > .dialog-notice .dialog-notice-text::before,
+  .carnet-page > .dialog-notice .dialog-notice-text::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+[data-reduce-motion] .carnet-heading-magic,
+[data-reduce-motion] .carnet-effect-butterfly {
+  display: none;
+}
+[data-reduce-motion] .carnet-page > .dialog-notice .dialog-notice-text::before,
+[data-reduce-motion] .carnet-page > .dialog-notice .dialog-notice-text::after {
+  animation: none;
+  opacity: 0;
+}

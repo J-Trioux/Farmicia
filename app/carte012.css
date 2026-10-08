@@ -216,23 +216,36 @@
   image-rendering: auto;
   user-select: none;
 }
-/* Objets HD (vallée, terroirs, ferme) : posés par leurs pieds, image entière. */
+/* Objets HD (vallée, terroirs, ferme) : posés par leurs pieds, image entière.
+   0.32.10 : second calque = ombre de contact (farm-map.tsx, CONTACT_SHADOW),
+   une ellipse sous le pied ; plus d’ombre décalée qui détourait l’objet. */
 .pixel-farm .living-place,
 .pixel-farm .valley-relay,
 .pixel-farm .irrigation-system,
-.pixel-farm .world-object {
-  background-size: contain;
-  background-position: 50% 100%;
+.pixel-farm .world-object,
+.pixel-farm .valley-farm-caravan .valley-caravan-sprite {
+  background-size: contain, 84% 16%;
+  background-position: 50% 100%, 50% 100%;
   background-repeat: no-repeat;
   image-rendering: auto;
 }
 .pixel-farm .world-object {
   position: absolute;
-  filter: drop-shadow(1px 3px 1px #35271485);
   transform: translate(-50%, -100%);
 }
-.pixel-farm .valley-farm-caravan .valley-caravan-sprite {
-  image-rendering: auto;
+.pixel-farm .world-object,
+.pixel-farm .valley-relay:not(:focus-visible),
+.pixel-farm .valley-farm-caravan:not(.ready) .valley-caravan-sprite,
+.pixel-farm .living-place:not(:hover, :focus-visible) {
+  filter: none;
+}
+/* Haie : ombre plus large et plus fine, le long de son pied. */
+.pixel-farm .place-haie {
+  background-size: contain, 96% 22%;
+}
+/* Embellissements : l’ombre de contact remplace l’ombre décalée (la barque garde la sienne, sur l’eau). */
+.pixel-farm .embellish-map:not(.embellish-barque) {
+  filter: none;
 }
 
 /* 0.14 : une parcelle survolée passe devant ses voisines, mais jamais devant

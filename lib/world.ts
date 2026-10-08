@@ -234,16 +234,27 @@ export const ZONES = {
 } as const satisfies Record<string, RectPx>;
 export type ZoneId = keyof typeof ZONES;
 
-/** Emplacements des sprites posés par le jeu (milieu du bas du sprite). */
+/**
+ * Emplacements des sprites posés par le jeu (milieu du bas du sprite).
+ *
+ * 0.32.10 — Replacés d’après un relevé de la carte HD autour du potager
+ * (px de grille). Clôture du potager : nord y 288-298, ouest x 478-484
+ * (portes y 322-331 et 362-372), sud y 417-428, est x 710-716. Pré nord
+ * libre entre la clôture de la place (y 240) et celle du potager (y 288).
+ * Bande d’herbe ouest x 445-478, entre le chemin de pierre et la clôture.
+ * Règles : aucun objet debout sur une clôture ni en travers d’un chemin de
+ * Rosalie ; rien de peint devant un objet (massif, cyprès, poteau) ne passe
+ * sous lui ; chaque objet près de ce qu’il sert.
+ */
 export const ANCHORS = {
   // Embellissements (cases de 64 px, 96 px pour le pigeonnier et le moulin ;
   // 0.19 : agrandies à l’échelle de la carte, lib/echelle.ts).
   // Fontaine : au carrefour du mas, de la place et du potager.
   fontaine: { x: 492, y: 272 },
-  // Pigeonnier : dans le pré entre la place et le potager, entre l’arche et les tables.
-  pigeonnier: { x: 584, y: 288 },
-  // Épouvantail : au coin du potager, face aux semis.
-  epouvantail: { x: 684, y: 288 },
+  // Pigeonnier : au milieu du pré nord, sa base dans l’herbe, plus sur la clôture.
+  pigeonnier: { x: 568, y: 281 },
+  // Épouvantail : au bord du pré, face aux semis, à gauche du massif du coin.
+  epouvantail: { x: 680, y: 283 },
   // Ruches : contre le champ de lavande.
   ruches: { x: 365, y: 404 },
   // 0.19 : barque amarrée au ponton, plus au milieu de l’étang.
@@ -253,22 +264,27 @@ export const ANCHORS = {
   // 0.14.2 : chaque aménagement près de ce qu’il sert.
   // Pépinière du village : à côté de la serre, sur l’herbe avant le sentier de pierre.
   pepiniere: { x: 398, y: 468 },
-  // Compost : dans la bande d’herbe du potager, entre ses deux portes ouest.
-  compost: { x: 460, y: 360 },
-  // Rigoles et haie : entre la clôture sud du potager et le chemin de l’étang.
-  rigoles: { x: 604, y: 443 },
-  haie: { x: 548, y: 440 },
+  // Compost (terroir ensoleillé, rangées du haut) : bande d’herbe ouest, entre les deux portes.
+  compost: { x: 460, y: 357 },
+  // Rigoles (terres humides) : coin de l’eau, sous la porte basse ouest. La
+  // colonne d’arrosage remplit leur tête ; leur vanne s’ouvre contre la clôture,
+  // vers le potager. Au-dessus du petit cyprès peint (y 409).
+  rigoles: { x: 466, y: 407 },
+  // Haie (verger abrité, rangées du bas) : plantée contre la clôture sud,
+  // son portillon dans l’axe de l’allée centrale (x 596,5).
+  haie: { x: 596.5, y: 432 },
   // Halle des variétés : à droite du portail, où partent les commandes du village.
   halle: { x: 1050, y: 150 },
   // Vallée : caravane garée sur la terre battue, à gauche du portail, relais à côté.
   // 0.19 : garée contre le mur, hors de la route du portail.
   caravane: { x: 888, y: 140 },
   relais: { x: 832, y: 150 },
-  // Améliorations visibles : colonne sur la clôture nord, établi à la porte
-  // haute du potager, semoir garé sous la clôture sud.
-  irrigation: { x: 626, y: 296 },
-  etabli: { x: 466, y: 318 },
-  semoir: { x: 674, y: 445 },
+  // Améliorations visibles : établi à la porte haute du potager ; colonne
+  // d’arrosage à la porte basse, à la tête des rigoles ; semoir garé dans le
+  // pré nord, le long de la clôture, entre le pigeonnier et l’épouvantail.
+  irrigation: { x: 455, y: 387 },
+  etabli: { x: 461, y: 318 },
+  semoir: { x: 634, y: 283 },
 } as const satisfies Record<string, Px>;
 export type AnchorId = keyof typeof ANCHORS;
 
